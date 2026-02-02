@@ -1,0 +1,460 @@
+/* ============================
+   GLOBAL DESIGN TOKENS
+   ============================
+   These variables control the overall look of the site.
+   If you want to change colors, radius, shadows, etc.,
+   do it here and the whole site updates.
+*/
+:root {
+  --bg: #f9fafb;                 /* Page background */
+  --surface: #ffffff;            /* Card / header background */
+  --border-subtle: #e5e7eb;      /* Light borders */
+  --border-strong: #d1d5db;      /* Stronger borders */
+  --text-main: #111827;          /* Main text color */
+  --text-muted: #6b7280;         /* Secondary / muted text */
+  --accent: #0891b2;             /* Teal accent color (buttons, icon) */
+  --accent-soft: #ecfeff;        /* Very light accent background */
+  --accent-dark: #036672;        /* Darker teal (text, borders) */
+  --max-width: 1040px;           /* Maximum content width */
+  --radius-lg: 18px;             /* Card corner radius */
+  --radius-pill: 999px;          /* Fully rounded (pills, buttons) */
+  --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);  /* Card shadow */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove default margins from the page */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+/* This forces a vertical scrollbar space even on short pages,
+   so the header doesn’t shift left/right between pages. */
+html {
+  overflow-y: scroll;
+}
+
+/* Main body styling:
+   - global font
+   - background gradient
+   - text color
+*/
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: radial-gradient(circle at top left, #e5f3ff 0, #f9fafb 42%, #f3f4f6 100%);
+  color: var(--text-main);
+  line-height: 1.6;
+}
+
+/* ============================
+   PAGE LAYOUT
+   ============================ */
+
+.page {
+  min-height: 100vh;       /* Page at least full viewport height */
+  display: flex;
+  flex-direction: column;  /* Header, then main, then footer stacked */
+}
+
+main {
+  flex: 1;                 /* Main grows to fill vertical space */
+}
+
+/* ============================
+   HEADER + NAVIGATION
+   ============================ */
+
+.header {
+  position: sticky;              /* Sticks to top when scrolling */
+  top: 0;
+  z-index: 40;
+  backdrop-filter: blur(16px);   /* Blurred, glassy look behind header */
+  background: rgba(249, 250, 251, 0.92);
+  border-bottom: 1px solid rgba(209, 213, 219, 0.8);
+}
+
+/* This wraps the logo + nav and centers them on the page */
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+/* ============================
+   BRAND: ICON + WORDMARK
+   ============================ */
+
+/* Container for icon + text */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;   /* Space between pill icon and text */
+}
+
+/* Rounded "ERN" pill icon.
+   To tweak:
+   - change width/height for size
+   - change border color or background gradient
+   - change font-size or letter-spacing for the text inside.
+*/
+.brand-mark {
+  width: 44px;
+  height: 30px;
+  border-radius: 999px;
+  border: 2px solid var(--accent);
+  background: radial-gradient(circle at 20% 20%, #e0faff 0, #ccfbf1 18%, #eef2ff 75%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: var(--accent-dark);
+}
+
+/* If you wrap "ERN" in a <span>, this adds tiny horizontal padding inside */
+.brand-mark span {
+  display: inline-block;
+  padding: 0 0.08rem;
+}
+
+/* Wordmark text next to icon:
+   This uses Cormorant Garamond (loaded in each HTML <head>).
+*/
+.brand-wordmark .brand-text {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  line-height: 1.15;
+}
+
+/* Top line: "ERN INSTITUTE" */
+.brand-wordmark .brand-line-1 {
+  display: block;
+  letter-spacing: 0.18em;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Bottom line: "Experience-Related Neuroplasticity" */
+.brand-wordmark .brand-line-2 {
+  display: block;
+  font-size: 1.05rem;   /* Change this to 1.0rem or 1.1rem if you want smaller/bigger */
+  font-weight: 600;     /* 500 for slightly lighter, 700 for bolder */
+  letter-spacing: 0.01em;
+  color: var(--text-main);
+}
+
+/* ============================
+   NAVIGATION LINKS
+   ============================ */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+}
+
+/* Base nav link style */
+.nav a {
+  padding: 0.3rem 0.65rem;
+  border-radius: var(--radius-pill);
+  color: var(--text-muted);
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+
+/* Hover style */
+.nav a:hover {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+}
+
+/* Active page (the one with class="active" in HTML) */
+.nav a.active {
+  background: var(--accent-soft);
+  border-color: rgba(8, 145, 178, 0.4);
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+/* ============================
+   SECTIONS
+   ============================ */
+
+.section {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 3rem;
+}
+
+/* Slightly narrower layout for text-heavy pages */
+.section-narrow {
+  max-width: 780px;
+}
+
+/* Hero layout = two columns on larger screens */
+.hero {
+  display: grid;
+  gap: 1.75rem;
+}
+
+/* On larger screens, hero becomes 2 columns */
+@media (min-width: 840px) {
+  .hero {
+    grid-template-columns: 1.4fr 1fr;   /* Left column slightly wider */
+    align-items: center;
+  }
+}
+
+/* ============================
+   BADGE (little pill over hero)
+   ============================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: rgba(8, 145, 178, 0.05);
+  border: 1px solid rgba(8, 145, 178, 0.24);
+  font-size: 0.75rem;
+  color: var(--accent-dark);
+}
+
+.badge-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+/* ============================
+   TYPOGRAPHY (headings, text)
+   ============================ */
+
+h1, h2, h3 {
+  margin: 0;
+}
+
+h1 {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 600;
+  font-size: clamp(2.2rem, 4vw, 2.6rem);  /* tweak size if you like */
+  letter-spacing: -0.02em;
+  margin-top: 0.6rem;
+}
+
+
+h2 {
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 0.3rem;
+}
+
+/* Hero descriptive text */
+.subtitle {
+  margin-top: 0.7rem;
+  color: var(--text-muted);
+  max-width: 38rem;
+}
+
+/* Slightly larger subtitle */
+.lead {
+  font-size: 1.02rem;
+}
+
+/* Muted helper text */
+.muted {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+/* ============================
+   CARDS & GRID LAYOUTS
+   ============================ */
+
+.card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-soft);
+  padding: 1.4rem 1.5rem;
+}
+
+/* “Muted” card – dashed border, no shadow */
+.card-muted {
+  background: #f9fafb;
+  border-style: dashed;
+  border-color: var(--border-subtle);
+  box-shadow: none;
+}
+
+/* 2-column layout used on some sections */
+.two-col {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 880px) {
+  .two-col {
+    grid-template-columns: 1.25fr 1fr;
+  }
+}
+
+/* 3-column grid used for “Key Areas of Work” boxes */
+.grid-3 {
+  display: grid;
+  gap: 1.4rem;
+}
+
+@media (min-width: 880px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* ============================
+   BUTTONS
+   ============================ */
+
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+/* Base button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 1.15rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Primary (filled) button */
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), #22c55e);
+  color: white;
+  font-weight: 600;
+}
+
+/* Outline button */
+.btn-outline {
+  border-color: var(--border-strong);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-main);
+}
+
+.btn-outline:hover {
+  border-color: var(--accent);
+}
+
+/* ============================
+   PILLS (ERNPress, ERN Journal)
+   ============================ */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent-dark);
+  font-size: 0.76rem;
+}
+
+/* ============================
+   LISTS & INFO LIST
+   ============================ */
+
+ul {
+  margin: 0.4rem 0 0.7rem;
+  padding-left: 1.15rem;
+}
+
+li + li {
+  margin-top: 0.18rem;
+}
+
+/* Used on the Contact page */
+.info-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.info-list li {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.info-label {
+  font-weight: 600;
+  min-width: 80px;
+  color: var(--text-muted);
+}
+
+/* ============================
+   LINKS
+   ============================ */
+
+a {
+  color: var(--accent-dark);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ============================
+   FOOTER
+   ============================ */
+
+.footer {
+  border-top: 1px solid var(--border-subtle);
+  background: #f9fafb;
+  margin-top: 1rem;
+}
+
+.footer-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1.25rem 1.25rem 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+
+/* Callout box */
+.callout{background:var(--accent-soft);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:1.25rem;}
+.callout h3{margin-top:0;}
