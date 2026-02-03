@@ -458,3 +458,62 @@ a:hover {
 /* Callout box */
 .callout{background:var(--accent-soft);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:1.25rem;}
 .callout h3{margin-top:0;}
+
+/* ---------------------------
+   Mobile nav (hamburger)
+---------------------------- */
+
+.header-inner { position: relative; }
+
+.nav-toggle {
+  display: none;
+  border: 1px solid rgba(0,0,0,0.15);
+  background: transparent;
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+@media (max-width: 820px) {
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .nav {
+    display: none;
+    position: absolute;
+    right: 1rem;
+    top: 4.25rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+    min-width: 220px;
+    padding: 0.6rem;
+    border: 1px solid rgba(0,0,0,0.12);
+    border-radius: 16px;
+    background: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.10);
+    z-index: 1000;
+  }
+
+  body.nav-open .nav { display: flex; }
+
+  .nav a {
+    padding: 0.55rem 0.65rem;
+    border-radius: 12px;
+    text-decoration: none;
+  }
+}
+
+/* ---------------------------
+   Quieter descriptor badge
+---------------------------- */
+
+.badge.badge--descriptor {
+  border: 1px solid rgba(0,0,0,0.10);
+  background: rgba(0,0,0,0.02);
+  color: rgba(0,0,0,0.70);
+}
