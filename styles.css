@@ -456,7 +456,7 @@ a:hover {
 
 
 /* Callout box */
-.callout{background:var(--accent-soft);border:1px solid var(--border-subtle);border-radius:var(--radius);padding:1.25rem;}
+.callout{background:var(--accent-soft);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);padding:1.25rem;}
 .callout h3{margin-top:0;}
 
 /* ---------------------------
@@ -516,4 +516,25 @@ a:hover {
   border: 1px solid rgba(0,0,0,0.10);
   background: rgba(0,0,0,0.02);
   color: rgba(0,0,0,0.70);
+}
+
+/* ---------------------------
+   Logo link: remove underline in all states (override global a:hover underline)
+---------------------------- */
+a.brand-link,
+a.brand-link:visited,
+a.brand-link:hover,
+a.brand-link:active,
+a.brand-link:focus {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+a.brand-link * {
+  text-decoration: none !important;
+  color: inherit !important;
+}
+
+a.brand-link:hover {
+  cursor: pointer;
 }
