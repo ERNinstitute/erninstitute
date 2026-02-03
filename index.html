@@ -32,8 +32,14 @@
 <span class="brand-line-2">Experience-Related Neuroplasticity</span>
 </div>
 </div>
+
+<!-- Mobile menu toggle (hidden on desktop by CSS) -->
+<button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">
+  Menu
+</button>
+
 <!-- Navigation bar. "active" marks the current page. -->
-<nav class="nav">
+<nav class="nav" id="site-nav" aria-label="Primary">
 <a class="active" href="index.html">Home</a>
 <a href="about.html">About</a>
 <a href="research.html">Research</a>
@@ -51,7 +57,7 @@
 <!-- Left column: text -->
 <div>
 <!-- Small badge above the title -->
-<div class="badge">
+<div class="badge badge--descriptor">
 <span class="badge-dot"></span>
 <!-- Change this description if you want a different tagline -->
 <span>Institute for cognitive and brain sciences</span>
@@ -217,9 +223,39 @@
 </div>
 </footer>
 </div>
+
 <!-- This tiny script just sets the current year in the footer -->
 <script>
   document.getElementById("year").textContent = new Date().getFullYear();
 </script>
+
+<!-- Mobile nav toggle -->
+<script>
+  (function () {
+    const btn = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('#site-nav');
+    if (!btn || !nav) return;
+
+    btn.addEventListener('click', () => {
+      const open = document.body.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+
+    nav.addEventListener('click', (e) => {
+      if (e.target && e.target.tagName === 'A') {
+        document.body.classList.remove('nav-open');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!document.body.classList.contains('nav-open')) return;
+      if (nav.contains(e.target) || btn.contains(e.target)) return;
+      document.body.classList.remove('nav-open');
+      btn.setAttribute('aria-expanded', 'false');
+    });
+  })();
+</script>
+
 </body>
 </html>
