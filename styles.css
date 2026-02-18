@@ -12,9 +12,9 @@
   --border-strong: #d1d5db;      /* Stronger borders */
   --text-main: #111827;          /* Main text color */
   --text-muted: #6b7280;         /* Secondary / muted text */
-  --accent: #0891b2;             /* Teal accent color (buttons, icon) */
-  --accent-soft: #ecfeff;        /* Very light accent background */
-  --accent-dark: #036672;        /* Darker teal (text, borders) */
+  --accent: #274A7D;             /* Primary brand accent (navy) */
+  --accent-soft: #eef2ff;        /* Very light accent background */
+  --accent-dark: #1e3a5f;        /* Darker navy (text, borders) */
   --max-width: 1040px;           /* Maximum content width */
   --radius-lg: 18px;             /* Card corner radius */
   --radius-pill: 999px;          /* Fully rounded (pills, buttons) */
@@ -82,7 +82,7 @@ main {
 .header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: 0.6rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -100,6 +100,18 @@ main {
   gap: 0.7rem;   /* Space between pill icon and text */
 }
 
+
+
+/* If using the ERN Institute SVG logo in the header */
+.brand-logo{
+  height: 84px;          /* Larger masthead logo */
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 640px){
+  .brand-logo{ height: 68px; }
+}
 /* Rounded "ERN" pill icon.
    To tweak:
    - change width/height for size
@@ -111,7 +123,7 @@ main {
   height: 30px;
   border-radius: 999px;
   border: 2px solid var(--accent);
-  background: radial-gradient(circle at 20% 20%, #e0faff 0, #ccfbf1 18%, #eef2ff 75%);
+  background: radial-gradient(circle at 20% 20%, #e5f3ff 0, #eef2ff 55%, #f9fafb 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,7 +371,7 @@ h3 {
 
 /* Primary (filled) button */
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), #22c55e);
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
   color: white;
   font-weight: 600;
 }
@@ -537,4 +549,55 @@ a.brand-link * {
 
 a.brand-link:hover {
   cursor: pointer;
+}
+
+
+/* ===== ERN Ecosystem logos (home page) ===== */
+.ecosystem-list{
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.ecosystem-item{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 640px){
+  .ecosystem-logo{ height: 48px; }
+}
+
+
+.ecosystem-logo{
+  height: 58px;          /* Balanced ecosystem logo size */
+  width: auto;
+  flex: 0 0 auto;
+  display: block;
+}
+
+.ecosystem-logo--wide{ max-width: 220px; }
+.ecosystem-logo--j{ max-width: 140px; height: 46px; }
+
+.ecosystem-kicker{
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+
+.ecosystem-text{
+  line-height: 1.35;
+}
+
+.ecosystem-dot{
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 999px;
+  background: #274A7D;
+  opacity: 0.12;
 }
