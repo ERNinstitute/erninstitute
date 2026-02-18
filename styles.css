@@ -104,13 +104,13 @@ main {
 
 /* If using the ERN Institute SVG logo in the header */
 .brand-logo{
-  height: 84px;          /* Larger masthead logo */
+  height: 96px;          /* Masthead logo */
   width: auto;
   display: block;
 }
 
 @media (max-width: 640px){
-  .brand-logo{ height: 68px; }
+  .brand-logo{ height: 76px; }
 }
 /* Rounded "ERN" pill icon.
    To tweak:
