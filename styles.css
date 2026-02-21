@@ -21,6 +21,18 @@
   --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);  /* Card shadow */
 }
 
+/* ERN MOBILE FIX BUILD v5 (horizontal overflow + menu visibility) */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+img, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+
 *,
 *::before,
 *::after {
@@ -110,7 +122,7 @@ main {
 }
 
 @media (max-width: 640px){
-  .brand-logo{ height: 76px; }
+  .brand-logo{ height: 64px !important; max-width: 70vw; }
 }
 /* Rounded "ERN" pill icon.
    To tweak:
@@ -488,10 +500,6 @@ a:hover {
 }
 
 @media (max-width: 820px) {
-  /* --- Mobile dropdown visibility fix (robust) --- */
-  .header { overflow: visible; }
-  .header-inner { position: relative; }
-
   .nav-toggle {
     display: inline-flex;
     align-items: center;
@@ -500,10 +508,10 @@ a:hover {
 
   .nav {
     display: none;
-    position: fixed;                /* Escape any clipping/overflow contexts */
-    left: 1rem;
-    right: 1rem;
-    top: calc(96px + 0.75rem);      /* Below the masthead; safe default */
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    top: 88px;                    /* below header on most phones */
     flex-direction: column;
     align-items: stretch;
     gap: 0.25rem;
@@ -512,10 +520,8 @@ a:hover {
     border-radius: 16px;
     background: white;
     box-shadow: 0 10px 30px rgba(0,0,0,0.10);
-    z-index: 9999;
-
-    /* Ensure menu is fully visible on small screens */
-    max-height: calc(100vh - (96px + 1.75rem));
+    z-index: 2147483647;          /* max practical */
+    max-height: calc(100vh - 100px);
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
   }
@@ -526,33 +532,38 @@ a:hover {
     padding: 0.55rem 0.65rem;
     border-radius: 12px;
     text-decoration: none;
+ 
+  /* v5 mobile header hardening: prevent horizontal pan + containing-block bugs */
+  .header{
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: 100%;
+    backdrop-filter: none;  /* avoid fixed-position containing block quirks */
   }
 
-  /* --- Mobile dropdown visibility fix --- */
-  .header {
-    overflow: visible;
+  .header-inner{
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+    flex-wrap: nowrap;
+    min-width: 0;
   }
 
-  .header-inner {
-    position: relative;
+  .brand, .brand-link{ min-width: 0; }
+  .brand-logo{
+    height: 64px !important;  /* defeat any inline height */
+    width: auto !important;
+    max-width: 60vw;
   }
 
-  .nav {
-    left: 1rem;
-    right: 1rem;
-    min-width: auto;
-    width: auto;
-    max-width: calc(100vw - 2rem);
-  }
+  .nav-toggle{ flex: 0 0 auto; }
 
+  /* If anything still forces width, clip it at the page level */
+  .page{ overflow-x: hidden; }
 
+}
 
-  @media (max-width: 640px){
-    .nav{
-      top: calc(76px + 0.75rem);
-      max-height: calc(100vh - (76px + 1.75rem));
-    }
-  }
 }
 
 /* ---------------------------
