@@ -616,7 +616,7 @@ a.brand-link:hover {
 }
 
 .ecosystem-logo--wide{ max-width: 220px; }
-.ecosystem-logo--j{ max-width: 140px; height: 46px; }
+.ecosystem-logo--j{ max-width: 220px; height: auto; }
 
 .ecosystem-kicker{
   font-size: 0.95rem;
