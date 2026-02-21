@@ -518,6 +518,24 @@ a:hover {
     border-radius: 12px;
     text-decoration: none;
   }
+
+  /* --- Mobile dropdown visibility fix --- */
+  .header {
+    overflow: visible;
+  }
+
+  .header-inner {
+    position: relative;
+  }
+
+  .nav {
+    left: 1rem;
+    right: 1rem;
+    min-width: auto;
+    width: auto;
+    max-width: calc(100vw - 2rem);
+  }
+
 }
 
 /* ---------------------------
