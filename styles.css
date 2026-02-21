@@ -368,7 +368,7 @@ h3 {
 
 @media (min-width: 880px) {
   .two-col {
-    grid-template-columns: 0.9fr 1.1fr;
+    grid-template-columns: 1.25fr 1fr;
   }
 }
 
@@ -593,28 +593,95 @@ a.brand-link:hover {
 }
 
 
+/* ===== ERN Ecosystem logos (home page) ===== */
+.ecosystem-list{
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.ecosystem-item{
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+@media (max-width: 640px){
+  .ecosystem-logo{ height: 48px; }
+}
 
 
+.ecosystem-logo{
+  height: 58px;          /* Balanced ecosystem logo size */
+  width: auto;
+  flex: 0 0 auto;
+  display: block;
+}
 
-/* ===== ECOSYSTEM GRID (COMPOSITE LOGOS) ===== */
+.ecosystem-logo--wide{ max-width: 220px; }
+.ecosystem-logo--j{ max-width: 140px; height: 46px; }
+
+.ecosystem-kicker{
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+
+.ecosystem-text{
+  line-height: 1.35;
+}
+
+.ecosystem-dot{
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  border-radius: 999px;
+  background: #274A7D;
+  opacity: 0.12;
+}
+
+
+/* ===== ECOSYSTEM ALIGNMENT FIX ===== */
+.ecosystem-item{
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  column-gap: 16px;
+  align-items: center;
+}
+
+.ecosystem-logo{
+  justify-self: center;
+}
+
+@media (max-width: 640px){
+  .ecosystem-item{
+    grid-template-columns: 140px 1fr;
+  }
+}
+
+
+/* ===== ECOSYSTEM GRID (COMPOSITE SVG) ===== */
 .ecosystem-grid{
   display: grid;
-  grid-template-columns: 170px 1fr;
-  column-gap: 22px;
+  grid-template-columns: 180px 1fr;   /* logo column, then text */
+  column-gap: 24px;
   align-items: start;
-  margin-top: 0.75rem;
+  margin-top: 1rem;
 }
 
 .ecosystem-logos{
   width: 100%;
-  max-width: 170px;
+  max-width: 180px;
   height: auto;
   display: block;
 }
 
 .ecosystem-text-col{
   display: grid;
-  row-gap: 20px;
+  row-gap: 26px;
 }
 
 .eco-row{
@@ -623,34 +690,24 @@ a.brand-link:hover {
 
 .eco-title{
   font-weight: 600;
-  color: var(--text-main);
+  margin-bottom: 0.15rem;
 }
 
 .eco-meta{
-  color: var(--text-main);
-}
-
-.ecosystem-text-col .eco-meta{
-  margin-top: 2px;
+  color: var(--text-muted);
 }
 
 @media (max-width: 640px){
   .ecosystem-grid{
     grid-template-columns: 130px 1fr;
-    column-gap: 16px;
+    column-gap: 18px;
   }
+
   .ecosystem-logos{
     max-width: 130px;
   }
-}
 
-@media (max-width: 460px){
-  .ecosystem-grid{
-    grid-template-columns: 1fr;
-    row-gap: 14px;
-  }
-  .ecosystem-logos{
-    max-width: 220px;
-    margin: 0 auto;
+  .ecosystem-text-col{
+    row-gap: 20px;
   }
 }
