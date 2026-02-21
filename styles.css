@@ -27,6 +27,7 @@ html, body {
 }
 
 @media (max-width: 820px) {
+  /* ===== MOBILE MENU WIDTH FIX ===== */
 
   /* Allow flex items to shrink properly */
   .header-inner,
@@ -206,6 +207,10 @@ main {
    ============================ */
 
 .nav {
+    max-width: calc(100vw - 2rem);
+    width: auto;
+    right: 1rem;
+    left: 1rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -636,4 +641,23 @@ a.brand-link:hover {
   border-radius: 999px;
   background: #274A7D;
   opacity: 0.12;
+}
+
+
+/* ===== ECOSYSTEM ALIGNMENT FIX ===== */
+.ecosystem-item{
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  column-gap: 16px;
+  align-items: center;
+}
+
+.ecosystem-logo{
+  justify-self: center;
+}
+
+@media (max-width: 640px){
+  .ecosystem-item{
+    grid-template-columns: 140px 1fr;
+  }
 }
