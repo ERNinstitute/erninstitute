@@ -21,12 +21,6 @@
   --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.08);  /* Card shadow */
 }
 
-/* Prevent horizontal scroll on mobile (and desktop) */
-html, body {
-  overflow-x: hidden;
-}
-
-
 *,
 *::before,
 *::after {
@@ -116,7 +110,7 @@ main {
 }
 
 @media (max-width: 640px){
-  .brand-logo{ height: 76px !important; max-width: 52vw; }
+  .brand-logo{ height: 76px; }
 }
 /* Rounded "ERN" pill icon.
    To tweak:
@@ -558,29 +552,7 @@ a:hover {
       top: calc(76px + 0.75rem);
       max-height: calc(100vh - (76px + 1.75rem));
     }
- 
-  /* --- Mobile header width hardening (prevents horizontal scroll) --- */
-  .brand-link,
-  .brand {
-    min-width: 0;
-    flex: 1 1 auto;
   }
-
-  .brand-wordmark,
-  .brand-text {
-    min-width: 0;
-  }
-
-  /* Override any inline logo sizing on mobile; keep header within viewport */
-  .brand-logo{
-    height: 76px !important;
-    width: auto !important;
-    max-width: 44vw;
-    flex-shrink: 1;
-  }
-
-}
-
 }
 
 /* ---------------------------
