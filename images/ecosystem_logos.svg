@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="300" viewBox="0 0 180 300">
+  <rect width="180" height="300" fill="none" stroke="#cccccc" stroke-dasharray="6 4"/>
+  <text x="90" y="150" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666666">
+    Replace with
+  </text>
+  <text x="90" y="170" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#666666">
+    ecosystem_logos.svg
+  </text>
+</svg>

@@ -661,3 +661,48 @@ a.brand-link:hover {
     grid-template-columns: 140px 1fr;
   }
 }
+
+
+/* ===== ECOSYSTEM GRID (COMPOSITE SVG VERSION) =====
+   Uses one composite SVG (images/ecosystem_logos.svg) for the left column.
+   Keep that SVG as three logos stacked vertically with the same vertical spacing
+   as the three text rows on the right.
+*/
+.ecosystem-grid{
+  display: grid;
+  grid-template-columns: 180px 1fr; /* narrower logo column => wider text column */
+  column-gap: 24px;
+  align-items: start;
+  margin-top: 0.25rem;
+}
+
+.ecosystem-logos{
+  width: 100%;
+  max-width: 180px;
+  height: auto;
+  display: block;
+}
+
+.ecosystem-text-col{
+  display: grid;
+  row-gap: 28px;
+}
+
+.ecosystem-text-col .eco-row{
+  line-height: 1.5;
+}
+
+/* Mobile */
+@media (max-width: 640px){
+  .ecosystem-grid{
+    grid-template-columns: 130px 1fr;
+  }
+
+  .ecosystem-logos{
+    max-width: 130px;
+  }
+
+  .ecosystem-text-col{
+    row-gap: 20px;
+  }
+}
