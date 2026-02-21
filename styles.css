@@ -27,7 +27,6 @@ html, body {
 }
 
 @media (max-width: 820px) {
-  /* ===== MOBILE MENU WIDTH FIX ===== */
 
   /* Allow flex items to shrink properly */
   .header-inner,
@@ -207,10 +206,6 @@ main {
    ============================ */
 
 .nav {
-    max-width: calc(100vw - 2rem);
-    width: auto;
-    right: 1rem;
-    left: 1rem;
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
@@ -641,68 +636,4 @@ a.brand-link:hover {
   border-radius: 999px;
   background: #274A7D;
   opacity: 0.12;
-}
-
-
-/* ===== ECOSYSTEM ALIGNMENT FIX ===== */
-.ecosystem-item{
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  column-gap: 16px;
-  align-items: center;
-}
-
-.ecosystem-logo{
-  justify-self: center;
-}
-
-@media (max-width: 640px){
-  .ecosystem-item{
-    grid-template-columns: 140px 1fr;
-  }
-}
-
-
-/* ===== ECOSYSTEM GRID (COMPOSITE SVG VERSION) =====
-   Uses one composite SVG (images/ecosystem_logos.svg) for the left column.
-   Keep that SVG as three logos stacked vertically with the same vertical spacing
-   as the three text rows on the right.
-*/
-.ecosystem-grid{
-  display: grid;
-  grid-template-columns: 180px 1fr; /* narrower logo column => wider text column */
-  column-gap: 24px;
-  align-items: start;
-  margin-top: 0.25rem;
-}
-
-.ecosystem-logos{
-  width: 100%;
-  max-width: 180px;
-  height: auto;
-  display: block;
-}
-
-.ecosystem-text-col{
-  display: grid;
-  row-gap: 28px;
-}
-
-.ecosystem-text-col .eco-row{
-  line-height: 1.5;
-}
-
-/* Mobile */
-@media (max-width: 640px){
-  .ecosystem-grid{
-    grid-template-columns: 130px 1fr;
-  }
-
-  .ecosystem-logos{
-    max-width: 130px;
-  }
-
-  .ecosystem-text-col{
-    row-gap: 20px;
-  }
 }
