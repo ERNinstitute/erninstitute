@@ -642,3 +642,60 @@ a.brand-link:hover {
   background: #274A7D;
   opacity: 0.12;
 }
+
+
+/* ============================
+   SELECTED PUBLICATIONS
+   ============================ */
+.publications-section {
+  padding-top: 0.5rem;
+}
+
+.publication-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.publication-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  padding: 1.25rem 1.35rem;
+}
+
+.publication-card h3 {
+  margin-top: 0.2rem;
+  margin-bottom: 0.45rem;
+}
+
+.publication-card p {
+  margin: 0;
+}
+
+.publication-meta {
+  color: var(--accent-dark);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.publication-actions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.95rem;
+}
+
+.btn-sm {
+  font-size: 0.82rem;
+  padding: 0.4rem 0.85rem;
+}
+
+.publication-note {
+  color: var(--text-muted);
+  font-size: 0.86rem;
+}
