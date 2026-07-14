@@ -424,7 +424,7 @@ h3 {
 }
 
 /* ============================
-   PILLS (ERNPress, ERN Journal)
+   PILLS
    ============================ */
 
 .pill {
@@ -602,6 +602,27 @@ a.brand-link:hover {
   gap: 16px;
   align-items: center;
 }
+
+.ecosystem-link {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ecosystem-link:hover {
+  text-decoration: none;
+}
+
+.ecosystem-link:hover .ecosystem-text {
+  color: var(--accent-dark);
+}
+
+.ecosystem-cta {
+  margin-top: 0.9rem;
+}
+
 
 @media (max-width: 640px){
   .ecosystem-logo{
