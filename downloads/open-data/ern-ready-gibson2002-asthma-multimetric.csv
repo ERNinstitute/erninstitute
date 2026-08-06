@@ -1,0 +1,22 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Cote (1997),SMD-01,independent_means,2.2,12.73,50,5.2,12.5,54,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Ghosh (1998),SMD-02,independent_means,17.6,24.2,140,34.1,38.8,136,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Hayward (1996),SMD-03,independent_means,0.38,0.56,23,0.23,0.29,19,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Heard (1999),SMD-04,independent_means,2.09,5.93,97,2.66,4.95,94,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Heard (1999),OR-01,binary,,,,,,,,,,,,,,34,97,36,94,no,One or more days off work/school; intervention vs control; intervention type 1. Log odds ratio below 0 favors intervention.
+Ignacio-Garcia (1995),SMD-05,independent_means,4.92,6.05,35,20,26.34,35,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Ignacio-Garcia (1995),OR-02,binary,,,,,,,,,,,,,,24,35,29,35,no,One or more days off work/school; intervention vs control; intervention type 1. Log odds ratio below 0 favors intervention.
+Knoell (1998),SMD-06,independent_means,0.85,4.75,45,2.31,9.16,55,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Lahdensuo (1996),SMD-07,independent_means,2.8,9,56,4.8,7.2,59,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Lahdensuo (1996),OR-03,binary,,,,,,,,,,,,,,13,56,25,59,no,One or more days off work/school; intervention vs control; intervention type 1. Log odds ratio below 0 favors intervention.
+Sommaruga (1995),SMD-08,independent_means,24.1,11.8,20,31.8,17.9,20,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Zeiger (1991),SMD-09,independent_means,1.4,3.3,128,2.3,7.6,143,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 1. Negative Hedges g favors intervention.
+Garret (1994),SMD-10,independent_means,6.23,12.2,119,5.71,8.57,100,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 2. Negative Hedges g favors intervention.
+Garret (1994),OR-04,binary,,,,,,,,,,,,,,58,100,57,90,no,One or more days off work/school; intervention vs control; intervention type 2. Log odds ratio below 0 favors intervention.
+Neri (1996),SMD-11,independent_means,2.1,8,32,5.1,14,33,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 3. Negative Hedges g favors intervention.
+Neri (1996),OR-05,binary,,,,,,,,,,,,,,7,32,13,33,no,One or more days off work/school; intervention vs control; intervention type 3. Log odds ratio below 0 favors intervention.
+Hilton (1986),SMD-12,independent_means,0.73,1.48,86,0.47,1.2,100,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 4. Negative Hedges g favors intervention.
+Gallefoss (1999),SMD-13,independent_means,8,32,25,26,70,24,,,,,,,,,,,,no,Days off work/school; intervention vs control; intervention type 5. Negative Hedges g favors intervention.
+Yoon (1993),OR-06,binary,,,,,,,,,,,,,,5,28,4,28,no,One or more days off work/school; intervention vs control; intervention type 1. Log odds ratio below 0 favors intervention.
+Brewin (1995),OR-07,binary,,,,,,,,,,,,,,0,12,16,33,no,One or more days off work/school; intervention vs control; intervention type 3. Log odds ratio below 0 favors intervention.
+

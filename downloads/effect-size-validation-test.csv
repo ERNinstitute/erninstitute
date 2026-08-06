@@ -1,0 +1,10 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Valid Means Study,MEAN-01,independent_means,54.2,9.1,48,49.6,8.7,50,,,,,,,,,,,,no,Valid independent means row
+Invalid Omnibus F,F-ERR-01,independent_f,,,40,,,42,,4.50,3,78,group1_higher,,,,,,,no,df1 greater than 1 must be rejected
+Missing F Direction,F-ERR-02,independent_f,,,44,,,46,,4.75,1,88,,,,,,,,no,F has no sign and direction is missing
+Wrong F Denominator DF,F-ERR-03,independent_f,,,44,,,46,,4.75,1,90,group1_higher,,,,,,,no,df2 does not equal n1+n2-2
+Invalid Correlation,R-ERR-01,correlation,,,,,,,,,,,,1.20,80,,,,,no,Correlation outside allowed range
+Impossible Binary,OR-ERR-01,binary,,,,,,,,,,,,,,65,60,9,58,no,Events exceed total
+Unused Input Warning,T-WARN-01,independent_t,,,35,,,37,2.10,,,,,0.25,72,,,,,no,r_value and n are populated but ignored for independent_t
+Valid F Study,F-OK-01,independent_f,,,50,,,52,,5.29,1,100,group2_higher,,,,,,,no,Valid two-group F row
+Zero Cell Warning,OR-WARN-01,binary,,,,,,,,,,,,,,0,42,6,44,no,Continuity correction should be disclosed

@@ -10,7 +10,7 @@
 <meta property="og:description" content="Contact ERN Institute for research collaboration, consulting, speaking, citation metrics, and research inquiries."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20260729c" rel="stylesheet"/>
+<link href="styles.css?v=20260806d" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/contact.html" rel="canonical"/>
 
@@ -40,7 +40,14 @@
       <a href="index.html">Home</a>
 <a href="about.html">About</a>
 <a href="research.html">Research</a>
-<a href="metrics.html">Citation Metrics</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+        <div class="nav-dropdown-menu">
+          <a href="metrics.html">Citation Metrics</a>
+          <a href="tools.html">Meta-Analysis Studio</a>
+          <a href="repository.html">Open Data Repository</a>
+        </div>
+</details>
 <a href="consulting.html">Consulting</a>
 <a class="active" href="contact.html" aria-current="page">Contact</a>
 <a class="nav-external" href="https://ernpress.com/" aria-label="ERN Press (external site)">ERN Press <span class="nav-external-icon" aria-hidden="true">↗</span></a>
@@ -53,6 +60,7 @@
   <h1>Contact</h1>
   <p class="subtitle">For inquiries about research, consulting, speaking, citation metrics, or collaboration, please contact the ERN Institute using the information below.</p>
   <div class="card"><h3>ERN Institute</h3><ul class="info-list"><li><span class="info-label">Email</span><span><a href="mailto:admin@erninstitute.com">admin@erninstitute.com</a></span></li><li><span class="info-label">Affiliation:</span><span>Experience-Related Neuroplasticity Institute</span></li><li><span class="info-label">Co-Founder and Executive Director:</span><span>John G. Grundy, Ph.D.</span></li><li><span class="info-label">Co-Founder and Associate Director:</span><span>Febriana Grundy, Ph.D.</span></li></ul><p class="muted">If you are reaching out regarding consulting, applied projects, or use of the ERN article-level citation metrics, please briefly describe your organization, the nature of the project, and any timelines you have in mind.</p></div>
+  <div class="card" id="effect-size-feedback"><h3>Meta-Analysis Studio feedback</h3><p>The <a href="tools.html">ERN Meta-Analysis Studio</a> currently supports effect-size preparation and classical fixed- and random-effects models. To report a calculation issue or request another method, contact <a href="mailto:admin@erninstitute.com?subject=ERN%20Meta-Analysis%20Studio">admin@erninstitute.com</a>.</p></div>
   <div class="card"><h3>Publishing inquiries</h3><p>ERN Press is the Institute’s scholarly publishing arm. For publishing-related information, visit <a href="https://ernpress.com/">ernpress.com</a> or contact <a href="mailto:admin@ernpress.com">admin@ernpress.com</a>.</p></div>
 </section>
 
@@ -65,6 +73,7 @@
 </footer>
 </div>
 
+<script src="navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {

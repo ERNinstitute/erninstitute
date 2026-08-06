@@ -1,0 +1,15 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Demo Study A (2018),SMD-01,independent_means,54.2,9.1,48,49.6,8.7,50,,,,,,,,,,,,no,Attention composite
+Demo Study B (2019),SMD-02,independent_means,31.4,5.8,36,28.1,6.2,38,,,,,,,,,,,,no,Working-memory accuracy
+Demo Study C (2020),SMD-03,independent_t,,,44,,,46,2.18,,,,,,,,,,,no,Student independent-groups t statistic
+Demo Study D (2021),SMD-04,independent_t,,,57,,,55,1.62,,,,,,,,,,,no,Student independent-groups t statistic
+Demo Study E (2020),SMD-F01,independent_f,,,44,,,46,,4.7524,1,88,group1_higher,,,,,,,no,Two-group F equivalent to t = 2.18
+Demo Study F (2021),SMD-F02,independent_f,,,57,,,55,,2.6244,1,110,group2_higher,,,,,,,no,Two-group F equivalent to |t| = 1.62; group 2 is higher
+Demo Study G (2022),SMD-05,independent_means,67.8,10.2,64,62.9,9.7,61,,,,,,,,,,,,no,Executive-function composite
+Demo Study H (2023),SMD-06,independent_means,14.8,3.9,30,16.2,4.1,32,,,,,,,,,,,,yes,Lower scores indicate better performance
+Demo Study I (2019),R-01,correlation,,,,,,,,,,,,0.21,82,,,,,no,Experience and cognitive flexibility
+Demo Study J (2021),R-02,correlation,,,,,,,,,,,,0.34,116,,,,,no,Training dose and transfer
+Demo Study K (2024),R-03,correlation,,,,,,,,,,,,-0.18,74,,,,,yes,Direction reversed for consistency
+Demo Study L (2020),OR-01,binary,,,,,,,,,,,,,,18,60,9,58,no,Improvement event by group
+Demo Study M (2022),OR-02,binary,,,,,,,,,,,,,,27,90,19,88,no,Improvement event by group
+Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell to test correction

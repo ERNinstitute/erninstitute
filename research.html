@@ -10,7 +10,7 @@
 <meta property="og:description" content="Research themes at ERN Institute: experience-driven brain change, bilingualism, cognitive reserve, lifespan adaptation, rigorous quantitative methods, and transparent impact metrics."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20260729c" rel="stylesheet"/>
+<link href="styles.css?v=20260806d" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/research.html" rel="canonical"/>
 
@@ -40,7 +40,14 @@
       <a href="index.html">Home</a>
 <a href="about.html">About</a>
 <a class="active" href="research.html" aria-current="page">Research</a>
-<a href="metrics.html">Citation Metrics</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+        <div class="nav-dropdown-menu">
+          <a href="metrics.html">Citation Metrics</a>
+          <a href="tools.html">Meta-Analysis Studio</a>
+          <a href="repository.html">Open Data Repository</a>
+        </div>
+</details>
 <a href="consulting.html">Consulting</a>
 <a href="contact.html">Contact</a>
 <a class="nav-external" href="https://ernpress.com/" aria-label="ERN Press (external site)">ERN Press <span class="nav-external-icon" aria-hidden="true">↗</span></a>
@@ -63,7 +70,7 @@
       <h3>Neural Efficiency &amp; Signal Complexity</h3>
       <p>Examining changes in brain signal complexity, efficiency, and dynamics as markers of experience-related reorganization and adaptation.</p>
     </div>
-    <div class="card"><h3>Methods &amp; Tools</h3><ul><li>Behavioral tasks assessing attention, control, and decision-making</li><li>Electroencephalography (EEG) and event-related potentials (ERPs)</li><li>Neuroimaging collaborations</li><li>Meta-analysis and quantitative synthesis</li><li>Measurement development and transparent impact metrics</li></ul><p class="muted">The Institute emphasizes robust measurement, reliability, and transparent analytic workflows to support cumulative science.</p><a class="text-link" href="metrics.html">See article-level citation metrics →</a></div>
+    <div class="card"><h3>Methods &amp; Tools</h3><ul><li>Behavioral tasks assessing attention, control, and decision-making</li><li>Electroencephalography (EEG) and event-related potentials (ERPs)</li><li>Neuroimaging collaborations</li><li>Meta-analysis and quantitative synthesis</li><li>Measurement development and transparent impact metrics</li></ul><p class="muted">The Institute emphasizes robust measurement, reliability, and transparent analytic workflows to support cumulative science.</p><a class="text-link" href="metrics.html">See article-level citation metrics →</a><br/><a class="text-link" href="tools.html">Use the Meta-Analysis Studio →</a></div>
   </div>
 </section>
 <section class="section section-narrow publications-section">
@@ -74,15 +81,16 @@
       <div class="publication-meta">2026 · Proceedings of the National Academy of Sciences</div>
       <h3>Bilingualism predicts executive-function resilience after COVID-19 in aging</h3>
       <p class="publication-citation">Grundy, J. G., &amp; Pujols-Beltran, M. (2026). Bilingualism predicts executive-function resilience after COVID-19 in aging. <em>Proceedings of the National Academy of Sciences, 123</em>(23), Article e2532470123. <a href="https://doi.org/10.1073/pnas.2532470123" rel="noopener" target="_blank">https://doi.org/10.1073/pnas.2532470123</a></p>
-      <div class="publication-actions"><a class="btn btn-outline btn-sm" href="https://doi.org/10.1073/pnas.2532470123" rel="noopener" target="_blank">DOI</a><a class="btn btn-outline btn-sm" href="https://doi.org/10.6084/m9.figshare.27226458" rel="noopener" target="_blank">Data</a></div>
+      <div class="publication-actions"><a class="btn btn-outline btn-sm" href="https://doi.org/10.1073/pnas.2532470123" rel="noopener" target="_blank">DOI</a><a class="btn btn-outline btn-sm" href="https://doi.org/10.6084/m9.figshare.27226458" rel="noopener" target="_blank">Data</a><a class="btn btn-outline btn-sm" href="https://www.medicalnewstoday.com/articles/can-speaking-more-than-one-language-fluently-help-keep-the-brain-young" rel="noopener" target="_blank">Media coverage ↗</a></div>
     </article>
   </div>
   <div class="recent-publications-block">
     <h3 class="publication-subheading">Recent Publications</h3>
     <ul class="publication-citation-list">
       <li id="arr-2026">
-        <div class="publication-meta">Accepted · Ageing Research Reviews</div>
-        <p class="publication-citation">Grundy, J. G., &amp; Grundy, F. (in press). Experience-driven neural efficiency and reserve in aging: Evidence from bilingual attentional adaptation. <em>Ageing Research Reviews</em>.</p>
+        <div class="publication-meta">2026 · Ageing Research Reviews · Article in press</div>
+        <p class="publication-citation">Grundy, J. G., &amp; Grundy, F. (2026). Experience-driven neural efficiency and reserve in aging: Evidence from bilingual attentional adaptation. <em>Ageing Research Reviews</em>, Article 103282. <a href="https://doi.org/10.1016/j.arr.2026.103282" rel="noopener" target="_blank">https://doi.org/10.1016/j.arr.2026.103282</a></p>
+        <div class="publication-actions publication-actions-inline"><a class="btn btn-outline btn-sm" href="https://doi.org/10.1016/j.arr.2026.103282" rel="noopener" target="_blank">DOI</a></div>
       </li>
       <li id="blc-2026">
         <div class="publication-meta">In press · Bilingualism: Language and Cognition</div>
@@ -106,6 +114,7 @@
 </footer>
 </div>
 
+<script src="navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {

@@ -1,0 +1,22 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Bolton et al. (1979),COR-01,correlation,,,,,,,,,,,,0.68,10,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Bryson (1974),COR-02,correlation,,,,,,,,,,,,0.56,20,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Centra (1977) sample 1,COR-03,correlation,,,,,,,,,,,,0.23,13,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Centra (1977) sample 2,COR-04,correlation,,,,,,,,,,,,0.64,22,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Crooks & Smock (1974),COR-05,correlation,,,,,,,,,,,,0.49,28,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Doyle & Crichton (1978),COR-06,correlation,,,,,,,,,,,,-0.04,12,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Doyle & Whitely (1974),COR-07,correlation,,,,,,,,,,,,0.49,12,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Elliott (1950),COR-08,correlation,,,,,,,,,,,,0.33,36,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Ellis & Rickard (1977),COR-09,correlation,,,,,,,,,,,,0.58,19,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Frey et al. (1975),COR-10,correlation,,,,,,,,,,,,0.18,12,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Greenwood et al. (1976),COR-11,correlation,,,,,,,,,,,,-0.11,36,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Hoffman (1978),COR-12,correlation,,,,,,,,,,,,0.27,75,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+McKeachie et al. (1971),COR-13,correlation,,,,,,,,,,,,0.26,33,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Morsh et al. (1956),COR-14,correlation,,,,,,,,,,,,0.4,121,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Remmers et al. (1949),COR-15,correlation,,,,,,,,,,,,0.49,37,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Sullivan & Skanes (1974) sample 1,COR-16,correlation,,,,,,,,,,,,0.51,14,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Sullivan & Skanes (1974) sample 2,COR-17,correlation,,,,,,,,,,,,0.4,40,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Sullivan & Skanes (1974) sample 3,COR-18,correlation,,,,,,,,,,,,0.34,16,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Sullivan & Skanes (1974) sample 4,COR-19,correlation,,,,,,,,,,,,0.42,14,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+Wherry (1952),COR-20,correlation,,,,,,,,,,,,0.16,20,,,,,no,Correlation between course-section instructor ratings and student achievement. Studio applies Fisher r-to-z transformation.
+

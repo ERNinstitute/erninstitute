@@ -4,13 +4,13 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Transparent Article-Level Citation Metrics | ERN Institute</title>
-<meta name="description" content="A plain-language framework for reporting an article’s citations per year now, over time, and against a named benchmark."/>
+<meta name="description" content="A plain-language framework for reporting Citations Per Year (Now), Citations Per Year (Now vs. Lifetime), and Citations Per Year (Now vs. Benchmark)."/>
 <meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Transparent Article-Level Citation Metrics | ERN Institute"/>
-<meta property="og:description" content="A plain-language framework for reporting an article’s citations per year now, over time, and against a named benchmark."/>
+<meta property="og:description" content="A plain-language framework for reporting Citations Per Year (Now), Citations Per Year (Now vs. Lifetime), and Citations Per Year (Now vs. Benchmark)."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20260729c" rel="stylesheet"/>
+<link href="styles.css?v=20260806d" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -54,10 +54,17 @@
     </a>
     <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">Menu</button>
     <nav class="nav" id="site-nav" aria-label="Primary">
-      <a href="index.html">Home</a>
+<a href="index.html">Home</a>
 <a href="about.html">About</a>
 <a href="research.html">Research</a>
-<a class="active" href="metrics.html" aria-current="page">Citation Metrics</a>
+<details class="nav-dropdown nav-dropdown-current">
+<summary>Tools</summary>
+        <div class="nav-dropdown-menu">
+          <a class="active" href="metrics.html" aria-current="page">Citation Metrics</a>
+          <a href="tools.html">Meta-Analysis Studio</a>
+          <a href="repository.html">Open Data Repository</a>
+        </div>
+</details>
 <a href="consulting.html">Consulting</a>
 <a href="contact.html">Contact</a>
 <a class="nav-external" href="https://ernpress.com/" aria-label="ERN Press (external site)">ERN Press <span class="nav-external-icon" aria-hidden="true">↗</span></a>
@@ -70,7 +77,7 @@
   <div class="metrics-hero-copy">
     <p class="eyebrow">Version 1.0 · July 28, 2026</p>
     <h1>Transparent Article-Level Citation Metrics</h1>
-    <p class="subtitle lead">Three plain-language metrics answer three questions: How many citations per year is a paper receiving now? Is that annual rate faster or slower than its own lifetime rate? How does it compare with a named annual benchmark?</p>
+    <p class="subtitle lead">Three plain-language metrics answer three questions: How many citations per year is a paper receiving now? How does now compare with its lifetime annual rate? How does now compare with a named annual benchmark?</p>
     <p class="subtitle">These are descriptive tools. They make article-level citation claims easier to understand and reproduce, but they do not replace peer review, field-sensitive evaluation, or expert judgment.</p>
     <div class="btn-row"><a class="btn btn-primary" href="downloads/citations-per-year-calculator.xlsx">Download calculator</a><a class="btn btn-outline" href="#source">Manuscript source</a></div>
   </div>
@@ -84,8 +91,8 @@
   <h2>The Three Metrics</h2>
   <div class="grid-3">
     <article class="metric-card"><span class="metric-kicker">Now</span><h3>Citations Per Year (Now)</h3><p>How many citations per year the paper received during a recent period, usually the past two or five years.</p></article>
-    <article class="metric-card"><span class="metric-kicker">Over time</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>The paper’s recent annual citation rate compared with its own lifetime annual rate.</p></article>
-    <article class="metric-card"><span class="metric-kicker">Named benchmark</span><h3>Citations Per Year (Now vs. Benchmark)</h3><p>The paper’s recent annual citation rate compared with a benchmark, such as the two-year journal impact factor. If another benchmark is used, name it instead.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now vs. lifetime</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>The paper’s recent annual citation rate compared with its own lifetime annual rate.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now vs. benchmark</span><h3>Citations Per Year (Now vs. Benchmark)</h3><p>The paper’s recent annual citation rate compared with a clearly named external reference value, such as a two-year journal impact factor.</p></article>
   </div>
 </section>
 
@@ -119,7 +126,7 @@
 
 <section class="section section-narrow">
   <h2>3. Citations Per Year (Now vs. Benchmark)</h2>
-  <p>This compares the paper’s recent citations per year with a benchmark, such as the two-year journal impact factor, which already represents an annual citation benchmark.</p>
+  <p>This compares the paper’s recent citations per year with a clearly named external reference value. The example below uses a two-year journal impact factor, which already represents an annual citation benchmark.</p>
   <p><strong>Example:</strong> The paper’s recent rate is 5 citations per year and the two-year journal impact factor is 3.0. The reported value is <strong>1.67</strong>: the paper’s recent annual rate is about 67% above that benchmark.</p>
   <table>
     <thead><tr><th>Reported value</th><th>What it means</th></tr></thead>
@@ -129,7 +136,7 @@
       <tr><td>Less than 1.0</td><td>The paper’s recent annual rate is below the stated benchmark.</td></tr>
     </tbody>
   </table>
-  <p class="muted">If a different benchmark is used, replace “2y-IF” with its actual name—for example, Citations Per Year (Now vs. 5y-IF) or Citations Per Year (Against Field Median).</p>
+  <p class="muted">Always report the benchmark’s exact name, year, value, and source. The metric remains Citations Per Year (Now vs. Benchmark); the accompanying report identifies the benchmark used.</p>
 </section>
 
 <section class="section section-narrow caution-box">
@@ -159,6 +166,7 @@
 </footer>
 </div>
 
+<script src="navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {

@@ -10,7 +10,7 @@
 <meta property="og:description" content="About ERN Institute: mission, leadership, and focus areas in experience-related neuroplasticity, bilingualism, cognitive reserve, neural efficiency, and research methodology."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20260729c" rel="stylesheet"/>
+<link href="styles.css?v=20260806d" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/about.html" rel="canonical"/>
 
@@ -40,7 +40,14 @@
       <a href="index.html">Home</a>
 <a class="active" href="about.html" aria-current="page">About</a>
 <a href="research.html">Research</a>
-<a href="metrics.html">Citation Metrics</a>
+<details class="nav-dropdown">
+<summary>Tools</summary>
+        <div class="nav-dropdown-menu">
+          <a href="metrics.html">Citation Metrics</a>
+          <a href="tools.html">Meta-Analysis Studio</a>
+          <a href="repository.html">Open Data Repository</a>
+        </div>
+</details>
 <a href="consulting.html">Consulting</a>
 <a href="contact.html">Contact</a>
 <a class="nav-external" href="https://ernpress.com/" aria-label="ERN Press (external site)">ERN Press <span class="nav-external-icon" aria-hidden="true">↗</span></a>
@@ -81,6 +88,7 @@
 </footer>
 </div>
 
+<script src="navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {

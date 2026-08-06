@@ -1,0 +1,15 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Aronson (1948),OR-01,binary,,,,,,,,,,,,,,4,123,11,139,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Ferguson & Simes (1949),OR-02,binary,,,,,,,,,,,,,,6,306,29,303,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Rosenthal et al. (1960),OR-03,binary,,,,,,,,,,,,,,3,231,11,220,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Hart & Sutherland (1977),OR-04,binary,,,,,,,,,,,,,,62,13598,248,12867,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Frimodt-Moller et al. (1973),OR-05,binary,,,,,,,,,,,,,,33,5069,47,5808,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: alternate. Studio calculates log odds ratios.
+Stein & Aronson (1953),OR-06,binary,,,,,,,,,,,,,,180,1541,372,1451,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: alternate. Studio calculates log odds ratios.
+Vandiviere et al. (1973),OR-07,binary,,,,,,,,,,,,,,8,2545,10,629,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+TPT Madras (1980),OR-08,binary,,,,,,,,,,,,,,505,88391,499,88391,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Coetzee & Berjak (1968),OR-09,binary,,,,,,,,,,,,,,29,7499,45,7277,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: random. Studio calculates log odds ratios.
+Rosenthal et al. (1961),OR-10,binary,,,,,,,,,,,,,,17,1716,65,1665,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: systematic. Studio calculates log odds ratios.
+Comstock et al. (1974),OR-11,binary,,,,,,,,,,,,,,186,50634,141,27338,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: systematic. Studio calculates log odds ratios.
+Comstock & Webster (1969),OR-12,binary,,,,,,,,,,,,,,5,2498,3,2341,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: systematic. Studio calculates log odds ratios.
+Comstock et al. (1976),OR-13,binary,,,,,,,,,,,,,,27,16913,29,17854,no,TB-positive event; vaccinated vs non-vaccinated groups; allocation: systematic. Studio calculates log odds ratios.
+

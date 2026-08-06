@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>ERN Meta-Analysis Studio | Effect Sizes and Classical Meta-Analysis</title>
+<meta name="description" content="Prepare effect sizes and run fixed- or random-effects meta-analyses with heterogeneity statistics, prediction intervals, pooled forest plots, and publication-ready exports."/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="ERN Meta-Analysis Studio | ERN Institute"/>
+<meta property="og:description" content="Convert study results into effect sizes, fit classical meta-analysis models, inspect heterogeneity and study weights, and export publication-ready results."/>
+<meta property="og:type" content="website"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
+<link href="styles.css?v=20260806d" rel="stylesheet"/>
+<link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
+<link href="https://erninstitute.com/tools.html" rel="canonical"/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ERN Meta-Analysis Studio",
+  "applicationCategory": "ScientificApplication",
+  "operatingSystem": "Web browser",
+  "softwareVersion": "1.0",
+  "datePublished": "2026-08-05",
+  "publisher": {"@type": "Organization", "name": "ERN Institute"},
+  "url": "https://erninstitute.com/tools.html"
+}
+</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6PPEJ1SFX7"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-6PPEJ1SFX7');
+</script>
+</head>
+<body>
+<div class="page">
+<header class="header">
+  <div class="header-inner">
+    <a class="brand-link" href="index.html" aria-label="ERN Institute home">
+      <div class="brand brand-wordmark">
+        <img class="brand-logo" src="images/ERN_Institute_Final.svg" alt="ERN Institute logo"/>
+        <div class="brand-text">
+          <span class="brand-line-1">ERN INSTITUTE</span>
+          <span class="brand-line-2">Experience-Related Neuroplasticity</span>
+        </div>
+      </div>
+    </a>
+    <button class="nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false">Menu</button>
+    <nav class="nav" id="site-nav" aria-label="Primary">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="research.html">Research</a>
+      <details class="nav-dropdown nav-dropdown-current">
+        <summary>Tools</summary>
+        <div class="nav-dropdown-menu">
+          <a href="metrics.html">Citation Metrics</a>
+          <a class="active" href="tools.html" aria-current="page">Meta-Analysis Studio</a>
+          <a href="repository.html">Open Data Repository</a>
+        </div>
+      </details>
+      <a href="consulting.html">Consulting</a>
+      <a href="contact.html">Contact</a>
+      <a class="nav-external" href="https://ernpress.com/" aria-label="ERN Press (external site)">ERN Press <span class="nav-external-icon" aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>
+<main>
+
+<section class="section converter-hero">
+  <div class="converter-hero-copy">
+    <p class="eyebrow">Version 1.0 · Released August 5, 2026</p>
+    <h1>Meta-Analysis Studio</h1>
+    <p class="subtitle lead">Prepare effect sizes, fit fixed- or random-effects models, examine heterogeneity, and generate publication-ready outputs in one browser-based workflow.</p>
+    <div class="converter-hero-actions">
+      <a class="btn btn-outline btn-sm" href="downloads/effect-size-template.csv" download>Download empty CSV template</a>
+    </div>
+  </div>
+  <div class="converter-trust">
+    <span>Calculations run entirely in your browser</span>
+    <span>No account required</span>
+    <span>Files are not uploaded to ERN Institute</span>
+  </div>
+</section>
+
+<section class="section studio-repository-callout" aria-labelledby="studio-repository-title">
+  <div>
+    <p class="eyebrow">Optional open-data sharing</p>
+    <h2 id="studio-repository-title">Use or contribute open meta-analysis data</h2>
+    <p>Download real datasets prepared for the Studio, with original sources and licenses retained. You can also submit your own dataset for review without creating an account. Repository participation is separate from your private Studio analysis.</p>
+  </div>
+  <a class="btn btn-outline" href="repository.html">Open the data repository</a>
+</section>
+
+<section class="section studio-flow-preview" aria-labelledby="studio-flow-title">
+  <div class="studio-flow-shell">
+    <div class="studio-flow-heading">
+      <div>
+        <p class="eyebrow">Studio workflow</p>
+        <h2 id="studio-flow-title">Four steps from study results to finished outputs</h2>
+      </div>
+      <p class="muted">Loading a file completes the preparation automatically. You run the pooled meta-analysis only after reviewing the prepared data.</p>
+    </div>
+    <ol class="studio-flow-list" aria-label="Meta-Analysis Studio workflow">
+      <li class="studio-flow-step">
+        <span class="studio-flow-step-label">Step 1</span>
+        <strong>Load study results</strong>
+        <span>Upload an ERN data file or use the built-in example.</span>
+      </li>
+      <li class="studio-flow-step">
+        <span class="studio-flow-step-label">Step 2</span>
+        <strong>Review automatically prepared data</strong>
+        <span>Effect sizes, validation checks, and unpooled forest plots are created as soon as the file loads.</span>
+      </li>
+      <li class="studio-flow-step">
+        <span class="studio-flow-step-label">Step 3</span>
+        <strong>Configure and run the meta-analysis</strong>
+        <span>Choose the effect-size metric, model, and settings, then run the pooled analysis.</span>
+      </li>
+      <li class="studio-flow-step">
+        <span class="studio-flow-step-label">Step 4</span>
+        <strong>Review results and export</strong>
+        <span>Interpret the pooled estimate and forest plot, then download publication-ready files.</span>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section converter-section" aria-labelledby="converter-heading">
+  <div class="converter-shell">
+    <div class="converter-topline">
+      <div>
+        <p class="eyebrow">Step 1</p>
+        <h2 id="converter-heading">Load study results</h2>
+        <p class="muted">Load the ERN template and the Studio will immediately calculate the effect sizes, validate every row, and generate separate unpooled forest plots for each effect-size metric. No separate run command is required for preparation. The pooled meta-analysis does not run until Step 3, and no data are sent to ERN.</p>
+      </div>
+      <a class="btn btn-outline btn-sm" href="downloads/effect-size-example.csv" download>Download example CSV</a>
+    </div>
+
+    <div class="automatic-preparation-note" aria-label="Outputs created automatically after upload">
+      <span class="automatic-preparation-icon" aria-hidden="true">✓</span>
+      <span>
+        <strong>Created automatically when the file loads</strong>
+        <span>Calculated effect sizes · row-by-row validation · unpooled forest plots grouped by metric</span>
+      </span>
+    </div>
+
+    <label class="drop-zone" id="drop-zone" for="effect-file" tabindex="0">
+      <input id="effect-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values"/>
+      <strong id="drop-zone-title">Choose a CSV or drop it here</strong>
+      <span id="drop-zone-hint">Maximum file size: 5 MB</span>
+    </label>
+
+    <div class="upload-confirmation" id="upload-confirmation" role="status" aria-live="polite" hidden>
+      <span class="upload-confirmation-icon" aria-hidden="true">✓</span>
+      <span class="upload-confirmation-copy">
+        <strong>File loaded successfully</strong>
+        <span id="upload-confirmation-detail"></span>
+      </span>
+    </div>
+
+    <div class="converter-actions">
+      <button class="btn btn-outline" id="load-example" type="button">Try built-in example</button>
+      <button class="btn btn-quiet" id="clear-converter" type="button">Clear</button>
+    </div>
+
+    <div class="converter-status converter-status--neutral" id="converter-status" role="status" aria-live="polite">Load your CSV or try the built-in example. The Studio will create the Step 2 effect sizes, validation report, and unpooled forest plots automatically.</div>
+  </div>
+</section>
+
+<details class="section converter-section converter-results review-panel" id="converter-results" hidden>
+  <summary class="review-summary">
+    <div>
+      <span class="eyebrow">Step 2</span>
+      <strong>Review automatically prepared data</strong>
+      <span class="muted" id="result-summary"></span>
+    </div>
+    <span class="review-status" id="review-status">Open review</span>
+  </summary>
+
+  <div class="review-panel-body">
+    <div class="converter-results-header">
+      <div>
+        <h2>Automatically calculated effect sizes</h2>
+        <p class="muted">Loading the file created these effect sizes, validation checks, and unpooled forest plots without an additional command. This panel opens when errors or warnings require attention and remains available before model fitting.</p>
+      </div>
+      <div class="converter-export-block">
+        <div class="converter-export-actions">
+          <button class="btn btn-primary btn-sm" id="download-workbook" type="button" disabled>Download publication XLSX</button>
+          <button class="btn btn-outline btn-sm" id="download-results" type="button" disabled>Download results CSV</button>
+        </div>
+        <p class="converter-export-note">The workbook preserves every loaded row, records calculation assumptions, explains validation issues, and includes fitted models and figures after an analysis is run.</p>
+      </div>
+    </div>
+
+    <div class="table-wrap" tabindex="0" aria-label="Calculated effect size results">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Study</th><th>Effect ID</th><th>Metric</th><th>Effect</th><th>Variance</th><th>SE</th><th>95% CI low</th><th>95% CI high</th><th>Natural metric</th><th>Natural effect</th><th>Warning</th>
+          </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+      </table>
+    </div>
+
+    <div class="converter-forest" id="converter-forest" hidden aria-labelledby="forest-heading">
+      <div class="converter-results-header review-subheading">
+        <div>
+          <h3 id="forest-heading">Automatically generated unpooled forest plots</h3>
+          <p class="muted">Created separately for each effect-size metric as soon as the file loaded. These are data-review plots, not the final pooled meta-analysis result.</p>
+        </div>
+      </div>
+      <div class="forest-plots" id="forest-plots"></div>
+    </div>
+
+    <div class="converter-issues" id="converter-issues" hidden aria-labelledby="validation-heading">
+      <div class="converter-results-header review-subheading">
+        <div>
+          <h3 id="validation-heading">Automatic validation report</h3>
+          <p class="muted" id="validation-summary"></p>
+        </div>
+      </div>
+      <div class="validation-list" id="issues-list"></div>
+    </div>
+  </div>
+</details>
+
+<section class="section converter-section meta-analysis-section" id="meta-analysis-section" hidden aria-labelledby="meta-analysis-heading">
+  <div class="converter-results-header">
+    <div>
+      <p class="eyebrow">Step 3</p>
+      <h2 id="meta-analysis-heading">Configure and run the meta-analysis</h2>
+      <p class="muted">Choose the compatible effect-size metric and substantive model. Recommended statistical settings are applied automatically unless you change them.</p>
+    </div>
+  </div>
+
+  <div class="meta-guided-panel">
+    <div class="meta-primary-controls">
+      <label>
+        <span>Effect-size metric</span>
+        <select id="meta-metric"></select>
+      </label>
+      <label>
+        <span>Analysis model</span>
+        <select id="meta-model">
+          <option value="random" selected>Random-effects (recommended for most applications)</option>
+          <option value="fixed">Common-effect (fixed-effect)</option>
+        </select>
+      </label>
+    </div>
+
+    <div class="meta-settings-card" id="meta-settings-card" aria-live="polite">
+      <div>
+        <div class="meta-settings-heading">
+          <span class="meta-settings-label">Current settings</span>
+          <span class="meta-settings-state meta-settings-state--recommended" id="meta-settings-state">Recommended defaults</span>
+        </div>
+        <strong id="meta-settings-summary">REML · automatic inference · 95% confidence interval</strong>
+      </div>
+      <p id="meta-settings-note">A prediction interval is shown automatically when at least five effects are available.</p>
+    </div>
+
+    <details class="meta-advanced-settings" id="meta-advanced-settings">
+      <summary><span>Advanced settings</span></summary>
+      <div class="meta-control-panel">
+        <label>
+          <span>Between-study variance</span>
+          <select id="meta-tau">
+            <option value="REML" selected>REML (recommended default)</option>
+            <option value="PM">Paule–Mandel (sensitivity alternative)</option>
+            <option value="DL">DerSimonian–Laird (legacy / reproducibility)</option>
+          </select>
+        </label>
+        <label>
+          <span>Inference</span>
+          <select id="meta-inference">
+            <option value="auto" selected>Recommended automatically</option>
+            <option value="wald">Wald normal</option>
+            <option value="knha">Knapp–Hartung</option>
+          </select>
+        </label>
+        <label>
+          <span>Confidence level</span>
+          <select id="meta-confidence">
+            <option value="90">90%</option>
+            <option value="95" selected>95%</option>
+            <option value="99">99%</option>
+          </select>
+        </label>
+        <label>
+          <span>Prediction interval</span>
+          <select id="meta-prediction">
+            <option value="auto" selected>Automatic (show at 5+ effects)</option>
+            <option value="always">Show whenever 3+ effects permit it</option>
+            <option value="off">Do not show</option>
+          </select>
+        </label>
+      </div>
+      <label class="meta-option-check">
+        <input id="include-common-sensitivity" type="checkbox" checked/>
+        <span><strong>Include a common-effect sensitivity analysis.</strong> This comparison is included automatically in the on-page results and publication workbook when the primary model is random-effects.</span>
+      </label>
+    </details>
+  </div>
+
+  <div class="meta-independence-box" id="meta-independence-box" hidden>
+    <label class="meta-confirmation">
+      <input id="confirm-independent-effects" type="checkbox"/>
+      <span><strong>Confirm these effects can be treated as independent.</strong> <span id="meta-independence-text"></span></span>
+    </label>
+  </div>
+
+  <div class="converter-actions meta-actions">
+    <button class="btn btn-primary" id="run-meta-analysis" type="button">Run selected metric</button>
+    <button class="btn btn-outline" id="run-all-meta-analyses" type="button">Run all different effect-size metrics</button>
+  </div>
+  <p class="muted">Each effect-size metric produces its own pooled estimate; different metrics are never combined.</p>
+  <div class="converter-status converter-status--neutral" id="meta-status" role="status" aria-live="polite">Upload data to configure an analysis.</div>
+
+  <div class="meta-output" id="meta-output" hidden>
+    <div class="meta-all-results" id="meta-all-results" hidden></div>
+
+    <div class="meta-single-result" id="meta-single-result">
+    <div class="meta-output-heading">
+      <div>
+        <p class="eyebrow">Step 4</p>
+        <h3>Review results and export</h3>
+        <p class="muted" id="meta-model-description"></p>
+      </div>
+      <div class="converter-export-actions">
+        <button class="btn btn-primary btn-sm" id="download-workbook-results" type="button">Download publication XLSX</button>
+        <button class="btn btn-outline btn-sm" id="download-meta-results" type="button">Download model CSV</button>
+        <button class="btn btn-outline btn-sm" id="download-pooled-forest" type="button">Download pooled SVG</button>
+      </div>
+    </div>
+
+    <div class="meta-summary-grid" id="meta-summary-grid"></div>
+
+    <article class="forest-card meta-pooled-forest">
+      <div class="forest-card-head">
+        <div>
+          <h3>Pooled forest plot</h3>
+          <p class="muted">Study weights reflect the selected model. The diamond shows the pooled confidence interval; a prediction interval is shown when requested and sufficiently supported.</p>
+        </div>
+      </div>
+      <div class="forest-svg-wrap" id="meta-forest-container"></div>
+    </article>
+
+    <div class="meta-result-details">
+      <details class="result-detail" id="meta-sensitivity-details" hidden>
+        <summary>Common-effect sensitivity comparison</summary>
+        <div class="result-detail-body" id="meta-sensitivity-body"></div>
+      </details>
+
+      <details class="result-detail">
+        <summary>Heterogeneity and model details</summary>
+        <div class="result-detail-body meta-detail-grid" id="meta-detail-grid"></div>
+      </details>
+
+      <details class="result-detail">
+        <summary>Suggested reporting text</summary>
+        <div class="result-detail-body meta-reporting-grid">
+          <article class="meta-report-card">
+            <div class="meta-report-head"><h3>Suggested methods text</h3><button class="btn btn-quiet btn-sm" id="copy-meta-methods" type="button">Copy</button></div>
+            <p id="meta-methods-text"></p>
+          </article>
+          <article class="meta-report-card">
+            <div class="meta-report-head"><h3>Suggested results text</h3><button class="btn btn-quiet btn-sm" id="copy-meta-results" type="button">Copy</button></div>
+            <p id="meta-results-text"></p>
+          </article>
+        </div>
+      </details>
+
+      <details class="result-detail">
+        <summary>Study weights and calculated model data</summary>
+        <div class="result-detail-body meta-weight-table">
+          <p class="muted">Weights sum to 100% within the selected model.</p>
+          <div class="table-wrap" tabindex="0" aria-label="Meta-analysis study weights">
+            <table class="results-table">
+              <thead><tr><th>Study</th><th>Effect ID</th><th>Effect</th><th>CI low</th><th>CI high</th><th>Weight</th></tr></thead>
+              <tbody id="meta-weights-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </details>
+    </div>
+    </div>
+  </div>
+
+  <details class="method-details meta-method-details">
+    <summary>Classical model definitions and safeguards</summary>
+    <div class="method-details-body">
+      <p><strong>Common-effect (fixed-effect):</strong> inverse-variance weights assume that all included estimates target one common underlying effect.</p>
+      <p><strong>Random-effects:</strong> weights incorporate estimated between-study variance. REML is the recommended default; Paule–Mandel is retained as a strong sensitivity alternative, and DerSimonian–Laird is labeled as a legacy method for reproducing older analyses.</p>
+      <p><strong>Automatic inference:</strong> the Studio uses Knapp–Hartung when a random-effects model has more than two effects and the estimated between-study variance (τ²) is positive after applying a numerical zero tolerance; otherwise it uses Wald inference. This is not a statistical significance test of heterogeneity. The exact decision is recorded in the export.</p>
+      <p><strong>Prediction interval:</strong> automatic mode displays a t-based interval when at least five effects are available. Advanced settings can request it with three or four effects, accompanied by a caution.</p>
+      <p><strong>Dependency safeguard:</strong> repeated study labels trigger a confirmation step. Confirmation does not solve statistical dependence; use it only when the rows are genuinely independent.</p>
+    </div>
+  </details>
+</section>
+
+<section class="section converter-reference">
+  <div class="converter-reference-grid">
+    <div>
+      <p class="eyebrow">Supported inputs</p>
+      <h2>Five common conversions</h2>
+    </div>
+    <div class="supported-list">
+      <div><strong>Independent means</strong><span>Means, SDs, and sample sizes → Hedges <em>g</em></span></div>
+      <div><strong>Independent <em>t</em></strong><span>Student <em>t</em> and group sizes → Hedges <em>g</em></span></div>
+      <div><strong>Independent <em>F</em></strong><span>Two-group <em>F</em>(1, df<sub>2</sub>), group sizes, and direction → Hedges <em>g</em></span></div>
+      <div><strong>Correlation</strong><span>Pearson <em>r</em> and <em>n</em> → Fisher <em>z</em></span></div>
+      <div><strong>Binary outcome</strong><span>Events and totals → log odds ratio</span></div>
+    </div>
+  </div>
+
+  <details class="method-details">
+    <summary>Calculation definitions and current limits</summary>
+    <div class="method-details-body">
+      <p><strong>Independent means:</strong> pooled-standard-deviation Cohen <em>d</em>, corrected to Hedges <em>g</em>. The reported variance includes the small-sample correction.</p>
+      <p><strong>Independent <em>t</em>:</strong> converts a Student independent-groups <em>t</em> statistic to Cohen <em>d</em>, then applies the Hedges correction. Welch, paired, repeated-measures, adjusted-model, and mixed-model <em>t</em> statistics are not supported by this pathway.</p>
+      <p><strong>Independent <em>F</em>:</strong> supports only a simple two-group between-subjects test with numerator df = 1 and denominator df = <em>n</em><sub>1</sub> + <em>n</em><sub>2</sub> − 2. Because <em>F</em> has no sign, <code>f_direction</code> is required. Omnibus, ANCOVA, repeated-measures, multilevel, and mixed-model <em>F</em> statistics must not be entered here.</p>
+      <p><strong>Correlations:</strong> reports Fisher <em>z</em> for analysis and Pearson <em>r</em> as the natural-scale value.</p>
+      <p><strong>Binary outcomes:</strong> reports the log odds ratio for analysis and the odds ratio on its natural scale. A 0.5 continuity correction is disclosed when any cell equals zero.</p>
+      <p><strong>Current limit:</strong> this version does not support paired, repeated-measures, cluster-randomized, multilevel, adjusted-model, omnibus-F, survival, or non-independent effect structures. Do not force those designs into an independent-groups format.</p>
+    </div>
+  </details>
+</section>
+
+</main>
+<footer class="footer">
+  <div class="footer-inner">
+    <span>© <span id="year"></span> ERN Institute. All rights reserved.</span>
+    <span>Experience-Related Neuroplasticity.</span>
+  </div>
+</footer>
+</div>
+
+<script src="publication-workbook.js?v=20260806d" defer></script>
+<script src="meta-analysis-engine.js?v=20260801a" defer></script>
+<script src="effect-size-converter.js?v=20260806d" defer></script>
+<script src="meta-analysis.js?v=20260806d" defer></script>
+<script src="navigation-dropdown.js"></script>
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+(function () {
+  const btn = document.querySelector('.nav-toggle');
+  const nav = document.querySelector('#site-nav');
+  if (!btn || !nav) return;
+  btn.addEventListener('click', () => {
+    const open = document.body.classList.toggle('nav-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  nav.addEventListener('click', (e) => {
+    if (e.target && e.target.tagName === 'A') {
+      document.body.classList.remove('nav-open');
+      btn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('nav-open')) return;
+    if (nav.contains(e.target) || btn.contains(e.target)) return;
+    document.body.classList.remove('nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+  });
+})();
+</script>
+</body>
+</html>

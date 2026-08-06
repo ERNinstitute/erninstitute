@@ -1,0 +1,18 @@
+study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
+Axelsson et al. (2009),COR-01,correlation,,,,,,,,,,,,0.187,109,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: other; mean age: 22; quality score: 1.
+Axelsson et al. (2011),COR-02,correlation,,,,,,,,,,,,0.162,749,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: NEO; mean age: 53.59; quality score: 1.
+Bruce et al. (2010),COR-03,correlation,,,,,,,,,,,,0.34,55,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 43.36; quality score: 2.
+Christensen et al. (1999),COR-04,correlation,,,,,,,,,,,,0.32,107,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: other; mean age: 41.7; quality score: 1.
+Christensen & Smith (1995),COR-05,correlation,,,,,,,,,,,,0.27,72,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 46.39; quality score: 2.
+Cohen et al. (2004),COR-06,correlation,,,,,,,,,,,,0,65,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 41.2; quality score: 2.
+Dobbels et al. (2005),COR-07,correlation,,,,,,,,,,,,0.175,174,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: NEO; mean age: 52.3; quality score: 1.
+Ediger et al. (2007),COR-08,correlation,,,,,,,,,,,,0.05,326,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: NEO; mean age: 41; quality score: 3.
+Insel et al. (2006),COR-09,correlation,,,,,,,,,,,,0.26,58,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: other; mean age: 77; quality score: 2.
+Jerant et al. (2011),COR-10,correlation,,,,,,,,,,,,0.01,771,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 78.6; quality score: 3.
+Moran et al. (1997),COR-11,correlation,,,,,,,,,,,,-0.09,56,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 57.2; quality score: 2.
+O'Cleirigh et al. (2007),COR-12,correlation,,,,,,,,,,,,0.37,91,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: NEO; mean age: 37.9; quality score: 2.
+Penedo et al. (2003),COR-13,correlation,,,,,,,,,,,,0,116,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: NEO; mean age: 39.2; quality score: 1.
+Quine et al. (2012),COR-14,correlation,,,,,,,,,,,,0.15,537,,,,,no,Conscientiousness and medication adherence; adherence measure: self-report; conscientiousness measure: other; mean age: 69; quality score: 2.
+Stilley et al. (2004),COR-15,correlation,,,,,,,,,,,,0.24,158,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 46.2; quality score: 3.
+Wiebe & Christensen (1997),COR-16,correlation,,,,,,,,,,,,0.04,65,,,,,no,Conscientiousness and medication adherence; adherence measure: other; conscientiousness measure: NEO; mean age: 56; quality score: 1.
+
