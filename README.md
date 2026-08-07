@@ -1,4 +1,4 @@
-# ERN Institute
+# ERN Institute 
 
 This repository contains the official website for [ERN Institute](https://erninstitute.com), an independent research, publishing, and consulting initiative focused on experience-related neuroplasticity.
 
