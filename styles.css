@@ -13,7 +13,9 @@
   --shadow: 0 16px 42px rgba(15, 23, 42, 0.08);
   --radius: 18px;
   --radius-pill: 999px;
-  --max-width: 1180px;
+  --content-width: 1132px;
+  --page-gutter: clamp(1rem, 4.5vw, 3.25rem);
+  --max-width: 1236px;
 }
 
 * {
@@ -72,7 +74,7 @@ main {
 .header-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0.65rem 1.5rem;
+  padding: 0.65rem var(--page-gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -267,11 +269,11 @@ main {
 .section {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 3.5rem 1.5rem;
+  padding: 3.5rem var(--page-gutter);
 }
 
 .section-narrow {
-  max-width: 860px;
+  max-width: 916px;
 }
 
 .hero {
@@ -789,7 +791,7 @@ a.ecosystem-strip-item:hover {
 .footer-inner {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 1.2rem 1.5rem;
+  padding: 1.2rem var(--page-gutter);
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -889,7 +891,7 @@ li {
   }
 
   .section {
-    padding: 2.75rem 1.15rem;
+    padding: 2.75rem var(--page-gutter);
   }
 
   .section-heading-row {
@@ -930,7 +932,7 @@ li {
 
 @media (max-width: 620px) {
   .header-inner {
-    padding-inline: 1rem;
+    padding-inline: var(--page-gutter);
   }
 
   .brand-logo {
@@ -1799,8 +1801,8 @@ li {
 
 /* ERN Meta-Analysis Studio — classical model controls and outputs */
 .meta-analysis-section {
-  width: calc(100% - 3rem);
-  max-width: calc(var(--max-width) - 3rem);
+  width: calc(100% - var(--page-gutter) - var(--page-gutter));
+  max-width: var(--content-width);
   padding: clamp(1.25rem, 3vw, 2rem);
   border: 1px solid rgba(39, 79, 130, 0.24);
   border-radius: var(--radius);
@@ -2306,8 +2308,8 @@ li {
 
 .review-panel {
   overflow: hidden;
-  width: calc(100% - 3rem);
-  max-width: calc(var(--max-width) - 3rem);
+  width: calc(100% - var(--page-gutter) - var(--page-gutter));
+  max-width: var(--content-width);
   padding: 0;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
