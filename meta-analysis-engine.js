@@ -267,14 +267,53 @@
   function transformNatural(metric, value) {
     if (!Number.isFinite(value)) return '';
     if (metric === 'Fisher z') return Math.tanh(value);
-    if (metric === 'Log odds ratio') return Math.exp(value);
+    if (metric === 'Log odds ratio' || metric === 'Log risk ratio' || metric === 'Log hazard ratio' || metric === 'Log rate ratio') return Math.exp(value);
     return value;
   }
 
   function naturalMetricName(metric) {
     if (metric === 'Fisher z') return 'Pearson r';
     if (metric === 'Log odds ratio') return 'Odds ratio';
+    if (metric === 'Log risk ratio') return 'Risk ratio';
+    if (metric === 'Log hazard ratio') return 'Hazard ratio';
+    if (metric === 'Log rate ratio') return 'Rate ratio';
     return metric;
+  }
+
+  function typicalWithinStudyVariance(effects) {
+    const weights = effects.map((effect) => 1 / effect.sampling_variance);
+    const sumWeights = sum(weights);
+    const sumSquaredWeights = sum(weights.map((weight) => weight * weight));
+    const denominator = sumWeights - (sumSquaredWeights / sumWeights);
+    if (!(denominator > 0) || effects.length < 2) return NaN;
+    return (effects.length - 1) / denominator;
+  }
+
+  function heterogeneityInterpretation({ model, tauEstimator, tau2, q, qDf, qP, i2, k }) {
+    if (model !== 'random') {
+      return `Between-study variance is not estimated in the common-effect model. Cochran's Q(${qDf}) = ${reportNumber(q, 2)}, p ${reportP(qP)} describes observed dispersion around the common-effect estimate.`;
+    }
+
+    const smallK = k < 5
+      ? ` With only ${k} effect${k === 1 ? '' : 's'}, heterogeneity estimates are especially uncertain.`
+      : '';
+    const qText = ` Cochran's Q(${qDf}) = ${reportNumber(q, 2)}, p ${reportP(qP)} is reported separately and does not override the ${tauEstimator} variance estimate.`;
+
+    if (tau2 <= EPSILON) {
+      return `${tauEstimator} estimated τ² at the zero boundary. This is a point estimate and does not imply that all true effects are identical.${qText}${smallK}`;
+    }
+    return `${tauEstimator} estimated positive between-study variance (τ² = ${reportNumber(tau2)}, I² = ${reportNumber(i2, 1)}%).${qText}${smallK}`;
+  }
+
+  function heterogeneityBrief({ model, tauEstimator, tau2, k }) {
+    if (model !== 'random') return '';
+    if (tau2 <= EPSILON) {
+      const smallK = k < 5 ? ` With only ${k} effects, heterogeneity and interval estimates are especially uncertain.` : '';
+      return `${tauEstimator} estimated τ² = 0. A zero point estimate does not establish that the true effects are identical.${smallK}`;
+    }
+    if (k <= 3) return `Only ${k} effects are available. Heterogeneity and uncertainty are difficult to estimate; compare HKSJ and Wald inference in Advanced settings.`;
+    if (k < 5) return `Heterogeneity is estimated from only ${k} effects and is therefore especially uncertain.`;
+    return '';
   }
 
   function analyze(rawEffects, options = {}) {
@@ -302,8 +341,9 @@
     const q = fixed.q;
     const qDf = k - 1;
     const qP = chiSquareSurvival(q, qDf);
-    const i2 = q > 0 ? Math.max(0, ((q - qDf) / q) * 100) : 0;
-    const h2 = qDf > 0 ? q / qDf : NaN;
+    const qI2 = q > 0 ? Math.max(0, ((q - qDf) / q) * 100) : 0;
+    const qH2 = qDf > 0 ? q / qDf : NaN;
+    const typicalWithinVariance = typicalWithinStudyVariance(effects);
 
     let tau2 = 0;
     if (model === 'random') {
@@ -311,6 +351,17 @@
       else if (tauEstimator === 'PM') tau2 = tauSquaredPM(effects);
       else tau2 = tauSquaredREML(effects);
     }
+
+    // For random-effects models, I² and H² are derived from the selected τ²
+    // estimator and a typical within-study variance. This keeps the displayed
+    // heterogeneity measures internally consistent (as in current RevMan/metafor).
+    const i2 = model === 'random' && Number.isFinite(typicalWithinVariance)
+      ? (tau2 <= EPSILON ? 0 : (tau2 / (tau2 + typicalWithinVariance)) * 100)
+      : qI2;
+    const h2 = model === 'random' && Number.isFinite(typicalWithinVariance)
+      ? (tau2 <= EPSILON ? 1 : (tau2 + typicalWithinVariance) / typicalWithinVariance)
+      : qH2;
+    const tauBoundary = model === 'random' && tau2 <= EPSILON;
 
     let inference = model === 'fixed' ? 'wald' : requestedInference;
     let inferenceReason = model === 'fixed'
@@ -323,9 +374,19 @@
       } else {
         inference = 'wald';
         inferenceReason = tau2 <= EPSILON
-          ? 'Automatically selected Wald inference because estimated between-study variance was zero.'
-          : 'Automatically selected Wald inference because fewer than three effects were available.';
+          ? `Automatically selected Wald inference because ${tauEstimator} estimated τ² at the zero boundary.`
+          : 'Automatically selected Wald inference because only two effects were available; HKSJ can be excessively wide with so few effects.';
       }
+    } else if (model === 'random' && requestedInference === 'knha') {
+      inferenceReason = tau2 <= EPSILON
+        ? `Knapp–Hartung was selected manually even though ${tauEstimator} estimated τ² at the zero boundary; this can yield an overly narrow interval, so compare the Wald result.`
+        : (k <= 3
+          ? `Knapp–Hartung was selected manually with only ${k} effects; intervals can be excessively wide with very small k, so compare the Wald result.`
+          : 'Knapp–Hartung inference was selected manually.');
+    } else if (model === 'random' && requestedInference === 'wald') {
+      inferenceReason = tau2 > EPSILON && k <= 3
+        ? `Wald inference was selected manually with only ${k} effects; it does not account for uncertainty in estimating τ², so compare the Knapp–Hartung result.`
+        : 'Wald normal inference was selected manually.';
     }
 
     const pooled = weightedSummary(effects, tau2);
@@ -354,14 +415,17 @@
     const predictionEligible = model === 'random' && k >= 3;
     const showPrediction = predictionEligible && predictionPolicy !== 'off' && (predictionPolicy === 'always' || k >= 5);
     if (showPrediction) {
-      predictionDf = k - 2;
-      const predictionCritical = inverseStudentT(1 - (alpha / 2), predictionDf);
+      // Align the PI critical value with the fitted model's inference method.
+      // Under Knapp–Hartung this uses t(k-1); under Wald it uses the normal critical value.
+      predictionDf = inference === 'knha' ? inferenceDf : '';
+      const predictionCritical = criticalValue;
       const predictionSe = Math.sqrt(tau2 + (standardError ** 2));
       predictionLower = pooled.estimate - (predictionCritical * predictionSe);
       predictionUpper = pooled.estimate + (predictionCritical * predictionSe);
+      const methodText = inference === 'knha' ? `t(${predictionDf})` : 'normal';
       predictionNote = predictionPolicy === 'always' && k < 5
-        ? 'Displayed by advanced request with fewer than five effects; interpret cautiously.'
-        : 'Displayed automatically because at least five effects were available.';
+        ? `Displayed by advanced request with fewer than five effects using ${methodText} critical values; interpret cautiously.`
+        : `Displayed automatically because at least five effects were available, using ${methodText} critical values.`;
     } else if (model !== 'random') {
       predictionNote = 'Prediction intervals are not defined for the common-effect model in this workflow.';
     } else if (predictionPolicy === 'off') {
@@ -396,10 +460,12 @@
     const inferenceLabel = model === 'random' && inference === 'knha' ? 'Knapp–Hartung t inference' : 'Wald normal inference';
     const predictionMethodsText = predictionLower === ''
       ? ` No prediction interval was reported (${predictionNote.toLowerCase()})`
-      : ` A t-based ${confidenceLevel}% prediction interval was calculated with ${predictionDf} degrees of freedom.`;
+      : inference === 'knha'
+        ? ` A ${confidenceLevel}% prediction interval was calculated using the model's t(${predictionDf}) critical value.`
+        : ` A ${confidenceLevel}% prediction interval was calculated using the model's normal critical value.`;
     const methodsText = model === 'fixed'
-      ? `A common-effect (fixed-effect) inverse-variance meta-analysis was fitted to ${k} independent ${metric} estimates. Statistical inference used a ${confidenceLevel}% Wald confidence interval.`
-      : `A random-effects meta-analysis was fitted to ${k} independent ${metric} estimates. Between-study variance was estimated using ${tauEstimator}, and ${inferenceLabel} was used for the pooled effect.${predictionMethodsText}`;
+      ? `A common-effect (fixed-effect) inverse-variance meta-analysis was fitted to ${k} ${metric} estimates treated as independent. Statistical inference used a ${confidenceLevel}% Wald confidence interval.`
+      : `A random-effects meta-analysis was fitted to ${k} ${metric} estimates treated as independent. Between-study variance was estimated using ${tauEstimator}, and ${inferenceLabel} was used for the pooled effect.${predictionMethodsText}`;
 
     const estimateText = Number.isFinite(estimateNatural) ? estimateNatural : pooled.estimate;
     const lowerText = Number.isFinite(ciNaturalLower) ? ciNaturalLower : ciLower;
@@ -407,7 +473,12 @@
     const naturalLabel = naturalMetricName(metric);
     const predictionText = predictionLower === '' ? '' : ` The ${confidenceLevel}% prediction interval was [${reportNumber(piNaturalLower)}, ${reportNumber(piNaturalUpper)}] on the ${naturalLabel} scale.`;
     const testLabel = model === 'random' && inference === 'knha' ? `t(${inferenceDf})` : 'z';
-    const resultsText = `The pooled ${naturalLabel} was ${reportNumber(estimateText)}, ${confidenceLevel}% CI [${reportNumber(lowerText)}, ${reportNumber(upperText)}], ${testLabel} = ${reportNumber(statistic, 2)}, p ${reportP(pValue)}. Heterogeneity was Q(${qDf}) = ${reportNumber(q, 2)}, p ${reportP(qP)}, I² = ${reportNumber(i2, 1)}%, and τ² = ${reportNumber(tau2)}.${predictionText}`;
+    const heterogeneityNote = heterogeneityInterpretation({ model, tauEstimator, tau2, q, qDf, qP, i2, k });
+    const heterogeneityBriefNote = heterogeneityBrief({ model, tauEstimator, tau2, k });
+    const heterogeneityResultsText = model === 'random'
+      ? ` Heterogeneity estimates were τ² = ${reportNumber(tau2)} (${tauEstimator}) and I² = ${reportNumber(i2, 1)}%; Cochran's Q(${qDf}) = ${reportNumber(q, 2)}, p ${reportP(qP)}.`
+      : ` Cochran's Q(${qDf}) = ${reportNumber(q, 2)}, p ${reportP(qP)}.`;
+    const resultsText = `The pooled ${naturalLabel} was ${reportNumber(estimateText)}, ${confidenceLevel}% CI [${reportNumber(lowerText)}, ${reportNumber(upperText)}], ${testLabel} = ${reportNumber(statistic, 2)}, p ${reportP(pValue)}.${heterogeneityResultsText}${predictionText}`;
 
     return {
       metric,
@@ -430,11 +501,17 @@
       inference_df: inferenceDf,
       tau2,
       tau: Math.sqrt(tau2),
+      tau_boundary: tauBoundary,
       q,
       q_df: qDf,
       q_p_value: qP,
+      q_i2: qI2,
+      q_h2: qH2,
+      typical_within_variance: typicalWithinVariance,
       i2,
       h2,
+      heterogeneity_note: heterogeneityNote,
+      heterogeneity_brief: heterogeneityBriefNote,
       prediction_lower: predictionLower,
       prediction_upper: predictionUpper,
       prediction_df: predictionDf,

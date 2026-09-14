@@ -1,0 +1,12 @@
+HOW TO TEST THIS WEBSITE BEFORE UPLOADING
+
+Do not double-click index.html or other HTML files. The site intentionally uses web-root URLs such as /tools/ and /styles.css, which require a web server and will not resolve under file://.
+
+On macOS:
+1. Double-click PREVIEW.command.
+2. If macOS blocks it the first time, Control-click PREVIEW.command, choose Open, then choose Open again.
+3. Your browser will open http://localhost:8765/.
+4. Test the website there, including Tools > All Research Tools and Meta-Analysis Studio.
+5. Keep the Terminal window open while testing. Press Control-C when finished.
+
+This local server does not upload anything and is accessible only from your computer at 127.0.0.1.

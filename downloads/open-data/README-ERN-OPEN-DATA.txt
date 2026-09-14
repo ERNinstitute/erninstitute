@@ -15,8 +15,8 @@ ERN PREPARATION
 ERN Institute retained the source values and renamed variables to match the Studio upload schema, created stable effect identifiers, calculated binary-group totals from event and non-event counts, and added explanatory notes and direction-of-effect guidance.
 
 FILES
-1. ern-ready-colditz1994-bcg.csv — 13 binary effects; BCG vaccination and tuberculosis.
-2. ern-ready-normand1999-stroke-stay.csv — 9 standardized-mean-difference effects; stroke-unit hospital stay.
-3. ern-ready-cohen1981-instructor-ratings.csv — 20 correlation effects; instructor ratings and student achievement.
-4. ern-ready-molloy2014-medication-adherence.csv — 16 correlation effects; conscientiousness and medication adherence.
-5. ern-ready-gibson2002-asthma-multimetric.csv — 20 analyzable effects across Hedges g and log odds ratios; asthma self-management.
+1. ern-ready-colditz1994-bcg.csv: 13 binary effects; BCG vaccination and tuberculosis.
+2. ern-ready-normand1999-stroke-stay.csv: 9 standardized-mean-difference effects; stroke-unit hospital stay.
+3. ern-ready-cohen1981-instructor-ratings.csv: 20 correlation effects; instructor ratings and student achievement.
+4. ern-ready-molloy2014-medication-adherence.csv: 16 correlation effects; conscientiousness and medication adherence.
+5. ern-ready-gibson2002-asthma-multimetric.csv: 20 analyzable effects across Hedges g and log odds ratios; asthma self-management.

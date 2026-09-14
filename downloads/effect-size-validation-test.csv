@@ -8,3 +8,5 @@ Impossible Binary,OR-ERR-01,binary,,,,,,,,,,,,,,65,60,9,58,no,Events exceed tota
 Unused Input Warning,T-WARN-01,independent_t,,,35,,,37,2.10,,,,,0.25,72,,,,,no,r_value and n are populated but ignored for independent_t
 Valid F Study,F-OK-01,independent_f,,,50,,,52,,5.29,1,100,group2_higher,,,,,,,no,Valid two-group F row
 Zero Cell Warning,OR-WARN-01,binary,,,,,,,,,,,,,,0,42,6,44,no,Continuity correction should be disclosed
+Noninformative Double Zero,OR-WARN-02,binary,,,,,,,,,,,,,,0,40,0,45,no,No events in either group should be excluded from odds-ratio pooling
+Invalid Reverse Sign,R-ERR-02,correlation,,,,,,,,,,,,0.20,50,,,,,maybe,Unrecognized reverse_sign must be rejected

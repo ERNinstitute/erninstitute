@@ -314,7 +314,7 @@
     ['Column', 'Purpose', 'Used by'],
     ['study_id', 'Study citation or short label.', 'All rows'],
     ['effect_id', 'Unique identifier for one effect-size record.', 'All rows'],
-    ['calculation_type', 'One of independent_means, independent_t, independent_f, correlation, or binary.', 'All rows'],
+    ['calculation_type', 'One of independent_means, independent_t, independent_f, correlation, binary, or generic.', 'All rows'],
     ['mean1, sd1, n1', 'Group 1 mean, standard deviation, and sample size.', 'Independent means'],
     ['mean2, sd2, n2', 'Group 2 mean, standard deviation, and sample size.', 'Independent means; n1/n2 also used by t and F'],
     ['t_value', 'Signed Student independent-groups t statistic.', 'Independent t'],
@@ -325,6 +325,10 @@
     ['r_value, n', 'Pearson correlation and sample size.', 'Correlation'],
     ['events1, total1', 'Event count and group total for group 1.', 'Binary outcome'],
     ['events2, total2', 'Event count and group total for group 2.', 'Binary outcome'],
+    ['effect_metric', 'Name of the analysis scale for an already calculated effect.', 'Generic inverse-variance'],
+    ['effect_size', 'Already calculated effect estimate on effect_metric scale.', 'Generic inverse-variance'],
+    ['sampling_variance', 'Positive sampling variance for effect_size.', 'Generic inverse-variance; use this or standard_error'],
+    ['standard_error', 'Positive standard error; squared internally when sampling_variance is blank.', 'Generic inverse-variance; use this or sampling_variance'],
     ['reverse_sign', 'yes reverses the calculated direction for harmonization.', 'All rows'],
     ['notes', 'Free-text provenance, outcome, or extraction notes.', 'All rows']
   ];
@@ -354,7 +358,7 @@
     const infoCount = issues.filter((item) => item.severity === 'information').length;
 
     const readmeRows = [
-      ['ERN Meta-Analysis Studio — Publication Workbook'],
+      ['ERN Meta-Analysis Studio: Publication Workbook'],
       ['Generated locally in the browser; the uploaded data were not transmitted to ERN Institute.'],
       [],
       ['Source file', sourceName],
@@ -403,9 +407,9 @@
     renderedImages.forEach((image) => forestRows.push([], [`${image.metric} forest plot`]));
     const forestStyles = forestRows.map((row, index) => row.map(() => (index === 0 ? 1 : (index === 1 ? 9 : 8))));
 
-    const metaHeaders = ['analysis_role', 'metric', 'natural_metric', 'model', 'model_label', 'tau_estimator', 'requested_inference', 'inference', 'inference_label', 'inference_reason', 'confidence_level', 'k', 'estimate', 'standard_error', 'ci_lower', 'ci_upper', 'natural_estimate', 'natural_ci_lower', 'natural_ci_upper', 'statistic', 'p_value', 'q', 'q_df', 'q_p_value', 'i2', 'h2', 'tau2', 'tau', 'prediction_lower', 'prediction_upper', 'prediction_df', 'prediction_policy', 'prediction_note', 'natural_prediction_lower', 'natural_prediction_upper', 'kh_scale_factor', 'methods_text', 'results_text'];
+    const metaHeaders = ['analysis_role', 'metric', 'natural_metric', 'model', 'model_label', 'tau_estimator', 'requested_inference', 'inference', 'inference_label', 'inference_reason', 'confidence_level', 'k', 'estimate', 'standard_error', 'ci_lower', 'ci_upper', 'natural_estimate', 'natural_ci_lower', 'natural_ci_upper', 'statistic', 'p_value', 'q', 'q_df', 'q_p_value', 'q_i2', 'q_h2', 'i2', 'h2', 'tau2', 'tau', 'tau_boundary', 'typical_within_variance', 'heterogeneity_note', 'heterogeneity_brief', 'prediction_lower', 'prediction_upper', 'prediction_df', 'prediction_policy', 'prediction_note', 'natural_prediction_lower', 'natural_prediction_upper', 'kh_scale_factor', 'methods_text', 'results_text'];
     const metaRows = [metaHeaders, ...metaAnalyses.map((analysis) => metaHeaders.map((header) => analysis[header] ?? ''))];
-    const metaNumeric = metaHeaders.map((header, index) => ['confidence_level', 'k', 'estimate', 'standard_error', 'ci_lower', 'ci_upper', 'natural_estimate', 'natural_ci_lower', 'natural_ci_upper', 'statistic', 'p_value', 'q', 'q_df', 'q_p_value', 'i2', 'h2', 'tau2', 'tau', 'prediction_lower', 'prediction_upper', 'prediction_df', 'natural_prediction_lower', 'natural_prediction_upper', 'kh_scale_factor'].includes(header) ? index : -1).filter((index) => index >= 0);
+    const metaNumeric = metaHeaders.map((header, index) => ['confidence_level', 'k', 'estimate', 'standard_error', 'ci_lower', 'ci_upper', 'natural_estimate', 'natural_ci_lower', 'natural_ci_upper', 'statistic', 'p_value', 'q', 'q_df', 'q_p_value', 'q_i2', 'q_h2', 'i2', 'h2', 'tau2', 'tau', 'typical_within_variance', 'prediction_lower', 'prediction_upper', 'prediction_df', 'natural_prediction_lower', 'natural_prediction_upper', 'kh_scale_factor'].includes(header) ? index : -1).filter((index) => index >= 0);
     const metaStyles = styleRows(metaRows, 0, metaNumeric);
 
     const weightHeaders = ['analysis_role', 'metric', 'model', 'tau_estimator', 'inference', 'source_row', 'study_id', 'effect_id', 'effect_size', 'sampling_variance', 'standard_error', 'ci_lower', 'ci_upper', 'model_weight', 'weight_percent'];

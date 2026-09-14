@@ -1,28 +1,29 @@
 (() => {
   'use strict';
 
-  const fileInput = document.getElementById('effect-file');
-  const dropZone = document.getElementById('drop-zone');
-  const exampleButton = document.getElementById('load-example');
-  const clearButton = document.getElementById('clear-converter');
-  const statusBox = document.getElementById('converter-status');
-  const uploadConfirmation = document.getElementById('upload-confirmation');
-  const uploadConfirmationDetail = document.getElementById('upload-confirmation-detail');
-  const dropZoneTitle = document.getElementById('drop-zone-title');
-  const dropZoneHint = document.getElementById('drop-zone-hint');
-  const resultsSection = document.getElementById('converter-results');
-  const issuesSection = document.getElementById('converter-issues');
-  const issuesList = document.getElementById('issues-list');
-  const resultsBody = document.getElementById('results-body');
-  const resultSummary = document.getElementById('result-summary');
-  const downloadButton = document.getElementById('download-results');
-  const workbookButton = document.getElementById('download-workbook');
-  const validationSummary = document.getElementById('validation-summary');
-  const forestSection = document.getElementById('converter-forest');
-  const forestPlots = document.getElementById('forest-plots');
-  const reviewStatus = document.getElementById('review-status');
+  const getElement = (id) => typeof document !== 'undefined' ? document.getElementById(id) : null;
 
-  if (!fileInput || !dropZone) return;
+  const fileInput = getElement('effect-file');
+  const dropZone = getElement('drop-zone');
+  const exampleButton = getElement('load-example');
+  const clearButton = getElement('clear-converter');
+  const statusBox = getElement('converter-status');
+  const uploadConfirmation = getElement('upload-confirmation');
+  const uploadConfirmationDetail = getElement('upload-confirmation-detail');
+  const dropZoneTitle = getElement('drop-zone-title');
+  const dropZoneHint = getElement('drop-zone-hint');
+  const resultsSection = getElement('converter-results');
+  const issuesSection = getElement('converter-issues');
+  const issuesList = getElement('issues-list');
+  const resultsBody = getElement('results-body');
+  const resultSummary = getElement('result-summary');
+  const downloadButton = getElement('download-results');
+  const workbookButton = getElement('download-workbook');
+  const validationSummary = getElement('validation-summary');
+  const forestSection = getElement('converter-forest');
+  const forestPlots = getElement('forest-plots');
+  const reviewStatus = getElement('review-status');
+
 
   let latestResults = [];
   let latestForestSvgs = [];
@@ -36,16 +37,16 @@ Demo Study A (2018),SMD-01,independent_means,54.2,9.1,48,49.6,8.7,50,,,,,,,,,,,,
 Demo Study B (2019),SMD-02,independent_means,31.4,5.8,36,28.1,6.2,38,,,,,,,,,,,,no,Working-memory accuracy
 Demo Study C (2020),SMD-03,independent_t,,,44,,,46,2.18,,,,,,,,,,,no,Student independent-groups t statistic
 Demo Study D (2021),SMD-04,independent_t,,,57,,,55,1.62,,,,,,,,,,,no,Student independent-groups t statistic
-Demo Study E (2020),SMD-F01,independent_f,,,44,,,46,,4.7524,1,88,group1_higher,,,,,,,no,Two-group F equivalent to t = 2.18
-Demo Study F (2021),SMD-F02,independent_f,,,57,,,55,,2.6244,1,110,group2_higher,,,,,,,no,Two-group F equivalent to |t| = 1.62; group 2 is higher
-Demo Study G (2022),SMD-05,independent_means,67.8,10.2,64,62.9,9.7,61,,,,,,,,,,,,no,Executive-function composite
-Demo Study H (2023),SMD-06,independent_means,14.8,3.9,30,16.2,4.1,32,,,,,,,,,,,,yes,Lower scores indicate better performance
+Demo Study E (2022),SMD-F01,independent_f,,,50,,,52,,3.61,1,100,group1_higher,,,,,,,no,Two-group between-subjects F statistic
+Demo Study F (2023),SMD-F02,independent_f,,,45,,,47,,2.25,1,90,group2_higher,,,,,,,no,Two-group between-subjects F statistic
+Demo Study G (2024),SMD-05,independent_means,67.8,10.2,64,62.9,9.7,61,,,,,,,,,,,,no,Executive-function composite
+Demo Study H (2025),SMD-06,independent_means,14.8,3.9,30,16.2,4.1,32,,,,,,,,,,,,yes,Lower scores indicate better performance
 Demo Study I (2019),R-01,correlation,,,,,,,,,,,,0.21,82,,,,,no,Experience and cognitive flexibility
 Demo Study J (2021),R-02,correlation,,,,,,,,,,,,0.34,116,,,,,no,Training dose and transfer
 Demo Study K (2024),R-03,correlation,,,,,,,,,,,,-0.18,74,,,,,yes,Direction reversed for consistency
 Demo Study L (2020),OR-01,binary,,,,,,,,,,,,,,18,60,9,58,no,Improvement event by group
 Demo Study M (2022),OR-02,binary,,,,,,,,,,,,,,27,90,19,88,no,Improvement event by group
-Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell to test correction`;
+Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event by group`;
 
   class ValidationError extends Error {
     constructor({ code, column, enteredValue, message, fix, severity = 'error' }) {
@@ -165,6 +166,11 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     if (rows.length < 2) throw new Error('The file must include a header row and at least one data row.');
 
     const headers = rows[0].map(normalizeHeader);
+    const nonEmptyHeaders = headers.filter(Boolean);
+    const duplicates = [...new Set(nonEmptyHeaders.filter((header, index) => nonEmptyHeaders.indexOf(header) !== index))];
+    if (duplicates.length) {
+      throw new Error(`Duplicate column name${duplicates.length === 1 ? '' : 's'} after normalization: ${duplicates.join(', ')}. Rename duplicate columns before loading the file.`);
+    }
     if (!headers.includes('calculation_type')) {
       throw new Error('Missing required column: calculation_type. Start with the ERN template.');
     }
@@ -212,8 +218,57 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     return ['yes', 'y', 'true', '1', 'reverse'].includes(String(value || '').trim().toLowerCase());
   }
 
+  function validateReverseSign(record) {
+    const raw = String(record.reverse_sign || '').trim().toLowerCase();
+    if (!raw) return;
+    const valid = new Set(['yes', 'y', 'true', '1', 'reverse', 'no', 'n', 'false', '0', 'keep']);
+    if (!valid.has(raw)) {
+      validationError(record, {
+        code: 'INVALID_REVERSE_SIGN', column: 'reverse_sign', enteredValue: record.reverse_sign,
+        message: `reverse_sign must clearly indicate yes or no; “${record.reverse_sign}” is not recognized.`,
+        fix: 'Use yes/no (or y/n, true/false, 1/0). The Studio will not guess a direction.'
+      });
+    }
+  }
+
+  function normalizeMetricName(value) {
+    const raw = String(value || '').trim();
+    const key = raw.toLowerCase().replace(/[\s_-]+/g, ' ').trim();
+    const aliases = {
+      'hedges g': 'Hedges g',
+      'smd': 'Hedges g',
+      'fisher z': 'Fisher z',
+      'zcor': 'Fisher z',
+      'log odds ratio': 'Log odds ratio',
+      'lor': 'Log odds ratio',
+      'log risk ratio': 'Log risk ratio',
+      'log rr': 'Log risk ratio',
+      'log relative risk': 'Log risk ratio',
+      'log hazard ratio': 'Log hazard ratio',
+      'log hr': 'Log hazard ratio',
+      'log rate ratio': 'Log rate ratio',
+      'log irr': 'Log rate ratio'
+    };
+    return aliases[key] || raw;
+  }
+
+  function logGamma(z) {
+    const coefficients = [
+      676.5203681218851, -1259.1392167224028, 771.32342877765313,
+      -176.61502916214059, 12.507343278686905, -0.13857109526572012,
+      9.9843695780195716e-6, 1.5056327351493116e-7
+    ];
+    if (z < 0.5) return Math.log(Math.PI) - Math.log(Math.sin(Math.PI * z)) - logGamma(1 - z);
+    let x = 0.99999999999980993;
+    const adjusted = z - 1;
+    for (let i = 0; i < coefficients.length; i += 1) x += coefficients[i] / (adjusted + i + 1);
+    const t = adjusted + coefficients.length - 0.5;
+    return (0.5 * Math.log(2 * Math.PI)) + ((adjusted + 0.5) * Math.log(t)) - t + Math.log(x);
+  }
+
   function correctionJ(df) {
-    return 1 - (3 / ((4 * df) - 1));
+    // Exact Hedges bias correction, matching metafor's default correction.
+    return Math.exp(logGamma(df / 2) - (0.5 * Math.log(df / 2)) - logGamma((df - 1) / 2));
   }
 
   function baseResult(record, metric, effect, variance, naturalMetric = '', naturalEffect = '') {
@@ -255,7 +310,10 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
       pearson_r: 'correlation',
       r: 'correlation',
       odds_ratio: 'binary',
-      binary_counts: 'binary'
+      binary_counts: 'binary',
+      generic_iv: 'generic',
+      inverse_variance: 'generic',
+      yi_vi: 'generic'
     };
     return aliases[type] || type;
   }
@@ -274,10 +332,10 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     if (shouldReverse(record.reverse_sign)) d *= -1;
     const j = correctionJ(df);
     const g = j * d;
-    const variance = (j ** 2) * (((n1 + n2) / (n1 * n2)) + ((d ** 2) / (2 * df)));
+    const variance = (1 / n1) + (1 / n2) + ((g ** 2) / (2 * (n1 + n2)));
     const result = baseResult(record, 'Hedges g', g, variance, 'Cohen d', d);
     result.n_total = n1 + n2;
-    result.formula = 'Pooled-SD standardized mean difference with Hedges small-sample correction.';
+    result.formula = 'Pooled-SD standardized mean difference with the exact Hedges small-sample correction.';
     return result;
   }
 
@@ -290,10 +348,10 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     if (shouldReverse(record.reverse_sign)) d *= -1;
     const j = correctionJ(df);
     const g = j * d;
-    const variance = (j ** 2) * (((n1 + n2) / (n1 * n2)) + ((d ** 2) / (2 * df)));
+    const variance = (1 / n1) + (1 / n2) + ((g ** 2) / (2 * (n1 + n2)));
     const result = baseResult(record, 'Hedges g', g, variance, 'Cohen d', d);
     result.n_total = n1 + n2;
-    result.formula = 'Student independent-groups t converted to Cohen d, then Hedges-corrected.';
+    result.formula = 'Student independent-groups t converted to Cohen d, then corrected with the exact Hedges factor.';
     return result;
   }
 
@@ -328,11 +386,10 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     const d = t * Math.sqrt((1 / n1) + (1 / n2));
     const j = correctionJ(df2);
     const g = j * d;
-    const variance = (j ** 2) * (((n1 + n2) / (n1 * n2)) + ((d ** 2) / (2 * df2)));
+    const variance = (1 / n1) + (1 / n2) + ((g ** 2) / (2 * (n1 + n2)));
     const result = baseResult(record, 'Hedges g', g, variance, 'Cohen d', d);
     result.n_total = n1 + n2;
-    result.formula = 'Two-group F(1, df2) converted using signed t = sqrt(F), then to Cohen d and Hedges g.';
-    result.warning = 'F contains no direction; the sign was assigned from f_direction and then harmonized with reverse_sign.';
+    result.formula = 'Two-group F(1, df2) converted using signed t = sqrt(F), then to Cohen d and Hedges g using the exact correction factor.';
     return result;
   }
 
@@ -351,6 +408,81 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     return result;
   }
 
+  function calculateGeneric(record) {
+    const metric = normalizeMetricName(record.effect_metric);
+    if (!metric) {
+      validationError(record, {
+        code: 'MISSING_EFFECT_METRIC', column: 'effect_metric',
+        message: 'effect_metric is required for generic inverse-variance input.',
+        fix: 'Name the analysis scale, for example Hedges g, Fisher z, Log odds ratio, Log risk ratio, or another clearly defined effect-size metric.'
+      });
+    }
+
+    const naturalRatioNames = new Set(['odds ratio', 'risk ratio', 'hazard ratio', 'rate ratio']);
+    if (naturalRatioNames.has(metric.toLowerCase())) {
+      validationError(record, {
+        code: 'GENERIC_RATIO_REQUIRES_LOG_SCALE', column: 'effect_metric', enteredValue: record.effect_metric,
+        message: `${metric} has a null value of 1 and should not be pooled directly with this zero-null generic pathway.`,
+        fix: `Enter the estimate on its log scale (for example Log ${metric.toLowerCase()}) with the corresponding log-scale sampling variance or standard error.`
+      });
+    }
+
+    let effect = numberValue(record, 'effect_size', 'effect_size');
+    const hasVariance = record.sampling_variance !== undefined && record.sampling_variance !== '';
+    const hasSe = record.standard_error !== undefined && record.standard_error !== '';
+    if (!hasVariance && !hasSe) {
+      validationError(record, {
+        code: 'MISSING_VARIANCE_OR_SE', column: 'sampling_variance, standard_error',
+        message: 'Generic inverse-variance input requires sampling_variance or standard_error.',
+        fix: 'Enter a positive sampling variance, or enter a positive standard error and leave sampling_variance blank.'
+      });
+    }
+
+    let variance;
+    let warning = '';
+    if (hasVariance) {
+      variance = numberValue(record, 'sampling_variance', 'sampling_variance', { minExclusive: 0 });
+      if (hasSe) {
+        const se = numberValue(record, 'standard_error', 'standard_error', { minExclusive: 0 });
+        const fromSe = se ** 2;
+        const relativeDifference = Math.abs(variance - fromSe) / Math.max(variance, fromSe);
+        if (relativeDifference > 1e-6) {
+          warning = 'Both sampling_variance and standard_error were supplied but they are not numerically equivalent; sampling_variance was used.';
+        }
+      }
+    } else {
+      const se = numberValue(record, 'standard_error', 'standard_error', { minExclusive: 0 });
+      variance = se ** 2;
+    }
+
+    if (shouldReverse(record.reverse_sign)) effect *= -1;
+
+    let naturalMetric = metric;
+    let naturalEffect = effect;
+    if (metric === 'Log odds ratio' || metric === 'Log risk ratio' || metric === 'Log hazard ratio' || metric === 'Log rate ratio') {
+      naturalMetric = metric.replace(/^Log /, '');
+      naturalMetric = naturalMetric.charAt(0).toUpperCase() + naturalMetric.slice(1);
+      naturalEffect = Math.exp(effect);
+    } else if (metric === 'Fisher z') {
+      naturalMetric = 'Pearson r';
+      naturalEffect = Math.tanh(effect);
+    }
+
+    const result = baseResult(record, metric, effect, variance, naturalMetric, naturalEffect);
+    if (metric === 'Log odds ratio' || metric === 'Log risk ratio' || metric === 'Log hazard ratio' || metric === 'Log rate ratio') {
+      result.natural_ci_lower = Math.exp(result.ci_lower);
+      result.natural_ci_upper = Math.exp(result.ci_upper);
+    } else if (metric === 'Fisher z') {
+      result.natural_ci_lower = Math.tanh(result.ci_lower);
+      result.natural_ci_upper = Math.tanh(result.ci_upper);
+    }
+    result.formula = hasVariance
+      ? 'Generic inverse-variance input using the supplied effect size and sampling variance.'
+      : 'Generic inverse-variance input using the supplied effect size and squared standard error.';
+    result.warning = warning;
+    return result;
+  }
+
   function calculateBinary(record) {
     const events1 = numberValue(record, 'events1', 'events1', { integer: true, minInclusive: 0 });
     const total1 = numberValue(record, 'total1', 'total1', { integer: true, minExclusive: 0 });
@@ -358,6 +490,21 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     const total2 = numberValue(record, 'total2', 'total2', { integer: true, minExclusive: 0 });
     if (events1 > total1) validationError(record, { code: 'EVENTS_EXCEED_TOTAL', column: 'events1', enteredValue: record.events1, message: `events1 (${events1}) exceeds total1 (${total1}).`, fix: 'Correct the event count or group total; events must be between 0 and the corresponding total.' });
     if (events2 > total2) validationError(record, { code: 'EVENTS_EXCEED_TOTAL', column: 'events2', enteredValue: record.events2, message: `events2 (${events2}) exceeds total2 (${total2}).`, fix: 'Correct the event count or group total; events must be between 0 and the corresponding total.' });
+
+    const noEventsInEitherGroup = events1 === 0 && events2 === 0;
+    const allEventsInBothGroups = events1 === total1 && events2 === total2;
+    if (noEventsInEitherGroup || allEventsInBothGroups) {
+      validationError(record, {
+        code: 'NONINFORMATIVE_BINARY_STUDY',
+        column: 'events1, total1, events2, total2',
+        enteredValue: `${events1}/${total1}; ${events2}/${total2}`,
+        severity: 'warning',
+        message: noEventsInEitherGroup
+          ? 'No events occurred in either group. This study contains no comparative information for an odds ratio and was excluded from the pooled odds-ratio analysis.'
+          : 'All participants had the event in both groups. This study contains no comparative information for an odds ratio and was excluded from the pooled odds-ratio analysis.',
+        fix: 'No correction is required unless the extracted counts are wrong. Keep the row for the audit trail; the Studio excludes it from the odds-ratio model.'
+      });
+    }
 
     let a = events1;
     let b = total1 - events1;
@@ -390,7 +537,8 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     independent_t: new Set(['t_value', 'n1', 'n2']),
     independent_f: new Set(['f_value', 'f_df1', 'f_df2', 'f_direction', 'n1', 'n2']),
     correlation: new Set(['r_value', 'n']),
-    binary: new Set(['events1', 'total1', 'events2', 'total2'])
+    binary: new Set(['events1', 'total1', 'events2', 'total2']),
+    generic: new Set(['effect_metric', 'effect_size', 'sampling_variance', 'standard_error'])
   };
 
   function unexpectedInputNotices(record, type) {
@@ -404,6 +552,27 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     }));
   }
 
+  function identifierNotices(record) {
+    const notices = [];
+    if (!String(record.study_id || '').trim()) {
+      notices.push({
+        row: record.__row, study_id: '', effect_id: record.effect_id || '', severity: 'warning',
+        column: 'study_id', entered_value: '', code: 'MISSING_STUDY_ID',
+        message: 'study_id is blank. The effect can be calculated, but the Studio cannot reliably detect multiple dependent effects from the same study.',
+        fix: 'Add a stable study label or citation before pooling whenever possible.'
+      });
+    }
+    if (!String(record.effect_id || '').trim()) {
+      notices.push({
+        row: record.__row, study_id: record.study_id || '', effect_id: '', severity: 'information',
+        column: 'effect_id', entered_value: '', code: 'MISSING_EFFECT_ID',
+        message: 'effect_id is blank. The calculation can proceed, but a unique effect identifier improves the audit trail.',
+        fix: 'Add a unique effect_id if the study contributes more than one estimate or if you need stable row-level tracking.'
+      });
+    }
+    return notices;
+  }
+
   function calculationNotices(record, result) {
     if (!result.warning) return [];
     let column = '';
@@ -414,6 +583,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
   }
 
   function calculateRecord(record) {
+    validateReverseSign(record);
     const type = normalizeType(record.calculation_type);
     let result;
     if (type === 'independent_means') result = calculateIndependentMeans(record);
@@ -421,14 +591,28 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     else if (type === 'independent_f') result = calculateIndependentF(record);
     else if (type === 'correlation') result = calculateCorrelation(record);
     else if (type === 'binary') result = calculateBinary(record);
-    else validationError(record, { code: 'UNSUPPORTED_CALCULATION_TYPE', column: 'calculation_type', enteredValue: record.calculation_type || '', message: `Unsupported calculation_type “${record.calculation_type || ''}”.`, fix: 'Use independent_means, independent_t, independent_f, correlation, or binary.' });
-    return { result, notices: [...unexpectedInputNotices(record, type), ...calculationNotices(record, result)] };
+    else if (type === 'generic') result = calculateGeneric(record);
+    else validationError(record, { code: 'UNSUPPORTED_CALCULATION_TYPE', column: 'calculation_type', enteredValue: record.calculation_type || '', message: `Unsupported calculation_type “${record.calculation_type || ''}”.`, fix: 'Use independent_means, independent_t, independent_f, correlation, binary, or generic.' });
+    return { result, notices: [...identifierNotices(record), ...unexpectedInputNotices(record, type), ...calculationNotices(record, result)] };
   }
 
+  globalThis.ERNEffectSizeConverterCore = {
+    parseDelimited,
+    calculateRecord,
+    calculateIndependentMeans,
+    calculateIndependentT,
+    calculateIndependentF,
+    calculateCorrelation,
+    calculateBinary,
+    calculateGeneric
+  };
+
+  if (!fileInput || !dropZone) return;
+
   function formatNumber(value) {
-    if (value === '' || value === null || value === undefined) return '—';
+    if (value === '' || value === null || value === undefined) return 'N/A';
     const number = Number(value);
-    if (!Number.isFinite(number)) return '—';
+    if (!Number.isFinite(number)) return 'N/A';
     if (Math.abs(number) >= 1000 || (Math.abs(number) > 0 && Math.abs(number) < 0.0001)) {
       return number.toExponential(4);
     }
@@ -465,7 +649,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
   }
 
   function shortForestLabel(result) {
-    const base = [result.study_id, result.effect_id].filter(Boolean).join(' — ') || 'Unnamed effect';
+    const base = [result.study_id, result.effect_id].filter(Boolean).join(' · ') || 'Unnamed effect';
     return base.length > 43 ? `${base.slice(0, 40)}…` : base;
   }
 
@@ -513,7 +697,8 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     const maxPrecision = Math.max(...precisions);
     const squareSize = (precision) => {
       if (!Number.isFinite(precision) || maxPrecision === minPrecision) return 12;
-      return 8 + (10 * ((precision - minPrecision) / (maxPrecision - minPrecision)));
+      const scaled = (Math.sqrt(precision) - Math.sqrt(minPrecision)) / (Math.sqrt(maxPrecision) - Math.sqrt(minPrecision));
+      return 8 + (10 * scaled);
     };
 
     const grid = ticks.map((tick) => {
@@ -649,15 +834,15 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     latestSourceName = sourceName;
     resultsBody.innerHTML = results.map((result) => `
       <tr>
-        <td>${escapeHtml(result.study_id || '—')}</td>
-        <td>${escapeHtml(result.effect_id || '—')}</td>
+        <td>${escapeHtml(result.study_id || 'N/A')}</td>
+        <td>${escapeHtml(result.effect_id || 'N/A')}</td>
         <td>${escapeHtml(result.effect_metric)}</td>
         <td class="numeric">${formatNumber(result.effect_size)}</td>
         <td class="numeric">${formatNumber(result.sampling_variance)}</td>
         <td class="numeric">${formatNumber(result.standard_error)}</td>
         <td class="numeric">${formatNumber(result.ci_lower)}</td>
         <td class="numeric">${formatNumber(result.ci_upper)}</td>
-        <td>${escapeHtml(result.natural_metric || '—')}</td>
+        <td>${escapeHtml(result.natural_metric || 'N/A')}</td>
         <td class="numeric">${formatNumber(result.natural_effect)}</td>
         <td>${escapeHtml(result.warning || '')}</td>
       </tr>`).join('');
@@ -676,11 +861,11 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     const errors = validationItems.filter((item) => item.severity === 'error').length;
     const warningRows = new Set(validationItems.filter((item) => item.severity !== 'error').map((item) => item.row)).size;
     if (resultsSection && resultsSection.tagName === 'DETAILS') {
-      resultsSection.open = errors > 0 || warningRows > 0 || results.length === 0;
+      resultsSection.open = errors > 0 || results.length === 0;
     }
     if (reviewStatus) {
-      if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'} — review required`;
-      else if (warningRows) reviewStatus.textContent = `${warningRows} warning row${warningRows === 1 ? '' : 's'} — review recommended`;
+      if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'}: review required`;
+      else if (warningRows) reviewStatus.textContent = `${warningRows} review row${warningRows === 1 ? '' : 's'}: details available`;
       else reviewStatus.textContent = `${results.length} effect${results.length === 1 ? '' : 's'} ready`;
     }
     if (results.length && errors) {

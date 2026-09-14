@@ -441,7 +441,7 @@ p {
 
 .grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 1.1rem;
 }
 
@@ -1948,7 +1948,7 @@ li {
 }
 
 .meta-stat--wide {
-  grid-column: span 3;
+  grid-column: 1 / -1;
   min-height: 78px;
 }
 
@@ -2468,3 +2468,61 @@ li {
 .repository-document-links a:hover,.repository-document-links a:focus-visible { background:var(--accent-soft); }
 @media (max-width:900px) { .repository-hero,.repository-use,.repository-submission,.repository-documentation { grid-template-columns:1fr; } .repository-trust,.repository-use-steps { grid-template-columns:1fr; } .repository-summary { max-width:620px; } .repository-use > .text-link,.repository-submission .btn { justify-self:start; } }
 @media (max-width:620px) { .repository-summary { grid-template-columns:1fr; } .repository-summary div { min-height:90px; } .repository-summary div + div { border-top:1px solid var(--border); border-left:0; } .repository-card-actions { align-items:stretch; } .repository-card-actions .btn { width:100%; justify-content:center; } }
+
+
+/* Meta-Analysis Studio release simplification */
+.review-panel .preparation-detail {
+  margin-top: 0.85rem;
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.review-panel .preparation-detail > summary {
+  padding: 0.85rem 0.95rem;
+  font-size: 0.92rem;
+}
+
+.review-panel .preparation-detail .result-detail-body {
+  padding-top: 0.2rem;
+}
+
+.meta-detail-explanation {
+  border-left: 4px solid var(--accent-cyan) !important;
+  background: rgba(232, 246, 250, 0.72) !important;
+}
+
+.meta-output-heading #meta-model-description {
+  max-width: 760px;
+}
+
+.meta-output-heading #meta-model-description br,
+.meta-output-heading #meta-model-description span {
+  display: none;
+}
+
+/* Meta-Analysis Studio result simplification, September 2026 */
+.meta-result-note {
+  margin: -0.55rem 0 1.15rem;
+  padding: 0.8rem 0.95rem;
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 0 8px 8px 0;
+  background: rgba(237, 248, 250, 0.78);
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.meta-weight-table--nested {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.meta-weight-table--nested h3 {
+  margin-bottom: 0.25rem;
+  font-size: 1rem;
+}
+
+.result-detail-body > .converter-export-actions {
+  margin-top: 0;
+}
