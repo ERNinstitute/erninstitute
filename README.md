@@ -1,6 +1,6 @@
 # ERN Institute website and Meta-Analysis Studio
 
-This package contains the complete static ERN Institute website and the current ERN Meta-Analysis Studio release candidate.
+This package contains the complete static ERN Institute website and ERN Meta-Analysis Studio Version 1.0.
 
 ## Permanent URLs
 
@@ -10,7 +10,7 @@ This package contains the complete static ERN Institute website and the current 
 - Open Data Repository: `https://erninstitute.com/repository.html`
 - Legacy `/tools.html` redirects to the permanent Meta-Analysis Studio URL.
 
-## September 14, 2026 release hardening
+## Version 1.0 release — September 14, 2026
 
 This revision was prepared before external methodological review. It focuses on statistical consistency, transparent safeguards, and a simpler default interface.
 

@@ -175,6 +175,20 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       throw new Error('Missing required column: calculation_type. Start with the ERN template.');
     }
 
+    rows.slice(1).forEach((cells, index) => {
+      const rowNumber = index + 2;
+      const extraValues = cells.slice(headers.length).filter((cell) => String(cell ?? '').trim() !== '');
+      if (extraValues.length) {
+        throw new Error(`Row ${rowNumber} contains more populated fields than the header row. Check for an extra delimiter or a missing column name.`);
+      }
+      const unnamedColumns = headers
+        .map((header, columnIndex) => (!header && String(cells[columnIndex] ?? '').trim() !== '' ? columnIndex + 1 : null))
+        .filter((columnIndex) => columnIndex !== null);
+      if (unnamedColumns.length) {
+        throw new Error(`Row ${rowNumber} contains data in unnamed column${unnamedColumns.length === 1 ? '' : 's'} ${unnamedColumns.join(', ')}. Add a column name or remove the stray value before loading the file.`);
+      }
+    });
+
     const records = rows.slice(1).map((cells, index) => {
       const record = { __row: index + 2 };
       headers.forEach((header, columnIndex) => {
@@ -859,12 +873,14 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     window.dispatchEvent(new CustomEvent('ern:effect-results', { detail: { results, validationItems, sourceName, records, headers } }));
 
     const errors = validationItems.filter((item) => item.severity === 'error').length;
+    const excludedRows = new Set(validationItems.filter((item) => item.code === 'NONINFORMATIVE_BINARY_STUDY').map((item) => item.row)).size;
     const warningRows = new Set(validationItems.filter((item) => item.severity !== 'error').map((item) => item.row)).size;
     if (resultsSection && resultsSection.tagName === 'DETAILS') {
-      resultsSection.open = errors > 0 || results.length === 0;
+      resultsSection.open = errors > 0 || excludedRows > 0 || results.length === 0;
     }
     if (reviewStatus) {
       if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'}: review required`;
+      else if (excludedRows) reviewStatus.textContent = `${excludedRows} excluded row${excludedRows === 1 ? '' : 's'}: review required`;
       else if (warningRows) reviewStatus.textContent = `${warningRows} review row${warningRows === 1 ? '' : 's'}: details available`;
       else reviewStatus.textContent = `${results.length} effect${results.length === 1 ? '' : 's'} ready`;
     }

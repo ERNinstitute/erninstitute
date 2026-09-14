@@ -101,6 +101,19 @@ try {
 assert.ok(duplicateHeaderError && duplicateHeaderError.message.includes('Duplicate column name'));
 
 
+
+let extraFieldError;
+try {
+  core.parseDelimited('study_id,effect_id,calculation_type\nA,E1,correlation,EXTRA');
+} catch (error) { extraFieldError = error; }
+assert.ok(extraFieldError && extraFieldError.message.includes('more populated fields than the header row'));
+
+let unnamedColumnError;
+try {
+  core.parseDelimited('study_id,effect_id,calculation_type,\nA,E1,correlation,STRAY');
+} catch (error) { unnamedColumnError = error; }
+assert.ok(unnamedColumnError && unnamedColumnError.message.includes('unnamed column'));
+
 // The public built-in/downloadable example must be a clean, poolable dataset,
 // not a collection of developer edge cases.
 const fs = require('fs');

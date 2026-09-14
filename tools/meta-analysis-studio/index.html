@@ -10,7 +10,7 @@
 <meta property="og:description" content="Convert study results into effect sizes, fit classical meta-analysis models, inspect heterogeneity and study weights, and export publication-ready results."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="/styles.css?v=20260914b" rel="stylesheet"/>
+<link href="/styles.css?v=20260914c" rel="stylesheet"/>
 <link href="/images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link rel="canonical" href="https://erninstitute.com/tools/meta-analysis-studio/"/>
 
@@ -22,7 +22,8 @@
   "applicationCategory": "ScientificApplication",
   "operatingSystem": "Web browser",
   "softwareVersion": "1.0",
-  "datePublished": "2026-08-05",
+  "datePublished": "2026-09-14",
+  "dateModified": "2026-09-14",
   "publisher": {"@type": "Organization", "name": "ERN Institute"},
   "url": "https://erninstitute.com/tools/meta-analysis-studio/"
 }
@@ -73,7 +74,7 @@
 
 <section class="section converter-hero">
   <div class="converter-hero-copy">
-    <p class="eyebrow">Version 1.0 · Released August 5, 2026</p>
+    <p class="eyebrow">Version 1.0 · Released September 14, 2026</p>
     <h1>Meta-Analysis Studio</h1>
     <p class="subtitle lead">Prepare effect sizes, fit fixed- or random-effects models, examine heterogeneity, and generate publication-ready outputs in one browser-based workflow.</p>
     <div class="converter-hero-actions">
@@ -429,7 +430,7 @@
       <p><strong>Independent <em>t</em>:</strong> converts a Student independent-groups <em>t</em> statistic to Cohen <em>d</em>, then applies the Hedges correction. Welch, paired, repeated-measures, adjusted-model, and mixed-model <em>t</em> statistics are not supported by this pathway.</p>
       <p><strong>Independent <em>F</em>:</strong> supports only a simple two-group between-subjects test with numerator df = 1 and denominator df = <em>n</em><sub>1</sub> + <em>n</em><sub>2</sub> − 2. Because <em>F</em> has no sign, <code>f_direction</code> is required. Omnibus, ANCOVA, repeated-measures, multilevel, and mixed-model <em>F</em> statistics must not be entered here.</p>
       <p><strong>Correlations:</strong> reports Fisher <em>z</em> for analysis and Pearson <em>r</em> as the natural-scale value.</p>
-      <p><strong>Binary outcomes:</strong> reports the log odds ratio for analysis and the odds ratio on its natural scale. A 0.5 continuity correction is disclosed when one or more cells equal zero. Studies with no events in either group, or all events in both groups, are retained in the audit trail but excluded from odds-ratio pooling because they contain no comparative information.</p>
+      <p><strong>Binary outcomes:</strong> reports the log odds ratio for analysis and the odds ratio on its natural scale. A 0.5 continuity correction is disclosed when an otherwise informative 2×2 table contains a zero cell. Studies with no events in either group, or all events in both groups, are retained in the audit trail but excluded from odds-ratio pooling because they contain no comparative information.</p>
       <p><strong>Generic inverse-variance:</strong> accepts an already calculated effect size on a named analysis scale plus either its sampling variance or standard error. This is the appropriate route when a study design has already been handled with a valid external method and should not be forced into one of the raw-data conversion pathways.</p>
       <p><strong>Current limit:</strong> raw-data conversion does not support paired, repeated-measures, cluster-randomized, multilevel, adjusted-model, omnibus-F, survival, or non-independent effect structures. If a valid effect estimate and variance have already been calculated for one of these designs, use generic inverse-variance input. Non-independent effects still require a dependency-aware model and should not be pooled as independent.</p>
     </div>
@@ -445,10 +446,10 @@
 </footer>
 </div>
 
-<script src="/publication-workbook.js?v=20260914b" defer></script>
-<script src="/meta-analysis-engine.js?v=20260914b" defer></script>
-<script src="/effect-size-converter.js?v=20260914b" defer></script>
-<script src="/meta-analysis.js?v=20260914b" defer></script>
+<script src="/publication-workbook.js?v=20260914c" defer></script>
+<script src="/meta-analysis-engine.js?v=20260914c" defer></script>
+<script src="/effect-size-converter.js?v=20260914c" defer></script>
+<script src="/meta-analysis.js?v=20260914c" defer></script>
 <script src="/navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
