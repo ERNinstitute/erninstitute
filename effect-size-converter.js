@@ -426,9 +426,9 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
   }
 
   function formatNumber(value) {
-    if (value === '' || value === null || value === undefined) return 'Not available';
+    if (value === '' || value === null || value === undefined) return '—';
     const number = Number(value);
-    if (!Number.isFinite(number)) return 'Not available';
+    if (!Number.isFinite(number)) return '—';
     if (Math.abs(number) >= 1000 || (Math.abs(number) > 0 && Math.abs(number) < 0.0001)) {
       return number.toExponential(4);
     }
@@ -465,7 +465,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
   }
 
   function shortForestLabel(result) {
-    const base = [result.study_id, result.effect_id].filter(Boolean).join(' · ') || 'Unnamed effect';
+    const base = [result.study_id, result.effect_id].filter(Boolean).join(' — ') || 'Unnamed effect';
     return base.length > 43 ? `${base.slice(0, 40)}…` : base;
   }
 
@@ -649,15 +649,15 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
     latestSourceName = sourceName;
     resultsBody.innerHTML = results.map((result) => `
       <tr>
-        <td>${escapeHtml(result.study_id || 'Not available')}</td>
-        <td>${escapeHtml(result.effect_id || 'Not available')}</td>
+        <td>${escapeHtml(result.study_id || '—')}</td>
+        <td>${escapeHtml(result.effect_id || '—')}</td>
         <td>${escapeHtml(result.effect_metric)}</td>
         <td class="numeric">${formatNumber(result.effect_size)}</td>
         <td class="numeric">${formatNumber(result.sampling_variance)}</td>
         <td class="numeric">${formatNumber(result.standard_error)}</td>
         <td class="numeric">${formatNumber(result.ci_lower)}</td>
         <td class="numeric">${formatNumber(result.ci_upper)}</td>
-        <td>${escapeHtml(result.natural_metric || 'Not available')}</td>
+        <td>${escapeHtml(result.natural_metric || '—')}</td>
         <td class="numeric">${formatNumber(result.natural_effect)}</td>
         <td>${escapeHtml(result.warning || '')}</td>
       </tr>`).join('');
@@ -679,8 +679,8 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,0,42,6,44,no,Includes a zero cell 
       resultsSection.open = errors > 0 || warningRows > 0 || results.length === 0;
     }
     if (reviewStatus) {
-      if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'}: review required`;
-      else if (warningRows) reviewStatus.textContent = `${warningRows} warning row${warningRows === 1 ? '' : 's'}: review recommended`;
+      if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'} — review required`;
+      else if (warningRows) reviewStatus.textContent = `${warningRows} warning row${warningRows === 1 ? '' : 's'} — review recommended`;
       else reviewStatus.textContent = `${results.length} effect${results.length === 1 ? '' : 's'} ready`;
     }
     if (results.length && errors) {

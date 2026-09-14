@@ -115,7 +115,7 @@
     if (random) {
       const tauLabel = tauSelect.options[tauSelect.selectedIndex]?.textContent || 'REML';
       const inferenceLabel = inferenceSelect.value === 'auto' ? 'automatic inference' : inferenceSelect.options[inferenceSelect.selectedIndex]?.textContent;
-      settingsSummary.textContent = `${tauLabel.split(' (')[0]} · ${inferenceLabel} · ${confidenceSelect.value}% confidence interval`;
+      settingsSummary.textContent = `${tauLabel.split(' — ')[0]} · ${inferenceLabel} · ${confidenceSelect.value}% confidence interval`;
       settingsNote.textContent = predictionSelect.value === 'auto'
         ? 'A prediction interval is shown automatically when at least five effects are available.'
         : predictionSelect.value === 'always'
@@ -251,8 +251,8 @@
   function weightsRowsMarkup(analysis) {
     return analysis.weights.map((row) => `
       <tr>
-        <td>${escapeHtml(row.study_id || 'Not available')}</td>
-        <td>${escapeHtml(row.effect_id || 'Not available')}</td>
+        <td>${escapeHtml(row.study_id || '—')}</td>
+        <td>${escapeHtml(row.effect_id || '—')}</td>
         <td class="numeric">${formatNumber(row.effect_size)}</td>
         <td class="numeric">${formatNumber(row.ci_lower)}</td>
         <td class="numeric">${formatNumber(row.ci_upper)}</td>
@@ -415,7 +415,7 @@
   }
 
   function shortLabel(row) {
-    const label = [row.study_id, row.effect_id].filter(Boolean).join(' · ') || 'Unnamed effect';
+    const label = [row.study_id, row.effect_id].filter(Boolean).join(' — ') || 'Unnamed effect';
     return label.length > 47 ? `${label.slice(0, 44)}…` : label;
   }
 
@@ -490,7 +490,7 @@
 
     return `<svg class="forest-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Pooled forest plot for ${escapeHtml(analysis.metric)}">
       <rect width="100%" height="100%" fill="#ffffff"/>
-      <text x="18" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1d3557">${escapeHtml(analysis.metric)}: ${escapeHtml(analysis.model_label)}</text>
+      <text x="18" y="26" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#1d3557">${escapeHtml(analysis.metric)} — ${escapeHtml(analysis.model_label)}</text>
       <text x="18" y="46" font-family="Arial, sans-serif" font-size="12" fill="#596a80">${escapeHtml(analysis.inference_label)} · ${analysis.confidence_level}% intervals</text>
       <text x="${weightX}" y="46" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#274f82">WEIGHT</text>
       <text x="${valueX}" y="46" font-family="Arial, sans-serif" font-size="12" font-weight="700" fill="#274f82">ESTIMATE [CI]</text>
@@ -515,7 +515,7 @@
     publicState.analyses = publicState.analyses.filter((item) => `${item.metric}::${item.analysis_role || 'primary'}` !== key);
     publicState.analyses.push(analysis);
     publicState.pooledForests = publicState.pooledForests.filter((item) => item.key !== key);
-    publicState.pooledForests.push({ key, metric: `${analysis.metric} pooled${role === 'sensitivity' ? ' (common-effect sensitivity)' : ''}`, svg, kind: role === 'sensitivity' ? 'sensitivity' : 'pooled' });
+    publicState.pooledForests.push({ key, metric: `${analysis.metric} pooled${role === 'sensitivity' ? ' — common-effect sensitivity' : ''}`, svg, kind: role === 'sensitivity' ? 'sensitivity' : 'pooled' });
   }
 
   function renderSensitivity(primary, sensitivity) {
@@ -555,8 +555,8 @@
     modelDescription.innerHTML = `<strong>${escapeHtml(analysis.model_label)}</strong> · ${escapeHtml(analysis.inference_label)}${analysis.model === 'random' ? ` · τ² estimator: ${escapeHtml(analysis.tau_estimator)}` : ''}<br><span>${escapeHtml(analysis.inference_reason || '')}</span>`;
     weightsBody.innerHTML = analysis.weights.map((row) => `
       <tr>
-        <td>${escapeHtml(row.study_id || 'Not available')}</td>
-        <td>${escapeHtml(row.effect_id || 'Not available')}</td>
+        <td>${escapeHtml(row.study_id || '—')}</td>
+        <td>${escapeHtml(row.effect_id || '—')}</td>
         <td class="numeric">${formatNumber(row.effect_size)}</td>
         <td class="numeric">${formatNumber(row.ci_lower)}</td>
         <td class="numeric">${formatNumber(row.ci_upper)}</td>

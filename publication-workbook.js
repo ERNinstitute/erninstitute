@@ -354,7 +354,7 @@
     const infoCount = issues.filter((item) => item.severity === 'information').length;
 
     const readmeRows = [
-      ['ERN Meta-Analysis Studio: Publication Workbook'],
+      ['ERN Meta-Analysis Studio — Publication Workbook'],
       ['Generated locally in the browser; the uploaded data were not transmitted to ERN Institute.'],
       [],
       ['Source file', sourceName],
