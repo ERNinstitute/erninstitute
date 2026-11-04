@@ -183,9 +183,9 @@ main {
 .nav-dropdown > summary::before {
   content: "";
   display: inline-block;
-  flex: 0 0 1.15rem;
-  width: 1.15rem;
-  height: 1.15rem;
+  flex: 0 0 0.9rem;
+  width: 0.9rem;
+  height: 0.9rem;
   margin-right: 0.45rem;
   background-color: var(--accent-dark);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
@@ -1437,8 +1437,8 @@ li {
 .meta-advanced-settings > summary::before {
   content: "";
   display: inline-block;
-  width: 1rem;
-  height: 1rem;
+  width: 0.75rem;
+  height: 0.75rem;
   margin-right: 0.48rem;
   vertical-align: -0.12rem;
   background-color: var(--accent-dark);
@@ -2339,9 +2339,9 @@ li {
 
 .review-summary::before {
   content: "";
-  flex: 0 0 1.25rem;
-  width: 1.25rem;
-  height: 1.25rem;
+  flex: 0 0 0.85rem;
+  width: 0.85rem;
+  height: 0.85rem;
   background-color: var(--accent-dark);
   clip-path: polygon(0 0, 100% 50%, 0 100%);
 }

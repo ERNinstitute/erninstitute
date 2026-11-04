@@ -13,9 +13,9 @@ function rule(selector) {
 }
 
 for (const [selector, size] of [
-  ['.nav-dropdown > summary::before', '1.15rem'],
-  ['.review-summary::before', '1.25rem'],
-  ['.meta-advanced-settings > summary::before', '1rem'],
+  ['.nav-dropdown > summary::before', '0.9rem'],
+  ['.review-summary::before', '0.85rem'],
+  ['.meta-advanced-settings > summary::before', '0.75rem'],
 ]) {
   const declarations = selector === '.meta-advanced-settings > summary::before'
     ? css.match(/\.method-details > summary::before,[\s\S]*?\.meta-advanced-settings > summary::before\s*\{([^}]+)\}/)?.[1]
@@ -44,7 +44,7 @@ const pages = [
 ];
 for (const page of pages) {
   const html = fs.readFileSync(path.join(root, page), 'utf8');
-  assert.ok(html.includes('styles.css?v=20261104b'), `${page} must load the new disclosure styles`);
+  assert.ok(html.includes('styles.css?v=20261104c'), `${page} must load the new disclosure styles`);
 }
 
 console.log('Disclosure indicator and stylesheet-cache tests passed.');
