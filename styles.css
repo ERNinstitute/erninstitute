@@ -180,19 +180,20 @@ main {
   display: none;
 }
 
-.nav-dropdown > summary::before {
+.nav-dropdown > summary::after {
   content: "";
   display: inline-block;
-  flex: 0 0 0.9rem;
-  width: 0.9rem;
-  height: 0.9rem;
-  margin-right: 0.45rem;
-  background-color: var(--accent-dark);
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  width: 0;
+  height: 0;
+  margin-left: 0.4rem;
+  border-left: 0.27rem solid transparent;
+  border-right: 0.27rem solid transparent;
+  border-top: 0.36rem solid var(--accent-dark);
 }
 
-.nav-dropdown[open] > summary::before {
-  transform: rotate(90deg);
+.nav-dropdown[open] > summary::after {
+  border-top: 0;
+  border-bottom: 0.36rem solid var(--accent-dark);
 }
 
 .nav-dropdown > summary:hover,

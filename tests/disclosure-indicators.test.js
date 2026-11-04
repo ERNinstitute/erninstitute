@@ -13,7 +13,6 @@ function rule(selector) {
 }
 
 for (const [selector, size] of [
-  ['.nav-dropdown > summary::before', '0.9rem'],
   ['.review-summary::before', '0.85rem'],
   ['.meta-advanced-settings > summary::before', '0.75rem'],
 ]) {
@@ -27,7 +26,6 @@ for (const [selector, size] of [
 }
 
 for (const selector of [
-  '.nav-dropdown[open] > summary::before',
   '.review-panel[open] > .review-summary::before',
   '.meta-advanced-settings[open] > summary::before',
 ]) {
@@ -37,6 +35,12 @@ for (const selector of [
   assert.ok(declarations?.includes('transform: rotate(90deg);'), `${selector} must point down when open`);
 }
 
+const navigationCaret = rule('.nav-dropdown > summary::after');
+assert.ok(navigationCaret.includes('border-top: 0.36rem solid var(--accent-dark);'), 'Tools menu should show a compact downward caret');
+assert.ok(navigationCaret.includes('margin-left: 0.4rem;'), 'Tools caret should follow its label');
+const openNavigationCaret = rule('.nav-dropdown[open] > summary::after');
+assert.ok(openNavigationCaret.includes('border-bottom: 0.36rem solid var(--accent-dark);'), 'Open Tools menu caret should point upward');
+
 const pages = [
   'index.html', 'about.html', 'research.html', 'consulting.html', 'contact.html',
   'metrics.html', 'repository.html', 'tools/index.html',
@@ -44,7 +48,7 @@ const pages = [
 ];
 for (const page of pages) {
   const html = fs.readFileSync(path.join(root, page), 'utf8');
-  assert.ok(html.includes('styles.css?v=20261104c'), `${page} must load the new disclosure styles`);
+  assert.ok(html.includes('styles.css?v=20261104d'), `${page} must load the new disclosure styles`);
 }
 
 console.log('Disclosure indicator and stylesheet-cache tests passed.');
