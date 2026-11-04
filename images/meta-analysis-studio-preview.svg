@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="ERN Meta-Analysis Studio social preview with illustrative forest plot">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#102b4a"/><stop offset="1" stop-color="#1d436a"/></linearGradient>
+  <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#00b6d5"/><stop offset="1" stop-color="#6de3ee"/></linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1090" cy="75" r="300" fill="#24577e" opacity=".28"/>
+<circle cx="80" cy="570" r="320" fill="#1b5275" opacity=".25"/>
+<g fill="none" stroke="#40d6ec" stroke-width="2.5" opacity=".9">
+  <path d="M87 72l34-20 34 20v40l-34 20-34-20z"/><path d="M121 52v80M87 72l68 40M155 72l-68 40"/>
+</g>
+<text x="176" y="91" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="700" fill="#ffffff">ERN INSTITUTE</text>
+<text x="176" y="124" font-family="Arial,Helvetica,sans-serif" font-size="16" letter-spacing="1.7" fill="#b7dae8">EXPERIENCE-RELATED NEUROPLASTICITY</text>
+<rect x="79" y="166" width="150" height="8" rx="4" fill="url(#glow)"/>
+<text x="78" y="254" font-family="Georgia,serif" font-size="56" font-weight="700" fill="#ffffff">Meta-Analysis</text>
+<text x="78" y="319" font-family="Georgia,serif" font-size="64" font-weight="700" fill="#ffffff">Studio</text>
+<text x="80" y="372" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#d2e7f0">Effect sizes, pooled models, forest plots</text>
+<text x="80" y="407" font-family="Arial,Helvetica,sans-serif" font-size="24" fill="#d2e7f0">and publication-ready exports.</text>
+<g transform="translate(662,188)">
+  <rect width="480" height="342" rx="20" fill="#fbfdff" stroke="#87cfe2" stroke-width="3"/>
+  <rect width="480" height="59" rx="20" fill="#edf5fa"/>
+  <rect x="0" y="42" width="480" height="17" fill="#edf5fa"/>
+  <text x="24" y="38" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700" fill="#173859">Illustrative forest plot</text>
+  <g stroke="#cddce7" stroke-width="1">
+    <line x1="44" y1="90" x2="44" y2="272"/><line x1="138" y1="90" x2="138" y2="272"/><line x1="232" y1="90" x2="232" y2="272"/><line x1="326" y1="90" x2="326" y2="272"/><line x1="420" y1="90" x2="420" y2="272"/>
+  </g>
+  <line x1="232" y1="80" x2="232" y2="284" stroke="#90a7bb" stroke-dasharray="5 5" stroke-width="2"/>
+  <g stroke="#366b98" stroke-width="3" fill="#1d4c76">
+    <line x1="253" y1="103" x2="407" y2="103"/><rect x="319" y="96" width="14" height="14"/>
+    <line x1="247" y1="143" x2="424" y2="143"/><rect x="329" y="136" width="14" height="14"/>
+    <line x1="219" y1="183" x2="360" y2="183"/><rect x="282" y="176" width="14" height="14"/>
+    <line x1="97" y1="223" x2="251" y2="223"/><rect x="166" y="216" width="14" height="14"/>
+  </g>
+  <line x1="20" y1="260" x2="461" y2="260" stroke="#bdd1df"/>
+  <polygon points="252,282 301,269 345,282 301,295" fill="#00aeca" stroke="#12758a" stroke-width="2"/>
+  <text x="25" y="325" font-family="Arial,Helvetica,sans-serif" font-size="14" fill="#56708b">Example display • pooled estimate shown as diamond</text>
+</g>
+<text x="80" y="531" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700" fill="#75e5f2">FREE • IN YOUR BROWSER • NO ACCOUNT</text>
+<text x="80" y="583" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#cfe7f0">erninstitute.com/tools/meta-analysis-studio/</text>
+</svg>

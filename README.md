@@ -6,6 +6,7 @@ This package contains the complete static ERN Institute website and ERN Meta-Ana
 
 - Research Tools hub: `https://erninstitute.com/tools/`
 - Meta-Analysis Studio: `https://erninstitute.com/tools/meta-analysis-studio/`
+- Studio methods, validation and citation: `https://erninstitute.com/tools/meta-analysis-studio/methods.html`
 - Citation Metrics: `https://erninstitute.com/metrics.html`
 - Open Data Repository: `https://erninstitute.com/repository.html`
 - Legacy `/tools.html` redirects to the permanent Meta-Analysis Studio URL.
@@ -101,9 +102,26 @@ Run from the site root:
 ```bash
 node tests/meta-analysis-engine.test.js
 node tests/effect-size-converter.test.js
+node tests/repository-datasets.test.js
+node tests/metafor-published-example.test.js
+python tests/statistical-crosscheck.py
+python tests/site-smoke.py
 ```
 
-The test suite covers model estimators, boundary tau-squared behavior, prediction intervals, automatic inference, estimator-consistent heterogeneity summaries, Hedges g variance calculations, generic inverse-variance inputs, zero-cell binary handling, CSV validation, and direction validation.
+The test suite covers model estimators, boundary tau-squared behavior, prediction intervals, automatic inference, estimator-consistent heterogeneity summaries, Hedges g variance calculations, generic inverse-variance inputs, zero-cell binary handling, CSV validation, direction validation, internal page links, and the share-preview asset.
+
+On November 4, 2026, the six curated CSV datasets (90 effects in total) passed their conversion checks and seven metric-specific model smoke tests. An independently implemented NumPy/SciPy comparison passed 28 common- and random-effects configurations with maximum absolute numerical difference below 0.000001. A separate regression test checks the brain-image dataset against the worked R/`metafor` output printed in the official `metadat` documentation and agrees at the displayed precision. These are test-case comparisons rather than a comprehensive formal audit. Direct interoperability with a running R/`metafor` installation remains untested; do not describe the Studio as comprehensively `metafor`-validated.
+
+## Pre-announcement improvements — November 4, 2026
+
+- Users can load any of the six curated real datasets directly from Step 1 without manually downloading a CSV. Repository cards link back to a preselected example. Loading never automatically initiates a pooled model.
+- A separate methods, reproducibility, limitations and software citation page is linked from the Studio.
+- Studio social link previews include an ERN-branded 1200×630 image.
+- The Tools menu disclosure indicator is larger, and small numeric values in forest-plot labels use ordinary decimal notation.
+- Optional usage events record broad interactions (opening examples, starting analyses and clicking exports), without attaching effect sizes, participant data, entered values, study identifiers or filenames to custom event payloads. The existing Google Analytics configuration still applies to site visits.
+- The source-controlled regression tests are expanded to cover curated repository examples and an independent numerical implementation.
+
+The public datasets and their provenance remain at `repository.html`. Their open-source licensing and attribution requirements are unchanged.
 
 ## Current limits
 

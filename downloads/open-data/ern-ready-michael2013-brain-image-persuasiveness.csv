@@ -1,0 +1,13 @@
+study_id,effect_id,calculation_type,effect_metric,effect_size,sampling_variance,notes
+"McCabe and Castel (2008) experiment 3; no critique",MIC-01,generic,Mean difference,0.23,0.038539286,"Brain image minus no brain image; separate no-critique randomized group; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 1",MIC-02,generic,Mean difference,-0.04,0.007194919,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 2",MIC-03,generic,Mean difference,0.23,0.016788312,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 3",MIC-04,generic,Mean difference,0.11,0.019804762,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 4",MIC-05,generic,Mean difference,-0.04,0.003913043,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 5",MIC-06,generic,Mean difference,0.05,0.002330830,"Brain image minus no brain image; raw 1-4 agreement scale."
+"McCabe and Castel (2008) experiment 3; critique",MIC-07,generic,Mean difference,0.31,0.022048901,"Brain image minus no brain image; separate critique randomized group; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 6",MIC-08,generic,Mean difference,0.10,0.024690972,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 7",MIC-09,generic,Mean difference,0.33,0.025544118,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 8",MIC-10,generic,Mean difference,-0.05,0.009699967,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 9",MIC-11,generic,Mean difference,0.18,0.009267368,"Brain image minus no brain image; raw 1-4 agreement scale."
+"Michael et al. (2013) experiment 10",MIC-12,generic,Mean difference,-0.02,0.009691588,"Brain image minus no brain image; raw 1-4 agreement scale."

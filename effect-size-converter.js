@@ -6,6 +6,8 @@
   const fileInput = getElement('effect-file');
   const dropZone = getElement('drop-zone');
   const exampleButton = getElement('load-example');
+  const realDatasetSelect = getElement('real-dataset-select');
+  const realDatasetButton = getElement('load-real-dataset');
   const clearButton = getElement('clear-converter');
   const statusBox = getElement('converter-status');
   const uploadConfirmation = getElement('upload-confirmation');
@@ -31,6 +33,17 @@
   let latestHeaders = [];
   let latestValidationItems = [];
   let latestSourceName = '';
+
+  // This allowlist contains only public CSVs already distributed by ERN.
+  // User-supplied data are never included in a request to this endpoint.
+  const PUBLIC_DATASETS = Object.freeze({
+    molloy2014: { name: 'Conscientiousness and medication adherence', path: '/downloads/open-data/ern-ready-molloy2014-medication-adherence.csv' },
+    cohen1981: { name: 'Instructor ratings and student achievement', path: '/downloads/open-data/ern-ready-cohen1981-instructor-ratings.csv' },
+    normand1999: { name: 'Stroke-unit care and hospital stay', path: '/downloads/open-data/ern-ready-normand1999-stroke-stay.csv' },
+    colditz1994: { name: 'BCG vaccination and tuberculosis', path: '/downloads/open-data/ern-ready-colditz1994-bcg.csv' },
+    gibson2002: { name: 'Asthma self-management', path: '/downloads/open-data/ern-ready-gibson2002-asthma-multimetric.csv' },
+    michael2013: { name: 'Brain-image persuasiveness', path: '/downloads/open-data/ern-ready-michael2013-brain-image-persuasiveness.csv' }
+  });
 
   const exampleCsv = `study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes
 Demo Study A (2018),SMD-01,independent_means,54.2,9.1,48,49.6,8.7,50,,,,,,,,,,,,no,Attention composite
@@ -910,6 +923,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
         }
       });
       renderResults(results, validationItems, sourceName, parsed.records, parsed.headers);
+      return true;
     } catch (error) {
       latestResults = [];
       latestRecords = [];
@@ -921,6 +935,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       if (workbookButton) workbookButton.disabled = true;
       renderForestPlots([]);
       setStatus(error.message, 'error');
+      return false;
     }
   }
 
@@ -947,6 +962,37 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       setStatus('The file could not be read in this browser.', 'error');
     };
     reader.readAsText(file);
+  }
+
+  async function loadPublicDataset() {
+    if (!realDatasetSelect || !realDatasetButton) return;
+    const selected = PUBLIC_DATASETS[realDatasetSelect.value];
+    if (!selected) {
+      setStatus('Choose a dataset from the curated ERN collection.', 'error');
+      return;
+    }
+    realDatasetButton.disabled = true;
+    realDatasetButton.textContent = 'Loading dataset…';
+    resetUploadConfirmation();
+    fileInput.value = '';
+    setStatus(`Loading the public dataset: ${selected.name}…`, 'neutral');
+    try {
+      const response = await fetch(selected.path, { credentials: 'omit' });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const csv = await response.text();
+      if (csv.length > 5 * 1024 * 1024) throw new Error('The dataset exceeds the 5 MB processing limit.');
+      if (!processText(csv, `the ${selected.name} dataset`)) throw new Error('the downloaded file could not be processed');
+      if (uploadConfirmation) uploadConfirmation.hidden = false;
+      if (uploadConfirmationDetail) {
+        uploadConfirmationDetail.textContent = `${selected.name} was downloaded from the public ERN repository and processed locally in your browser. Your own files were not uploaded.`;
+      }
+      window.dispatchEvent(new CustomEvent('ern:public-example-loaded'));
+    } catch (error) {
+      setStatus(`The public dataset could not be loaded (${error.message}). You can download it from the repository instead.`, 'error');
+    } finally {
+      realDatasetButton.disabled = false;
+      realDatasetButton.textContent = 'Load real dataset';
+    }
   }
 
   function csvEscape(value) {
@@ -1034,7 +1080,16 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     resetUploadConfirmation();
     fileInput.value = '';
     processText(exampleCsv, 'the example dataset');
+    window.dispatchEvent(new CustomEvent('ern:built-in-example-loaded'));
   });
+  if (realDatasetButton) {
+    realDatasetButton.addEventListener('click', loadPublicDataset);
+    // A repository card can preselect a dataset without silently running a model.
+    const datasetFromLink = new URLSearchParams(window.location.search).get('dataset');
+    if (datasetFromLink && Object.hasOwn(PUBLIC_DATASETS, datasetFromLink) && realDatasetSelect) {
+      realDatasetSelect.value = datasetFromLink;
+    }
+  }
   clearButton.addEventListener('click', clearAll);
   downloadButton.addEventListener('click', downloadResults);
   if (workbookButton) workbookButton.addEventListener('click', downloadPublicationWorkbook);

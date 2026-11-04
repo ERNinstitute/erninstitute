@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://erninstitute.com/sitemap.xml

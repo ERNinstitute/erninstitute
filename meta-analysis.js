@@ -462,8 +462,10 @@
   function plotNumber(value) {
     const number = Number(value);
     if (!Number.isFinite(number)) return '';
-    if (Math.abs(number) >= 100 || (Math.abs(number) > 0 && Math.abs(number) < 0.01)) return number.toExponential(2);
-    return number.toFixed(Math.abs(number) < 1 ? 2 : 1).replace(/\.0$/, '');
+    const abs = Math.abs(number);
+    if (abs >= 100 || (abs > 0 && abs < 0.00005)) return number.toExponential(2);
+    if (abs > 0 && abs < 0.01) return number.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    return number.toFixed(abs < 1 ? 2 : 1).replace(/\.0$/, '');
   }
 
   function shortLabel(row) {

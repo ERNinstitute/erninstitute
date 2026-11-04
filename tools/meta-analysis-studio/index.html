@@ -9,8 +9,17 @@
 <meta property="og:title" content="ERN Meta-Analysis Studio | ERN Institute"/>
 <meta property="og:description" content="Convert study results into effect sizes, fit classical meta-analysis models, inspect heterogeneity and study weights, and export publication-ready results."/>
 <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://erninstitute.com/tools/meta-analysis-studio/"/>
+<meta property="og:image" content="https://erninstitute.com/images/meta-analysis-studio-preview.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="ERN Meta-Analysis Studio research tool and illustrative forest plot"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="ERN Meta-Analysis Studio | ERN Institute"/>
+<meta name="twitter:description" content="Free browser-based effect-size preparation, classical meta-analysis and publication-ready exports."/>
+<meta name="twitter:image" content="https://erninstitute.com/images/meta-analysis-studio-preview.png"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="/styles.css?v=20260914e" rel="stylesheet"/>
+<link href="/styles.css?v=20261104a" rel="stylesheet"/>
 <link href="/images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link rel="canonical" href="https://erninstitute.com/tools/meta-analysis-studio/"/>
 
@@ -158,6 +167,26 @@
     <div class="converter-actions">
       <button class="btn btn-outline" id="load-example" type="button">Try built-in example</button>
       <button class="btn btn-quiet" id="clear-converter" type="button">Clear</button>
+    </div>
+
+    <div class="studio-real-data" aria-labelledby="studio-real-data-heading">
+      <div>
+        <h3 id="studio-real-data-heading">Try published research data</h3>
+        <p class="muted">Load an openly licensed dataset directly into the Studio. These public files come from our curated repository; your own files remain on your device.</p>
+      </div>
+      <div class="studio-real-data-controls">
+        <label for="real-dataset-select" class="visually-hidden">Choose a real dataset</label>
+        <select id="real-dataset-select" aria-label="Choose a real dataset">
+          <option value="molloy2014">Conscientiousness and medication adherence (16 effects)</option>
+          <option value="cohen1981">Instructor ratings and student achievement (20 effects)</option>
+          <option value="normand1999">Stroke-unit care and hospital stay (9 effects)</option>
+          <option value="colditz1994">BCG vaccination and tuberculosis (13 effects)</option>
+          <option value="gibson2002">Asthma self-management, multiple metrics (20 effects)</option>
+          <option value="michael2013">Brain images and scientific persuasiveness (12 effects)</option>
+        </select>
+        <button class="btn btn-primary btn-sm" id="load-real-dataset" type="button">Load real dataset</button>
+      </div>
+      <a class="text-link" href="/repository.html">Browse all datasets, sources and licenses →</a>
     </div>
 
     <div class="converter-status converter-status--neutral" id="converter-status" role="status" aria-live="polite">Load your CSV or try the built-in example. The Studio will create the Step 2 effect sizes, validation report, and unpooled forest plots automatically.</div>
@@ -437,6 +466,18 @@
   </details>
 </section>
 
+<section class="section studio-citation-callout" aria-labelledby="studio-citation-heading">
+  <div>
+    <p class="eyebrow">Reproducible methods</p>
+    <h2 id="studio-citation-heading">Methods, validation and citation</h2>
+    <p>Review the statistical conventions, supported designs, reproducibility tests and version information before using the results in a manuscript.</p>
+  </div>
+  <div class="studio-citation-actions">
+    <a class="btn btn-outline" href="/tools/meta-analysis-studio/methods.html">Read methods and validation</a>
+    <a class="text-link" href="mailto:admin@erninstitute.com?subject=ERN%20Meta-Analysis%20Studio%20feedback">Report an issue or suggest a feature →</a>
+  </div>
+</section>
+
 </main>
 <footer class="footer">
   <div class="footer-inner">
@@ -448,8 +489,9 @@
 
 <script src="/publication-workbook.js?v=20260914c" defer></script>
 <script src="/meta-analysis-engine.js?v=20260914c" defer></script>
-<script src="/effect-size-converter.js?v=20260914c" defer></script>
-<script src="/meta-analysis.js?v=20260914c" defer></script>
+<script src="/effect-size-converter.js?v=20261104a" defer></script>
+<script src="/meta-analysis.js?v=20261104a" defer></script>
+<script src="/studio-analytics.js?v=20261104a" defer></script>
 <script src="/navigation-dropdown.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
