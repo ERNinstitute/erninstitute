@@ -181,17 +181,18 @@ main {
 }
 
 .nav-dropdown > summary::before {
-  content: "▸";
+  content: "";
   display: inline-block;
-  width: 1.2rem;
-  margin-right: 0.3rem;
-  color: var(--accent-dark);
-  font-size: 1.8rem;
-  line-height: 1;
+  flex: 0 0 1.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  margin-right: 0.45rem;
+  background-color: var(--accent-dark);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .nav-dropdown[open] > summary::before {
-  content: "▾";
+  transform: rotate(90deg);
 }
 
 .nav-dropdown > summary:hover,
@@ -1434,19 +1435,20 @@ li {
 .method-details > summary::before,
 .result-detail > summary::before,
 .meta-advanced-settings > summary::before {
-  content: "▸";
+  content: "";
   display: inline-block;
-  width: 1.05rem;
-  margin-right: 0.32rem;
-  color: var(--accent-dark);
-  font-size: 1.05rem;
-  line-height: 1;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.48rem;
+  vertical-align: -0.12rem;
+  background-color: var(--accent-dark);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .method-details[open] > summary::before,
 .result-detail[open] > summary::before,
 .meta-advanced-settings[open] > summary::before {
-  content: "▾";
+  transform: rotate(90deg);
 }
 
 .method-details-body {
@@ -2336,15 +2338,16 @@ li {
 }
 
 .review-summary::before {
-  content: "▸";
-  flex: 0 0 1.05rem;
-  color: var(--accent-dark);
-  font-size: 1.05rem;
-  line-height: 1;
+  content: "";
+  flex: 0 0 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: var(--accent-dark);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
 }
 
 .review-panel[open] > .review-summary::before {
-  content: "▾";
+  transform: rotate(90deg);
 }
 
 .review-summary > div {
