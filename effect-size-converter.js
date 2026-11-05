@@ -42,7 +42,11 @@
     normand1999: { name: 'Stroke-unit care and hospital stay', path: '/downloads/open-data/ern-ready-normand1999-stroke-stay.csv' },
     colditz1994: { name: 'BCG vaccination and tuberculosis', path: '/downloads/open-data/ern-ready-colditz1994-bcg.csv' },
     gibson2002: { name: 'Asthma self-management', path: '/downloads/open-data/ern-ready-gibson2002-asthma-multimetric.csv' },
-    michael2013: { name: 'Brain-image persuasiveness', path: '/downloads/open-data/ern-ready-michael2013-brain-image-persuasiveness.csv' }
+    michael2013: { name: 'Brain-image persuasiveness', path: '/downloads/open-data/ern-ready-michael2013-brain-image-persuasiveness.csv' },
+    bangertdrowns2004: { name: 'Writing-to-learn interventions', path: '/downloads/open-data/ern-ready-bangertdrowns2004-writing-to-learn.csv' },
+    bourassa1996: { name: 'Handedness and eye dominance', path: '/downloads/open-data/ern-ready-bourassa1996-handedness-eye-dominance.csv' },
+    craft2003: { name: 'Cognitive anxiety and sport performance', path: '/downloads/open-data/ern-ready-craft2003-cognitive-anxiety-performance.csv' },
+    crede2010: { name: 'Class attendance and grades', path: '/downloads/open-data/ern-ready-crede2010-attendance-grades.csv' }
   });
 
   const exampleCsv = `study_id,effect_id,calculation_type,mean1,sd1,n1,mean2,sd2,n2,t_value,f_value,f_df1,f_df2,f_direction,r_value,n,events1,total1,events2,total2,reverse_sign,notes

@@ -1,0 +1,11 @@
+study_id,effect_id,calculation_type,r_value,n,sport_type,notes
+Craft source study 1,CR-01,correlation,-.55,142,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 3,CR-03,correlation,.53,37,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 6,CR-06,correlation,.44,16,T,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 10,CR-10,correlation,-.39,14,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 17,CR-17,correlation,.10,45,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 22,CR-22,correlation,.23,100,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 26,CR-26,correlation,-.52,51,T,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 28,CR-28,correlation,.14,128,T,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 36,CR-36,correlation,-.01,70,T,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."
+Craft source study 38,CR-38,correlation,-.27,30,I,"Pre-competition cognitive anxiety (acog) correlated with sport performance (perf); one correlation per study; I=individual sport, T=team sport."

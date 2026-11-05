@@ -14,7 +14,11 @@ const expected = {
   'ern-ready-cohen1981-instructor-ratings.csv': 20,
   'ern-ready-molloy2014-medication-adherence.csv': 16,
   'ern-ready-gibson2002-asthma-multimetric.csv': 20,
-  'ern-ready-michael2013-brain-image-persuasiveness.csv': 12
+  'ern-ready-michael2013-brain-image-persuasiveness.csv': 12,
+  'ern-ready-bangertdrowns2004-writing-to-learn.csv': 48,
+  'ern-ready-bourassa1996-handedness-eye-dominance.csv': 54,
+  'ern-ready-craft2003-cognitive-anxiety-performance.csv': 10,
+  'ern-ready-crede2010-attendance-grades.csv': 54
 };
 
 let checkedModels = 0;
@@ -44,5 +48,38 @@ for (const [filename, count] of Object.entries(expected)) {
   });
 }
 
-assert.ok(checkedModels >= 7);
+assert.ok(checkedModels >= 11);
+
+function parsedResults(filename) {
+  const raw = fs.readFileSync(path.join(__dirname, '..', 'downloads', 'open-data', filename), 'utf8');
+  const parsed = converter.parseDelimited(raw);
+  return { records: parsed.records, effects: parsed.records.map(record => converter.calculateRecord(record).result) };
+}
+
+const bangert = parsedResults('ern-ready-bangertdrowns2004-writing-to-learn.csv');
+const bangertFit = engine.analyze(bangert.effects, { model: 'random', tauEstimator: 'REML', inference: 'wald' });
+assert.ok(Math.abs(bangertFit.estimate - 0.2219) < .0001, 'Writing-to-learn result should reproduce the published example');
+
+const bourassa = parsedResults('ern-ready-bourassa1996-handedness-eye-dominance.csv');
+const bourassaFit = engine.analyze(bourassa.effects, { model: 'random', tauEstimator: 'REML', inference: 'wald' });
+assert.ok(Math.abs(bourassaFit.estimate - 1.3135) < .0001, 'Handedness result should reproduce the published single-level example');
+
+for (const filename of [
+  'ern-ready-craft2003-cognitive-anxiety-performance.csv',
+  'ern-ready-crede2010-attendance-grades.csv'
+]) {
+  const { records } = parsedResults(filename);
+  const ids = records.map(row => row.study_id);
+  assert.strictEqual(new Set(ids).size, ids.length, `${filename} must have one effect per study`);
+}
+
+const site = fs.readFileSync(path.join(__dirname, '..', 'repository.html'), 'utf8');
+const studio = fs.readFileSync(path.join(__dirname, '..', 'tools', 'meta-analysis-studio', 'index.html'), 'utf8');
+const converterSource = fs.readFileSync(path.join(__dirname, '..', 'effect-size-converter.js'), 'utf8');
+for (const filename of Object.keys(expected)) assert.ok(site.includes(`downloads/open-data/${filename}`), `Repository card missing for ${filename}`);
+for (const key of ['bangertdrowns2004', 'bourassa1996', 'craft2003', 'crede2010']) {
+  assert.ok(studio.includes(`value="${key}"`), `Studio selector missing ${key}`);
+  assert.ok(converterSource.includes(`${key}:`), `Public dataset allowlist missing ${key}`);
+}
+assert.ok(site.includes('<strong>256</strong>'), 'Published effect count should be 256');
 console.log(`ERN repository tests passed: ${Object.keys(expected).length} datasets, ${checkedModels} metric-specific models.`);

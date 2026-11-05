@@ -2532,8 +2532,18 @@ li {
 }
 .repository-collection .section-heading-row { align-items:end; }
 .repository-collection .section-heading-row > div { max-width:780px; }
+.repository-filter-bar { display:grid; grid-template-columns:minmax(235px,1.6fr) repeat(2,minmax(175px,1fr)) auto; gap:.8rem; align-items:end; margin-top:1.4rem; padding:1rem; border:1px solid var(--border); border-radius:14px; background:rgba(255,255,255,.96); }
+.repository-filter-field { display:flex; min-width:0; flex-direction:column; gap:.4rem; }
+.repository-filter-field label { color:var(--text); font-size:.79rem; font-weight:800; }
+.repository-filter-field input,.repository-filter-field select { width:100%; min-width:0; min-height:43px; padding:.65rem .75rem; border:1px solid var(--border-strong); border-radius:9px; background:#fff; color:var(--text); font:inherit; font-size:.88rem; }
+.repository-filter-field input:focus-visible,.repository-filter-field select:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.repository-filter-reset { align-self:end; min-height:43px; }
+.repository-filter-status { margin:.85rem 0 0; color:var(--muted); font-size:.86rem; }
+.repository-filter-empty { margin:1.5rem 0 0; padding:1rem; border:1px dashed var(--border-strong); border-radius:10px; color:var(--muted); text-align:center; }
+.repository-interpretation { max-width:940px; margin:1.5rem 0 0; color:var(--muted); font-size:.85rem; line-height:1.6; }
 .repository-dataset-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr)); gap:1rem; margin-top:1.4rem; }
 .repository-dataset-card { display:flex; min-width:0; flex-direction:column; padding:1.35rem; border:1px solid var(--border); border-top:4px solid var(--accent); border-radius:14px; background:rgba(255,255,255,.94); box-shadow:0 12px 30px rgba(19,52,92,.07); }
+.repository-dataset-card[hidden] { display:none !important; }
 .repository-dataset-card--featured { border-top-color:var(--accent-cyan); background:linear-gradient(145deg,rgba(255,255,255,.98),rgba(231,246,249,.75)); }
 .repository-card-topline,.repository-meta,.repository-card-actions { display:flex; flex-wrap:wrap; gap:.48rem; align-items:center; }
 .repository-card-topline { justify-content:space-between; margin-bottom:.85rem; }
@@ -2561,6 +2571,8 @@ li {
 .repository-document-links a + a { border-top:1px solid var(--border); }
 .repository-document-links a:hover,.repository-document-links a:focus-visible { background:var(--accent-soft); }
 @media (max-width:900px) { .repository-hero,.repository-use,.repository-submission,.repository-documentation { grid-template-columns:1fr; } .repository-trust,.repository-use-steps { grid-template-columns:1fr; } .repository-summary { max-width:620px; } .repository-use > .text-link,.repository-submission .btn { justify-self:start; } }
+@media (max-width:1000px) { .repository-filter-bar { grid-template-columns:repeat(2,minmax(0,1fr)); } .repository-filter-search { grid-column:1 / -1; } .repository-filter-reset { justify-self:start; } }
+@media (max-width:600px) { .repository-filter-bar { grid-template-columns:minmax(0,1fr); } .repository-filter-search { grid-column:auto; } }
 @media (max-width:620px) { .repository-summary { grid-template-columns:1fr; } .repository-summary div { min-height:90px; } .repository-summary div + div { border-top:1px solid var(--border); border-left:0; } .repository-card-actions { align-items:stretch; } .repository-card-actions .btn { width:100%; justify-content:center; } }
 
 
