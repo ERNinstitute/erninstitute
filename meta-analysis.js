@@ -218,6 +218,13 @@
   }
 
   function updateIndependenceWarning() {
+    if (pooledModelRestriction) {
+      independenceConfirmedByUser = false;
+      independenceCheckbox.checked = false;
+      independenceBox.hidden = true;
+      independenceText.textContent = '';
+      return;
+    }
     const issues = dependencyIssues(effectsForMetric());
     independenceConfirmedByUser = false;
     independenceCheckbox.checked = false;

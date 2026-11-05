@@ -930,7 +930,8 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       resultsSection.open = errors > 0 || excludedRows > 0 || results.length === 0;
     }
     if (reviewStatus) {
-      if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'}: review required`;
+      if (options.pooledModelRestriction) reviewStatus.textContent = `${results.length} effects prepared · pooling restricted`;
+      else if (errors) reviewStatus.textContent = `${errors} error${errors === 1 ? '' : 's'}: review required`;
       else if (excludedRows) reviewStatus.textContent = `${excludedRows} excluded row${excludedRows === 1 ? '' : 's'}: review required`;
       else if (warningRows) reviewStatus.textContent = `${warningRows} review row${warningRows === 1 ? '' : 's'}: details available`;
       else reviewStatus.textContent = `${results.length} effect${results.length === 1 ? '' : 's'} ready`;

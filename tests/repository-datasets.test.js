@@ -92,4 +92,5 @@ assert.ok(converterSource.includes('pooledModelRestriction: options.pooledModelR
 assert.ok(metaSource.includes('runButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction)'), 'Single-model button must block restricted datasets');
 assert.ok(metaSource.includes('runAllButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction)'), 'All-model button must block restricted datasets');
 assert.ok(metaSource.includes('if (pooledModelRestriction) throw new Error(pooledModelRestriction)'), 'Programmatic model calls must reject restricted datasets');
+assert.ok(metaSource.includes('if (pooledModelRestriction) {\n      independenceConfirmedByUser = false;'), 'Restricted datasets must hide the ineffective independence confirmation');
 console.log(`ERN repository tests passed: ${Object.keys(expected).length} datasets, ${checkedModels} metric-specific models.`);
