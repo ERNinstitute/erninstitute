@@ -104,21 +104,25 @@ node tests/meta-analysis-engine.test.js
 node tests/effect-size-converter.test.js
 node tests/repository-datasets.test.js
 node tests/metafor-published-example.test.js
+node tests/export-integrity.test.js
+node tests/social-preview.test.js
 python tests/statistical-crosscheck.py
 python tests/site-smoke.py
 ```
 
 The test suite covers model estimators, boundary tau-squared behavior, prediction intervals, automatic inference, estimator-consistent heterogeneity summaries, Hedges g variance calculations, generic inverse-variance inputs, zero-cell binary handling, CSV validation, direction validation, internal page links, and the share-preview asset.
 
-On November 4, 2026, the six curated CSV datasets (90 effects in total) passed their conversion checks and seven metric-specific model smoke tests. An independently implemented NumPy/SciPy comparison passed 28 common- and random-effects configurations with maximum absolute numerical difference below 0.000001. A separate regression test checks the brain-image dataset against the worked R/`metafor` output printed in the official `metadat` documentation and agrees at the displayed precision. These are test-case comparisons rather than a comprehensive formal audit. Direct interoperability with a running R/`metafor` installation remains untested; do not describe the Studio as comprehensively `metafor`-validated.
+On November 4, 2026, 10 curated CSV datasets (256 effect-size records) passed conversion checks and 11 metric-specific model regressions. An independently implemented NumPy/SciPy comparison passed 28 common- and random-effects configurations with maximum absolute numerical difference below 0.000001. The published-`metafor` regression suite compares selected Studio outputs against the R output printed in the official `metadat` documentation for Michael (2013), Bangert-Drowns (2004), and Bourassa (1996). The latter single-level model is a numerical reference only; it does not account for clustered effects. These are test-case comparisons rather than a comprehensive formal audit. Direct interoperability with a running R/`metafor` installation remains untested; do not describe the Studio as comprehensively `metafor`-validated.
 
 ## Pre-announcement improvements — November 4, 2026
 
-- Users can load any of the six curated real datasets directly from Step 1 without manually downloading a CSV. Repository cards link back to a preselected example. Loading never automatically initiates a pooled model.
+- Users can load any of the 10 curated real datasets directly from Step 1 without manually downloading a CSV. Repository cards link back to a preselected example. Loading never automatically initiates a pooled model.
+- The curated Bourassa (1996) file contains 54 effects from 47 studies; its 54 rows remain available for Step 2 review and export, but single-level pooled models are disabled for this selection because repeated samples require a dependency-aware model. The separate 54-effect core-engine regression test is an arithmetic check against published `metafor` output, not permission to interpret a single-level pooled estimate scientifically.
 - A separate methods, reproducibility, limitations and software citation page is linked from the Studio.
 - Studio social link previews include an ERN-branded 1200×630 image.
 - The Tools menu disclosure indicator is larger, and small numeric values in forest-plot labels use ordinary decimal notation.
-- Optional usage events record broad interactions (opening examples, starting analyses and clicking exports), without attaching effect sizes, participant data, entered values, study identifiers or filenames to custom event payloads. The existing Google Analytics configuration still applies to site visits.
+- Optional usage events record broad interactions (opening examples, starting analyses and clicking exports), without attaching effect sizes, participant data, entered values, study identifiers or filenames to custom event payloads. The existing Google Analytics configuration still applies to site visits, and the Methods page now explains this distinction.
+- The Methods page provides a fully worked and reproducible writing-to-learn example with published R reference values and the exact settings needed to compare outputs. The calculator and model CSV/SVG downloads retain generated object URLs for 60 seconds so browsers have more time to initiate saves; separate CSV and XLSX integrity tests cover serialization and archive structure, but are not substitutes for native browser download verification.
 - The source-controlled regression tests are expanded to cover curated repository examples and an independent numerical implementation.
 
 The public datasets and their provenance remain at `repository.html`. Their open-source licensing and attribution requirements are unchanged.

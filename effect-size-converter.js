@@ -44,7 +44,11 @@
     gibson2002: { name: 'Asthma self-management', path: '/downloads/open-data/ern-ready-gibson2002-asthma-multimetric.csv' },
     michael2013: { name: 'Brain-image persuasiveness', path: '/downloads/open-data/ern-ready-michael2013-brain-image-persuasiveness.csv' },
     bangertdrowns2004: { name: 'Writing-to-learn interventions', path: '/downloads/open-data/ern-ready-bangertdrowns2004-writing-to-learn.csv' },
-    bourassa1996: { name: 'Handedness and eye dominance', path: '/downloads/open-data/ern-ready-bourassa1996-handedness-eye-dominance.csv' },
+    bourassa1996: {
+      name: 'Handedness and eye dominance',
+      path: '/downloads/open-data/ern-ready-bourassa1996-handedness-eye-dominance.csv',
+      pooledModelRestriction: 'This curated file contains multiple effect sizes from some studies (54 effects from 47 studies). A single-level pooled model would ignore that dependence. You can review and export all effect sizes in Step 2, but pooled analysis of this dataset requires a dependency-aware method such as a multilevel model, which the Studio does not yet provide.'
+    },
     craft2003: { name: 'Cognitive anxiety and sport performance', path: '/downloads/open-data/ern-ready-craft2003-cognitive-anxiety-performance.csv' },
     crede2010: { name: 'Class attendance and grades', path: '/downloads/open-data/ern-ready-crede2010-attendance-grades.csv' }
   });
@@ -881,7 +885,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     issuesSection.hidden = false;
   }
 
-  function renderResults(results, validationItems, sourceName, records, headers) {
+  function renderResults(results, validationItems, sourceName, records, headers, options = {}) {
     latestResults = results;
     latestRecords = records;
     latestHeaders = headers;
@@ -911,7 +915,9 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       : `No effect sizes were calculated from ${sourceName}; download the publication workbook for the complete validation report.`;
     renderForestPlots(results);
     renderValidation(validationItems);
-    window.dispatchEvent(new CustomEvent('ern:effect-results', { detail: { results, validationItems, sourceName, records, headers } }));
+    window.dispatchEvent(new CustomEvent('ern:effect-results', {
+      detail: { results, validationItems, sourceName, records, headers, pooledModelRestriction: options.pooledModelRestriction || '' }
+    }));
 
     const errors = validationItems.filter((item) => item.severity === 'error').length;
     const excludedRows = new Set(validationItems.filter((item) => item.code === 'NONINFORMATIVE_BINARY_STUDY').map((item) => item.row)).size;
@@ -925,7 +931,9 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       else if (warningRows) reviewStatus.textContent = `${warningRows} review row${warningRows === 1 ? '' : 's'}: details available`;
       else reviewStatus.textContent = `${results.length} effect${results.length === 1 ? '' : 's'} ready`;
     }
-    if (results.length && errors) {
+    if (results.length && options.pooledModelRestriction) {
+      setStatus(`${results.length} effect sizes prepared for review and download. Pooled analysis is disabled for this curated dataset because its effects are dependent. See Step 3 for details.`, 'warning');
+    } else if (results.length && errors) {
       setStatus(`${results.length} effect size${results.length === 1 ? '' : 's'} calculated; ${errors} error${errors === 1 ? '' : 's'} require correction. Review them below before running the meta-analysis.`, 'warning');
     } else if (results.length && warningRows) {
       setStatus(`${results.length} effect size${results.length === 1 ? '' : 's'} and ${forestCount} unpooled forest plot${forestCount === 1 ? '' : 's'} created automatically; ${warningRows} row${warningRows === 1 ? '' : 's'} contain warnings or unused inputs. Review Step 2, then configure Step 3.`, 'warning');
@@ -936,7 +944,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     }
   }
 
-  function processText(text, sourceName) {
+  function processText(text, sourceName, options = {}) {
     try {
       const parsed = parseDelimited(text);
       const results = [];
@@ -950,7 +958,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
           validationItems.push(issueFromError(record, error));
         }
       });
-      renderResults(results, validationItems, sourceName, parsed.records, parsed.headers);
+      renderResults(results, validationItems, sourceName, parsed.records, parsed.headers, options);
       return true;
     } catch (error) {
       latestResults = [];
@@ -1009,7 +1017,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const csv = await response.text();
       if (csv.length > 5 * 1024 * 1024) throw new Error('The dataset exceeds the 5 MB processing limit.');
-      if (!processText(csv, `the ${selected.name} dataset`)) throw new Error('the downloaded file could not be processed');
+      if (!processText(csv, `the ${selected.name} dataset`, selected)) throw new Error('the downloaded file could not be processed');
       if (uploadConfirmation) uploadConfirmation.hidden = false;
       if (uploadConfirmationDetail) {
         uploadConfirmationDetail.textContent = `${selected.name} was downloaded from the public ERN repository and processed locally in your browser. Your own files were not uploaded.`;

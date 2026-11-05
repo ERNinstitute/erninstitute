@@ -997,6 +997,8 @@ li {
   font-weight: 800;
 }
 
+.converter-trust a { font-size:0.8rem; width:fit-content; margin-top:0.25rem; }
+
 .studio-flow-preview {
   padding-top: 0;
   padding-bottom: 0;

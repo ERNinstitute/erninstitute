@@ -46,6 +46,7 @@
   let currentForest = null;
   let validationErrorCount = 0;
   let independenceConfirmedByUser = false;
+  let pooledModelRestriction = '';
 
   const publicState = {
     analyses: [],
@@ -241,9 +242,11 @@
     currentAnalysis = null;
     currentForest = null;
     resetRenderedResults();
-    runButton.disabled = validationErrorCount > 0;
-    runAllButton.disabled = validationErrorCount > 0;
-    if (validationErrorCount > 0) {
+    runButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction);
+    runAllButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction);
+    if (pooledModelRestriction) {
+      setStatus(pooledModelRestriction, 'warning');
+    } else if (validationErrorCount > 0) {
       setStatus(`Fix ${validationErrorCount} validation error${validationErrorCount === 1 ? '' : 's'} in Step 2 before pooling. The Studio will not silently omit invalid rows.`, 'warning');
     } else {
       setStatus('Ready to run. Effects on different scales are analyzed separately.', 'neutral');
@@ -623,6 +626,7 @@
   }
 
   function runMetric(metric, render = true) {
+    if (pooledModelRestriction) throw new Error(pooledModelRestriction);
     if (validationErrorCount > 0) {
       throw new Error(`Fix ${validationErrorCount} validation error${validationErrorCount === 1 ? '' : 's'} before pooling. Invalid rows are never silently omitted.`);
     }
@@ -676,6 +680,7 @@
 
   function runAll() {
     try {
+      if (pooledModelRestriction) throw new Error(pooledModelRestriction);
       if (validationErrorCount > 0) {
         throw new Error(`Fix ${validationErrorCount} validation error${validationErrorCount === 1 ? '' : 's'} before pooling. Invalid rows are never silently omitted.`);
       }
@@ -711,7 +716,8 @@
     document.body.appendChild(anchor);
     anchor.click();
     anchor.remove();
-    URL.revokeObjectURL(url);
+    // Allow time for the browser to initiate a download before releasing the blob.
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
   function downloadForestFor(analysis, svg) {
@@ -751,6 +757,7 @@
     allEffects = event.detail?.results || [];
     sourceName = event.detail?.sourceName || '';
     validationErrorCount = (event.detail?.validationItems || []).filter((item) => item.severity === 'error').length;
+    pooledModelRestriction = event.detail?.pooledModelRestriction || '';
     independenceConfirmedByUser = false;
     independenceCheckbox.checked = false;
     publicState.sourceName = sourceName;

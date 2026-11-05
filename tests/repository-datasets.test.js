@@ -77,10 +77,17 @@ for (const filename of [
 const site = fs.readFileSync(path.join(__dirname, '..', 'repository.html'), 'utf8');
 const studio = fs.readFileSync(path.join(__dirname, '..', 'tools', 'meta-analysis-studio', 'index.html'), 'utf8');
 const converterSource = fs.readFileSync(path.join(__dirname, '..', 'effect-size-converter.js'), 'utf8');
+const metaSource = fs.readFileSync(path.join(__dirname, '..', 'meta-analysis.js'), 'utf8');
 for (const filename of Object.keys(expected)) assert.ok(site.includes(`downloads/open-data/${filename}`), `Repository card missing for ${filename}`);
 for (const key of ['bangertdrowns2004', 'bourassa1996', 'craft2003', 'crede2010']) {
   assert.ok(studio.includes(`value="${key}"`), `Studio selector missing ${key}`);
   assert.ok(converterSource.includes(`${key}:`), `Public dataset allowlist missing ${key}`);
 }
 assert.ok(site.includes('<strong>256</strong>'), 'Published effect count should be 256');
+assert.ok(site.includes('Preparation only · Clustered effects'), 'Public Bourassa card must disclose pooling restriction');
+assert.ok(converterSource.includes('pooledModelRestriction:'), 'Known clustered dataset needs a pooling restriction');
+assert.ok(converterSource.includes('pooledModelRestriction: options.pooledModelRestriction'), 'Restriction must be passed with prepared results');
+assert.ok(metaSource.includes('runButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction)'), 'Single-model button must block restricted datasets');
+assert.ok(metaSource.includes('runAllButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction)'), 'All-model button must block restricted datasets');
+assert.ok(metaSource.includes('if (pooledModelRestriction) throw new Error(pooledModelRestriction)'), 'Programmatic model calls must reject restricted datasets');
 console.log(`ERN repository tests passed: ${Object.keys(expected).length} datasets, ${checkedModels} metric-specific models.`);
