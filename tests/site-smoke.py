@@ -6,6 +6,7 @@ Uses only the Python standard library.
 
 from html.parser import HTMLParser
 from pathlib import Path
+import re
 from urllib.parse import unquote, urljoin, urlsplit
 
 
@@ -52,11 +53,15 @@ def main():
             checked += 1
 
     studio = (ROOT / "tools/meta-analysis-studio/index.html").read_text(encoding="utf-8")
-    if SITE_ORIGIN + "/images/meta-analysis-studio-preview.png" not in studio:
+    preview = re.search(r'<meta\s+property="og:image"\s+content="([^"]+)"', studio)
+    if not preview or not preview.group(1).startswith(SITE_ORIGIN + "/images/"):
         broken.append(("Studio", "Open Graph image", "missing metadata"))
-    asset = ROOT / "images/meta-analysis-studio-preview.png"
-    if asset.is_file() and asset.read_bytes()[16:24] != b"\x00\x00\x04\xb0\x00\x00\x02\x76":
-        broken.append(("Studio", "share preview", "not 1200 × 630 PNG"))
+    else:
+        asset = ROOT / urlsplit(preview.group(1)).path.lstrip("/")
+        if not asset.is_file():
+            broken.append(("Studio", "share preview", "image file missing"))
+        elif asset.read_bytes()[16:24] != b"\x00\x00\x04\xb0\x00\x00\x02\x76":
+            broken.append(("Studio", "share preview", "not 1200 × 630 PNG"))
 
     if broken:
         for filename, target, error in broken:

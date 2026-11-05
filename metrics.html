@@ -4,13 +4,13 @@
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Transparent Article-Level Citation Metrics | ERN Institute</title>
-<meta name="description" content="A plain-language framework for reporting Citations Per Year (Now), Citations Per Year (Now vs. Lifetime), and Citations Per Year (Now vs. Benchmark)."/>
+<meta name="description" content="Calculate article-level citations per year, compare recent and lifetime citation rates, and report a named benchmark in your browser. Free Excel workbook also available."/>
 <meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Transparent Article-Level Citation Metrics | ERN Institute"/>
-<meta property="og:description" content="A plain-language framework for reporting Citations Per Year (Now), Citations Per Year (Now vs. Lifetime), and Citations Per Year (Now vs. Benchmark)."/>
+<meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261105a" rel="stylesheet"/>
+<link href="styles.css?v=20261105b" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -24,7 +24,7 @@
     {"@type": "Person", "name": "John G. Grundy"}
   ],
   "publisher": {"@type": "Organization", "name": "ERN Institute"},
-  "version": "1.0",
+  "version": "1.1",
   "datePublished": "2026-07-28",
   "description": "A transparent article-level reporting framework built around citations per year.",
   "citation": "Grundy, F., & Grundy, J. G. (under review). Transparent Metrics for Article-Level Impact Using Citations Per Year: Now, Now vs. Lifetime, and Now vs. Benchmark."
@@ -76,16 +76,85 @@
 
 <section class="section metrics-hero">
   <div class="metrics-hero-copy">
-    <p class="eyebrow">Version 1.0 · July 28, 2026</p>
+    <p class="eyebrow">Browser calculator · November 2026</p>
     <h1>Transparent Article-Level Citation Metrics</h1>
     <p class="subtitle lead">Three plain-language metrics answer three questions: How many citations per year is a paper receiving now? How does now compare with its lifetime annual rate? How does now compare with a named annual benchmark?</p>
     <p class="subtitle">These are descriptive tools. They make article-level citation claims easier to understand and reproduce, but they do not replace peer review, field-sensitive evaluation, or expert judgment.</p>
-    <div class="btn-row"><a class="btn btn-primary" href="downloads/citations-per-year-calculator.xlsx">Download calculator</a><a class="btn btn-outline" href="#source">Manuscript source</a></div>
+    <div class="btn-row"><a class="btn btn-primary" href="#calculator">Use browser calculator</a><a class="btn btn-outline" href="downloads/citations-per-year-calculator.xlsx" download>Download Excel workbook</a><a class="text-link" href="#source">Manuscript source</a></div>
   </div>
   <div class="card formula-card">
     <h3>One common starting point</h3>
     <p>All three metrics begin with <strong>citations per year</strong>. The first reports the annual rate itself. The other two compare that annual rate with another annual rate, so their results are ratios.</p>
   </div>
+</section>
+
+<section class="section citation-calculator-section" id="calculator" aria-labelledby="citation-calculator-heading">
+  <div class="citation-calculator-intro">
+    <p class="eyebrow">Free research tool</p>
+    <h2 id="citation-calculator-heading">Calculate citation metrics in your browser</h2>
+    <p>Enter a paper’s recent citation count to calculate citations per year. Add its lifetime count and a named annual benchmark for the two comparisons. Your results and reporting summary appear instantly after you select Calculate. No upload or account is needed.</p>
+  </div>
+  <div class="citation-calculator-layout">
+    <form id="citation-metrics-form" class="card citation-calculator-form" novalidate>
+      <fieldset>
+        <legend>Paper and citation counts</legend>
+        <div class="citation-fields">
+          <div class="citation-field citation-field-full"><label for="citation-paper-title">Paper title <span class="citation-optional">(optional)</span></label><input id="citation-paper-title" name="paperTitle" type="text" placeholder="Title for the reporting summary" autocomplete="off"/></div>
+          <div class="citation-field"><label for="citation-recent">Citations in recent period <span class="citation-required">*</span></label><input id="citation-recent" name="recentCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 25" required/></div>
+          <div class="citation-field"><label for="citation-years">Recent period (years) <span class="citation-required">*</span></label><input id="citation-years" name="recentYears" type="number" min="1" step="1" inputmode="numeric" value="5" required/></div>
+          <div class="citation-field"><label for="citation-total">Total lifetime citations <span class="citation-optional">(optional)</span></label><input id="citation-total" name="totalCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 100"/></div>
+          <div class="citation-field"><label for="citation-published">Publication year <span class="citation-optional">(optional)</span></label><input id="citation-published" name="publicationYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2016"/></div>
+        </div>
+        <p class="citation-field-note">The lifetime comparison requires both total citations and publication year. Counts should come from the same citation source.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Annual benchmark <span class="citation-optional">(optional)</span></legend>
+        <div class="citation-fields">
+          <div class="citation-field citation-field-full"><label for="citation-benchmark-name">Benchmark name and year</label><input id="citation-benchmark-name" name="benchmarkName" type="text" placeholder="e.g., 2025 two-year Journal Impact Factor"/></div>
+          <div class="citation-field"><label for="citation-benchmark-rate">Benchmark citations per year</label><input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="e.g., 3.0"/></div>
+          <div class="citation-field"><label for="citation-benchmark-source">Benchmark source</label><input id="citation-benchmark-source" name="benchmarkSource" type="text" placeholder="e.g., Journal Citation Reports"/></div>
+        </div>
+      </fieldset>
+      <fieldset>
+        <legend>Reporting details <span class="citation-optional">(optional)</span></legend>
+        <div class="citation-fields">
+          <div class="citation-field"><label for="citation-source">Citation database</label><input id="citation-source" name="citationSource" type="text" placeholder="e.g., Web of Science"/></div>
+          <div class="citation-field"><label for="citation-date">Date checked</label><input id="citation-date" name="checkedDate" type="date"/></div>
+          <div class="citation-field citation-field-full"><label for="citation-self">Self-citations</label><select id="citation-self" name="selfCitations"><option value="Not specified">Not specified</option><option value="Included">Included</option><option value="Excluded">Excluded</option></select></div>
+        </div>
+      </fieldset>
+      <div class="citation-form-actions">
+        <button class="btn btn-primary" type="submit">Calculate metrics</button>
+        <button class="btn btn-outline" id="citation-metrics-example" type="button">Load example</button>
+        <button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear</button>
+      </div>
+    </form>
+
+    <div class="citation-result-column">
+      <div id="citation-metrics-errors" class="citation-form-errors" role="alert" hidden></div>
+      <div id="citation-metrics-empty" class="card citation-empty-state">
+        <span class="citation-empty-symbol" aria-hidden="true">÷</span>
+        <h3>Your results will appear here</h3>
+        <p>Start with the recent citation count and number of years, or select <strong>Load example</strong> to see all three metrics.</p>
+      </div>
+      <div id="citation-metrics-results" hidden aria-live="polite">
+        <h3 class="citation-results-title">Calculated results</h3>
+        <div class="citation-result-cards">
+          <article class="citation-result-card"><span>Citations Per Year (Now)</span><strong data-citation-output="now">0.00</strong><p data-citation-output="now-note"></p></article>
+          <article class="citation-result-card"><span>Now vs. Lifetime</span><strong data-citation-output="lifetime">N/A</strong><p data-citation-output="lifetime-note"></p></article>
+          <article class="citation-result-card"><span>Now vs. Benchmark</span><strong data-citation-output="benchmark">N/A</strong><p data-citation-output="benchmark-note"></p></article>
+        </div>
+        <div id="citation-metrics-warnings" class="citation-result-warning" hidden></div>
+        <div class="card citation-report-card">
+          <h3>Copyable reporting summary</h3>
+          <p class="citation-field-note">Include the source, time window, and benchmark details when reporting these measures.</p>
+          <pre id="citation-metrics-report" tabindex="0"></pre>
+          <button class="btn btn-outline" id="citation-metrics-copy" type="button">Copy report</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p class="citation-privacy-note">Calculations run in your browser. Your inputs are not sent to ERN Institute. For multiple papers at once, the <a href="downloads/citations-per-year-calculator.xlsx" download>Excel workbook</a> remains available.</p>
 </section>
 
 <section class="section">
@@ -168,6 +237,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
+<script src="citation-metrics.js"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
