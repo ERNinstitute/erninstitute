@@ -6,7 +6,7 @@ const path = require('node:path');
 
 const root = path.join(__dirname, '..');
 const pages = [
-  { page: 'tools/meta-analysis-studio/index.html', url: 'https://erninstitute.com/tools/meta-analysis-studio/', image: 'meta-analysis-studio-preview.png' },
+  { page: 'tools/meta-analysis-studio/index.html', url: 'https://erninstitute.com/tools/meta-analysis-studio/', image: 'meta-analysis-studio-preview-branded-20261105.png' },
   { page: 'repository.html', url: 'https://erninstitute.com/repository.html', image: 'ern-open-data-preview.png' }
 ];
 
