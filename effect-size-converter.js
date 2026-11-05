@@ -630,6 +630,26 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     return { result, notices: [...identifierNotices(record), ...unexpectedInputNotices(record, type), ...calculationNotices(record, result)] };
   }
 
+  const RESULT_CSV_HEADERS = [
+    'study_id', 'effect_id', 'calculation_type', 'effect_metric', 'effect_size',
+    'sampling_variance', 'standard_error', 'ci_lower', 'ci_upper', 'natural_metric',
+    'natural_effect', 'natural_ci_lower', 'natural_ci_upper', 'n_total', 'reverse_sign',
+    'formula', 'warning', 'notes'
+  ];
+
+  function csvEscape(value) {
+    const text = value === null || value === undefined ? '' : String(value);
+    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  }
+
+  function buildResultsCsv(results) {
+    const lines = [RESULT_CSV_HEADERS.join(',')];
+    results.forEach((result) => {
+      lines.push(RESULT_CSV_HEADERS.map((header) => csvEscape(result[header])).join(','));
+    });
+    return lines.join('\r\n');
+  }
+
   globalThis.ERNEffectSizeConverterCore = {
     parseDelimited,
     calculateRecord,
@@ -638,7 +658,8 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     calculateIndependentF,
     calculateCorrelation,
     calculateBinary,
-    calculateGeneric
+    calculateGeneric,
+    buildResultsCsv
   };
 
   if (!fileInput || !dropZone) return;
@@ -1002,32 +1023,22 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     }
   }
 
-  function csvEscape(value) {
-    const text = value === null || value === undefined ? '' : String(value);
-    return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+  function triggerBlobDownload(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    // Some browsers need time to start the download after the click.
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
   }
 
   function downloadResults() {
     if (!latestResults.length) return;
-    const headers = [
-      'study_id', 'effect_id', 'calculation_type', 'effect_metric', 'effect_size',
-      'sampling_variance', 'standard_error', 'ci_lower', 'ci_upper', 'natural_metric',
-      'natural_effect', 'natural_ci_lower', 'natural_ci_upper', 'n_total', 'reverse_sign',
-      'formula', 'warning', 'notes'
-    ];
-    const lines = [headers.join(',')];
-    latestResults.forEach((result) => {
-      lines.push(headers.map((header) => csvEscape(result[header])).join(','));
-    });
-    const blob = new Blob([lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'ern-effect-sizes.csv';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    URL.revokeObjectURL(url);
+    const blob = new Blob([buildResultsCsv(latestResults)], { type: 'text/csv;charset=utf-8' });
+    triggerBlobDownload(blob, 'ern-effect-sizes.csv');
   }
 
   async function downloadPublicationWorkbook() {
@@ -1044,14 +1055,7 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
         metaAnalyses: metaState.analyses || [],
         sourceName: latestSourceName
       });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = 'ern-meta-analysis-publication-workbook.xlsx';
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
+      triggerBlobDownload(blob, 'ern-meta-analysis-publication-workbook.xlsx');
       setStatus(`Publication workbook created with the original input, validation report, calculated effects, audit trail, embedded figures, and ${(metaState.analyses || []).length} fitted meta-analysis model${(metaState.analyses || []).length === 1 ? '' : 's'}.`, 'success');
     } catch (error) {
       setStatus(`The publication workbook could not be created: ${error.message}`, 'error');

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="ERN Open Meta-Analysis Data Repository social preview">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#102b4a"/><stop offset="1" stop-color="#1d436a"/></linearGradient>
+  <linearGradient id="glow" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#00b6d5"/><stop offset="1" stop-color="#6de3ee"/></linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1090" cy="75" r="300" fill="#24577e" opacity=".28"/>
+<circle cx="80" cy="570" r="320" fill="#1b5275" opacity=".25"/>
+<g fill="none" stroke="#40d6ec" stroke-width="2.5" opacity=".9">
+  <path d="M87 72l34-20 34 20v40l-34 20-34-20z"/><path d="M121 52v80M87 72l68 40M155 72l-68 40"/>
+</g>
+<text x="176" y="91" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="700" fill="#ffffff">ERN INSTITUTE</text>
+<text x="176" y="124" font-family="Arial,Helvetica,sans-serif" font-size="16" letter-spacing="1.7" fill="#b7dae8">EXPERIENCE-RELATED NEUROPLASTICITY</text>
+<rect x="79" y="166" width="150" height="8" rx="4" fill="url(#glow)"/>
+<text x="78" y="254" font-family="Georgia,serif" font-size="58" font-weight="700" fill="#ffffff">Meta-Analysis</text>
+<text x="78" y="319" font-family="Georgia,serif" font-size="64" font-weight="700" fill="#ffffff">Data Repository</text>
+<text x="80" y="369" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#d2e7f0">Real research data, ready for analysis.</text>
+<text x="80" y="405" font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#d2e7f0">Original sources, licenses and citations included.</text>
+<g transform="translate(668,187)">
+  <rect width="474" height="344" rx="20" fill="#fbfdff" stroke="#87cfe2" stroke-width="3"/>
+  <rect width="474" height="61" rx="20" fill="#edf5fa"/>
+  <rect x="0" y="42" width="474" height="19" fill="#edf5fa"/>
+  <text x="23" y="39" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700" fill="#173859">Open research collection</text>
+  <g font-family="Arial,Helvetica,sans-serif">
+    <rect x="24" y="86" width="427" height="65" rx="9" fill="#f4f9fd" stroke="#d4e4ee"/>
+    <rect x="24" y="163" width="427" height="65" rx="9" fill="#f4f9fd" stroke="#d4e4ee"/>
+    <rect x="24" y="240" width="427" height="65" rx="9" fill="#f4f9fd" stroke="#d4e4ee"/>
+    <g font-size="18" font-weight="700" fill="#173859">
+      <text x="42" y="111">Cognitive and behavioral studies</text>
+      <text x="42" y="188">Education and learning outcomes</text>
+      <text x="42" y="265">Medicine and public health</text>
+    </g>
+    <g font-size="15" fill="#4a697e">
+      <text x="42" y="136">Open data · Studio-ready effects</text>
+      <text x="42" y="213">Documented inputs and methods</text>
+      <text x="42" y="290">Source links and attribution</text>
+    </g>
+  </g>
+</g>
+<text x="80" y="531" font-family="Arial,Helvetica,sans-serif" font-size="21" font-weight="700" fill="#75e5f2">10 DATASETS • 256 EFFECTS • FREE ACCESS</text>
+<text x="80" y="583" font-family="Arial,Helvetica,sans-serif" font-size="20" fill="#cfe7f0">erninstitute.com/repository.html</text>
+</svg>
