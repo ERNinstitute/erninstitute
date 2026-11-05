@@ -85,6 +85,8 @@ for (const key of ['bangertdrowns2004', 'bourassa1996', 'craft2003', 'crede2010'
 }
 assert.ok(site.includes('<strong>256</strong>'), 'Published effect count should be 256');
 assert.ok(site.includes('Preparation only · Clustered effects'), 'Public Bourassa card must disclose pooling restriction');
+assert.ok(site.includes('records under 45 distinct study IDs'), 'Writing-to-learn source card must acknowledge repeated studies');
+assert.ok(converterSource.includes('45 distinct study IDs'), 'Writing-to-learn curated example must block simple pooling');
 assert.ok(converterSource.includes('pooledModelRestriction:'), 'Known clustered dataset needs a pooling restriction');
 assert.ok(converterSource.includes('pooledModelRestriction: options.pooledModelRestriction'), 'Restriction must be passed with prepared results');
 assert.ok(metaSource.includes('runButton.disabled = validationErrorCount > 0 || Boolean(pooledModelRestriction)'), 'Single-model button must block restricted datasets');

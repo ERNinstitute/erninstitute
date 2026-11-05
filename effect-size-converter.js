@@ -43,7 +43,11 @@
     colditz1994: { name: 'BCG vaccination and tuberculosis', path: '/downloads/open-data/ern-ready-colditz1994-bcg.csv' },
     gibson2002: { name: 'Asthma self-management', path: '/downloads/open-data/ern-ready-gibson2002-asthma-multimetric.csv' },
     michael2013: { name: 'Brain-image persuasiveness', path: '/downloads/open-data/ern-ready-michael2013-brain-image-persuasiveness.csv' },
-    bangertdrowns2004: { name: 'Writing-to-learn interventions', path: '/downloads/open-data/ern-ready-bangertdrowns2004-writing-to-learn.csv' },
+    bangertdrowns2004: {
+      name: 'Writing-to-learn interventions',
+      path: '/downloads/open-data/ern-ready-bangertdrowns2004-writing-to-learn.csv',
+      pooledModelRestriction: 'The 48 effect-size records in this curated file include repeated study labels (45 distinct study IDs). The published single-level REML example is useful for checking calculations, but it does not resolve dependent effects. All 48 records can be reviewed and exported in Step 2; pooling requires an analysis that explicitly handles effect dependence.'
+    },
     bourassa1996: {
       name: 'Handedness and eye dominance',
       path: '/downloads/open-data/ern-ready-bourassa1996-handedness-eye-dominance.csv',
