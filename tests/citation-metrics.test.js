@@ -7,7 +7,11 @@ const {
   computeCitationMetrics,
   interpretRatio,
   describeCitationResults,
-  formatCitationReport
+  formatCitationReport,
+  normalizeDoi,
+  fetchOpenAlexWork,
+  openAlexWindowCounts,
+  buildCitationCsv
 } = require('../citation-metrics.js');
 
 test('matches the existing Excel workbook example', () => {
@@ -85,6 +89,68 @@ test('warns about recent periods longer than paper age', () => {
   assert.ok(result.warnings.some((message) => message.includes('exceeds the paper')));
 });
 
+test('exact inclusive calendar-year windows determine the denominator and reporting period', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '89', windowMode: 'calendar', startYear: '2024', endYear: '2025',
+    recentYears: '5', publicationYear: '2009', totalCitations: '252'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.recentYears, 2);
+  assert.equal(result.now, 44.5);
+  assert.match(describeCitationResults(result).now, /from 2024 through 2025 \(inclusive\)/);
+  assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2025' }, 2026).errors.length);
+  assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2027' }, 2026).errors.length);
+  const partial = computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2025', endYear: '2026' }, 2026);
+  assert.ok(partial.warnings.some((message) => message.includes('not yet complete')));
+});
+
+test('journal-level benchmark is labeled and qualified', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '89', recentYears: '2', benchmarkName: '2025 Journal Impact Factor',
+    benchmarkType: 'jif', benchmarkRate: '3'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.match(describeCitationResults(result).benchmark, /not a measure of the paper’s quality/);
+  assert.ok(result.warnings.some((message) => message.includes('journal-level')));
+});
+
+test('normalizes DOIs and retrieves OpenAlex records without private credentials', async () => {
+  assert.equal(normalizeDoi('https://doi.org/10.1073/pnas.2532470123'), '10.1073/pnas.2532470123');
+  assert.equal(normalizeDoi('doi:10.1073/pnas.2532470123'), '10.1073/pnas.2532470123');
+  assert.throws(() => normalizeDoi('not-a-doi'), /valid DOI/);
+  let requestedUrl;
+  const work = await fetchOpenAlexWork('10.1073/pnas.2532470123', async (url, options) => {
+    requestedUrl = url;
+    assert.equal(options.headers.Accept, 'application/json');
+    return { ok: true, json: async () => ({
+      display_name: 'Example article', publication_year: 2016, cited_by_count: 100,
+      counts_by_year: [{ year: 2025, cited_by_count: 20 }, { year: 2024, cited_by_count: 5 }]
+    }) };
+  });
+  assert.equal(requestedUrl, 'https://api.openalex.org/works/https://doi.org/10.1073/pnas.2532470123');
+  assert.equal(work.display_name, 'Example article');
+  assert.equal(openAlexWindowCounts(work, 2024, 2025, 2026), 25);
+  assert.equal(openAlexWindowCounts(work, 2023, 2025, 2026), 25, 'Omitted years within coverage count as zero');
+  assert.throws(() => openAlexWindowCounts(work, 2015, 2025, 2026), /last ten years/);
+  await assert.rejects(fetchOpenAlexWork('10.1073/pnas.2532470123', async () => ({ ok: false, status: 429 })), /rate-limiting/);
+});
+
+test('CSV comparison preserves sources, windows, and safe spreadsheet text', () => {
+  const result = computeCitationMetrics({
+    paperTitle: '=SUM(1,2)', doi: '10.1000/example', windowMode: 'calendar',
+    startYear: '2024', endYear: '2025', recentCitations: '25',
+    publicationYear: '2016', totalCitations: '100',
+    benchmarkType: 'jif', benchmarkName: '2025 JIF', benchmarkRate: '3',
+    citationSource: 'OpenAlex', checkedDate: '2026-11-05'
+  }, 2026);
+  const csv = buildCitationCsv([result]);
+  assert.match(csv, /"'=SUM\(1,2\)"/);
+  assert.match(csv, /"2024","2025","12.5"/);
+  assert.match(csv, /"OpenAlex"/);
+  assert.match(csv, /"2026-11-05"/);
+  assert.equal(csv.split('\r\n').filter(Boolean).length, 2);
+});
+
 test('describes the displayed rates and ratios in plain language', () => {
   const result = computeCitationMetrics({
     publicationYear: '2009', totalCitations: '252', recentCitations: '89',
@@ -112,10 +178,14 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const name of [
     'paperTitle', 'publicationYear', 'totalCitations', 'recentCitations',
     'recentYears', 'benchmarkName', 'benchmarkRate', 'benchmarkSource',
-    'citationSource', 'checkedDate', 'selfCitations'
+    'citationSource', 'checkedDate', 'selfCitations', 'doi', 'windowMode',
+    'startYear', 'endYear', 'benchmarkType'
   ]) assert.ok(html.includes(`name="${name}"`), `Missing calculator field ${name}`);
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
   assert.ok(html.includes('<script src="citation-metrics.js"></script>'));
+  for (const id of ['citation-doi-lookup', 'citation-doi-status', 'citation-metrics-add', 'citation-comparison-body', 'citation-comparison-export']) {
+    assert.ok(ids.includes(id), `Missing ${id}`);
+  }
 });

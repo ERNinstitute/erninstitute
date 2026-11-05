@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261105c" rel="stylesheet"/>
+<link href="styles.css?v=20261105d" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -102,7 +102,7 @@
   <div class="citation-calculator-intro">
     <p class="eyebrow">Free research tool</p>
     <h2 id="citation-calculator-heading">Calculate citation metrics in your browser</h2>
-    <p>Enter a paper’s recent citation count to calculate citations per year. Add its lifetime count and a named annual benchmark for the two comparisons. Your results and reporting summary appear instantly after you select Calculate. No upload or account is needed.</p>
+    <p>Enter a paper’s recent citation count or retrieve available citation information using its DOI. Add a lifetime count and named annual benchmark for the two comparisons. You can also collect several papers in a comparison table. No account is required.</p>
   </div>
   <div class="citation-calculator-layout">
     <form id="citation-metrics-form" class="card citation-calculator-form" novalidate>
@@ -110,20 +110,33 @@
         <legend>Paper and citation counts</legend>
         <div class="citation-fields">
           <div class="citation-field citation-field-full"><label for="citation-paper-title">Paper title <span class="citation-optional">(optional)</span></label><input id="citation-paper-title" name="paperTitle" type="text" placeholder="Title for the reporting summary" autocomplete="off"/></div>
+          <div class="citation-field citation-field-full">
+            <label for="citation-doi">Digital Object Identifier (DOI) <span class="citation-optional">(optional)</span></label>
+            <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-outline" id="citation-doi-lookup" type="button">Look up DOI</button></div>
+            <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">OpenAlex can fill in the title, publication year, lifetime citations, and recent annual counts. Review the retrieved values before using them.</p>
+          </div>
           <div class="citation-field"><label for="citation-recent">Citations in recent period <span class="citation-required">*</span></label><input id="citation-recent" name="recentCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 25" required/></div>
-          <div class="citation-field"><label for="citation-years">Recent period (years) <span class="citation-required">*</span></label><input id="citation-years" name="recentYears" type="number" min="1" step="1" inputmode="numeric" value="5" required/></div>
+          <div class="citation-field"><label for="citation-window-mode">Recent period definition</label><select id="citation-window-mode" name="windowMode"><option value="duration">Number of years</option><option value="calendar">Exact calendar years</option></select></div>
+          <div class="citation-field" id="citation-duration-field"><label for="citation-years">Recent period (years) <span class="citation-required">*</span></label><input id="citation-years" name="recentYears" type="number" min="1" step="1" inputmode="numeric" value="5" required/></div>
+          <div class="citation-field-full citation-calendar-fields" id="citation-calendar-fields" hidden>
+            <div class="citation-field"><label for="citation-start-year">Start year <span class="citation-required">*</span></label><input id="citation-start-year" name="startYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2024"/></div>
+            <div class="citation-field"><label for="citation-end-year">End year <span class="citation-required">*</span></label><input id="citation-end-year" name="endYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2025"/></div>
+            <p class="citation-field-note citation-field-full">Both years are included. For example, 2024–2025 means January 1, 2024 through December 31, 2025, a two-year window.</p>
+          </div>
           <div class="citation-field"><label for="citation-total">Total lifetime citations <span class="citation-optional">(optional)</span></label><input id="citation-total" name="totalCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 100"/></div>
           <div class="citation-field"><label for="citation-published">Publication year <span class="citation-optional">(optional)</span></label><input id="citation-published" name="publicationYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2016"/></div>
         </div>
-        <p class="citation-field-note">The lifetime comparison requires both total citations and publication year. Counts should come from the same citation source.</p>
+        <p class="citation-field-note">The lifetime comparison requires total citations and publication year. Use the same citation database for both recent and lifetime counts. OpenAlex supplies annual counts for the last ten calendar years.</p>
       </fieldset>
       <fieldset>
         <legend>Annual benchmark <span class="citation-optional">(optional)</span></legend>
         <div class="citation-fields">
+          <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="annual">Other annual citation benchmark</option><option value="jif">Journal Impact Factor (journal-level)</option></select></div>
           <div class="citation-field citation-field-full"><label for="citation-benchmark-name">Benchmark name and year</label><input id="citation-benchmark-name" name="benchmarkName" type="text" placeholder="e.g., 2025 two-year Journal Impact Factor"/></div>
           <div class="citation-field"><label for="citation-benchmark-rate">Benchmark citations per year</label><input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="e.g., 3.0"/></div>
           <div class="citation-field"><label for="citation-benchmark-source">Benchmark source</label><input id="citation-benchmark-source" name="benchmarkSource" type="text" placeholder="e.g., Journal Citation Reports"/></div>
         </div>
+        <p class="citation-field-note">A Journal Impact Factor describes a journal, not an individual paper. It can provide a descriptive reference, but the comparison does not measure a paper’s research quality. Record the benchmark year, journal, and data source.</p>
       </fieldset>
       <fieldset>
         <legend>Reporting details <span class="citation-optional">(optional)</span></legend>
@@ -136,7 +149,7 @@
       <div class="citation-form-actions">
         <button class="btn btn-primary" type="submit">Calculate metrics</button>
         <button class="btn btn-outline" id="citation-metrics-example" type="button">Load example</button>
-        <button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear</button>
+        <button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear form</button>
       </div>
     </form>
 
@@ -161,10 +174,15 @@
           <pre id="citation-metrics-report" tabindex="0"></pre>
           <button class="btn btn-outline" id="citation-metrics-copy" type="button">Copy report</button>
         </div>
+        <button class="btn btn-primary citation-add-comparison" id="citation-metrics-add" type="button">Add paper to comparison</button>
       </div>
     </div>
   </div>
-  <p class="citation-privacy-note">Calculations run in your browser. Your inputs are not sent to ERN Institute. For multiple papers at once, the <a href="downloads/citations-per-year-calculator.xlsx" download>Excel workbook</a> remains available.</p>
+  <div id="citation-comparison" class="citation-comparison" hidden>
+    <div class="citation-comparison-heading"><div><h3>Compare your papers</h3><p>Keep up to 50 calculated papers in this browser session. Load a row to revise it, or remove it from the table. Compare ratios only when citation sources and benchmarks are comparable.</p></div><button class="btn btn-outline" id="citation-comparison-export" type="button">Download CSV for Excel</button></div>
+    <table class="citation-comparison-table" id="citation-comparison-table"><thead><tr><th scope="col">Paper</th><th scope="col">Citation window</th><th scope="col">Now</th><th scope="col">vs. Lifetime</th><th scope="col">vs. Benchmark</th><th scope="col">Actions</th></tr></thead><tbody id="citation-comparison-body"></tbody></table>
+  </div>
+  <p class="citation-privacy-note">Calculation and comparison data stay in your browser. A DOI lookup sends the DOI to <a href="https://openalex.org/" target="_blank" rel="noopener noreferrer">OpenAlex</a> to retrieve public citation metadata. For a spreadsheet workflow, the <a href="downloads/citations-per-year-calculator.xlsx" download>original Excel workbook</a> remains available.</p>
 </section>
 
 <section class="section section-narrow">
@@ -208,6 +226,7 @@
     </tbody>
   </table>
   <p class="muted">Always report the benchmark’s exact name, year, value, and source. The metric remains Citations Per Year (Now vs. Benchmark); the accompanying report identifies the benchmark used.</p>
+  <p class="muted">A Journal Impact Factor describes the citation performance of a journal, not the quality of an individual article. See <a href="https://clarivate.com/academia-government/scientific-and-academic-research/research-funding-analytics/journal-citation-reports/" target="_blank" rel="noopener noreferrer">Clarivate’s guidance</a> and the <a href="https://sfdora.org/read/" target="_blank" rel="noopener noreferrer">San Francisco Declaration on Research Assessment</a>.</p>
 </section>
 
 <section class="section section-narrow caution-box">

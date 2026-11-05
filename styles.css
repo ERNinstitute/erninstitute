@@ -2720,6 +2720,34 @@ li {
   gap: 0.9rem;
 }
 
+.citation-calendar-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.citation-doi-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.65rem;
+}
+
+.citation-doi-row input {
+  flex: 1;
+}
+
+.citation-doi-row .btn {
+  flex: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.83rem;
+}
+
+.citation-doi-row .btn:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
 .citation-field {
   min-width: 0;
 }
@@ -2907,6 +2935,115 @@ li {
   box-shadow: none;
 }
 
+.citation-add-comparison {
+  width: 100%;
+  margin-top: 0.9rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.citation-comparison {
+  margin-top: 2.5rem;
+  padding: clamp(1rem, 2.8vw, 1.5rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.citation-comparison-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.citation-comparison-heading h3 {
+  margin: 0 0 0.25rem;
+}
+
+.citation-comparison-heading p {
+  max-width: 640px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.citation-comparison-heading .btn {
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.citation-comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.84rem;
+}
+
+.citation-comparison-table th,
+.citation-comparison-table td {
+  min-width: 0;
+  padding: 0.8rem 0.55rem;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.citation-comparison-table th:first-child,
+.citation-comparison-table td:first-child {
+  width: 28%;
+}
+
+.citation-comparison-table th:last-child,
+.citation-comparison-table td:last-child {
+  width: 15%;
+}
+
+.citation-comparison-table th {
+  color: var(--accent-dark);
+  background: var(--surface-soft);
+  font-size: 0.77rem;
+  font-weight: 800;
+}
+
+.citation-comparison-table td small {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  line-height: 1.3;
+}
+
+.citation-comparison-actions {
+  white-space: nowrap;
+}
+
+.citation-table-button {
+  display: inline-block;
+  margin: 0 0.35rem 0.2rem 0;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.citation-table-button:hover,
+.citation-table-button:focus-visible {
+  color: var(--accent-dark);
+}
+
 .citation-report-card h3 {
   margin-bottom: 0.3rem;
   font-size: 1rem;
@@ -2943,12 +3080,65 @@ li {
     grid-template-columns: minmax(0, 1fr);
   }
 
+  .citation-calendar-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .citation-doi-row {
+    flex-wrap: wrap;
+  }
+
+  .citation-doi-row .btn {
+    width: 100%;
+  }
+
   .citation-field-full {
     grid-column: auto;
   }
 
   .citation-form-actions .btn {
     flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 780px) {
+  .citation-comparison-table thead {
+    display: none;
+  }
+
+  .citation-comparison-table,
+  .citation-comparison-table tbody,
+  .citation-comparison-table tr,
+  .citation-comparison-table td {
+    display: block;
+    width: 100% !important;
+  }
+
+  .citation-comparison-table tr {
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .citation-comparison-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.8rem;
+    padding: 0.45rem 0.2rem;
+    text-align: right;
+  }
+
+  .citation-comparison-table td::before {
+    content: attr(data-label);
+    flex: 0 0 38%;
+    color: var(--muted);
+    font-weight: 750;
+    text-align: left;
+  }
+
+  .citation-comparison-table td:last-child {
+    justify-content: flex-end;
   }
 }
 
