@@ -82,25 +82,40 @@
     return Number(number).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  function describeCitationResults(result) {
+    return {
+      now: `The paper received ${result.recentCitations} citations over ${result.recentYears} ${result.recentYears === 1 ? 'year' : 'years'}, averaging ${formatNumber(result.now)} per year.`,
+      lifetime: result.lifetime === null
+        ? 'Enter the publication year and total citations to compare with the lifetime average.'
+        : result.vsLifetime === null
+          ? 'The lifetime comparison is undefined because the lifetime annual rate is zero.'
+          : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year.`,
+      benchmark: result.vsBenchmark === null
+        ? 'Enter a named annual benchmark and its value to calculate this comparison.'
+        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.`
+    };
+  }
+
   function formatCitationReport(result) {
     if (result.errors.length) return '';
     const title = result.paperTitle || 'Paper';
+    const descriptions = describeCitationResults(result);
     const lines = [
       `ERN Institute | Article-level citation metrics`,
       `Paper: ${title}`,
-      `Citations Per Year (Now): ${formatNumber(result.now)} (${result.recentCitations} citations over ${result.recentYears} years).`
+      `Citations Per Year (Now): ${formatNumber(result.now)}. ${descriptions.now}`
     ];
     if (result.lifetime === null) {
       lines.push('Citations Per Year (Now vs. Lifetime): not calculated; enter publication year and total citations.');
     } else if (result.vsLifetime === null) {
       lines.push('Citations Per Year (Now vs. Lifetime): undefined (lifetime citation rate is zero).');
     } else {
-      lines.push(`Citations Per Year (Now vs. Lifetime): ${formatNumber(result.vsLifetime)} (lifetime rate ${formatNumber(result.lifetime)} per year; ${interpretRatio(result.vsLifetime, 'faster than', 'slower than', 'about the same as')} the lifetime rate).`);
+      lines.push(`Citations Per Year (Now vs. Lifetime): ${formatNumber(result.vsLifetime)}. ${descriptions.lifetime}`);
     }
     if (result.vsBenchmark === null) {
       lines.push('Citations Per Year (Now vs. Benchmark): not calculated; add a named annual benchmark and its value.');
     } else {
-      lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)} (${interpretRatio(result.vsBenchmark, 'above', 'below', 'about the same as')} ${result.benchmarkName}, annual rate ${formatNumber(result.benchmark)}).`);
+      lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)}. ${descriptions.benchmark}`);
       lines.push(`Benchmark source: ${result.benchmarkSource || 'Not specified'}.`);
     }
     lines.push(`Citation source: ${result.citationSource || 'Not specified'}.`);
@@ -111,7 +126,7 @@
     return lines.join('\n');
   }
 
-  const api = { computeCitationMetrics, interpretRatio, formatCitationReport };
+  const api = { computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
 
@@ -166,15 +181,13 @@
       emptyBox.hidden = false;
       return;
     }
+    const descriptions = describeCitationResults(result);
     setText('now', formatNumber(result.now));
-    setText('now-note', `${result.recentCitations} citations over ${result.recentYears} years`);
+    setText('now-note', descriptions.now);
     setText('lifetime', result.vsLifetime === null ? 'N/A' : formatNumber(result.vsLifetime));
-    setText('lifetime-note', result.lifetime === null ? 'Enter publication year and total citations' :
-      result.vsLifetime === null ? 'Undefined with a zero lifetime rate' :
-        `${interpretRatio(result.vsLifetime, 'Faster than', 'Slower than', 'About the same as')} the lifetime rate (${formatNumber(result.lifetime)}/year)`);
+    setText('lifetime-note', descriptions.lifetime);
     setText('benchmark', result.vsBenchmark === null ? 'N/A' : formatNumber(result.vsBenchmark));
-    setText('benchmark-note', result.vsBenchmark === null ? 'Add a named annual benchmark to compare' :
-      `${interpretRatio(result.vsBenchmark, 'Above', 'Below', 'About the same as')} ${result.benchmarkName} (${formatNumber(result.benchmark)}/year)`);
+    setText('benchmark-note', descriptions.benchmark);
     warningBox.hidden = result.warnings.length === 0;
     warningBox.textContent = result.warnings.join(' ');
     reportBox.textContent = formatCitationReport(result);

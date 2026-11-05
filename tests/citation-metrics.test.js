@@ -6,6 +6,7 @@ const path = require('node:path');
 const {
   computeCitationMetrics,
   interpretRatio,
+  describeCitationResults,
   formatCitationReport
 } = require('../citation-metrics.js');
 
@@ -84,8 +85,23 @@ test('warns about recent periods longer than paper age', () => {
   assert.ok(result.warnings.some((message) => message.includes('exceeds the paper')));
 });
 
+test('describes the displayed rates and ratios in plain language', () => {
+  const result = computeCitationMetrics({
+    publicationYear: '2009', totalCitations: '252', recentCitations: '89',
+    recentYears: '2', benchmarkName: 'IF 2-year', benchmarkRate: '3'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.now, 44.5);
+  const descriptions = describeCitationResults(result);
+  assert.match(descriptions.now, /89 citations over 2 years, averaging 44\.50 per year/);
+  assert.match(descriptions.lifetime, /3\.00 times the paper’s lifetime annual average of 14\.82 citations per year/);
+  assert.match(descriptions.benchmark, /14\.83 times the IF 2-year benchmark of 3\.00 citations per year/);
+  assert.match(formatCitationReport(result), /The recent citation rate is 3\.00 times/);
+});
+
 test('browser calculator includes all form fields and result targets', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
+  assert.ok(html.indexOf('What the three metrics tell you') < html.indexOf('id="calculator"'), 'Explanations should precede the calculator');
   const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
   assert.equal(new Set(ids).size, ids.length, 'Page element IDs should be unique');
   for (const id of [

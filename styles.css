@@ -2645,9 +2645,28 @@ li {
 }
 
 /* In-browser citation metrics calculator */
+.citation-metrics-explainer {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.citation-metrics-explainer h2 {
+  margin-bottom: 0.55rem;
+}
+
+.citation-explainer-lead {
+  max-width: 800px;
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+
+.citation-metrics-explainer .metric-card {
+  min-height: 0;
+}
+
 .citation-calculator-section {
   scroll-margin-top: 100px;
-  padding-top: 2.5rem;
+  padding-top: 1.5rem;
 }
 
 .citation-calculator-intro {
