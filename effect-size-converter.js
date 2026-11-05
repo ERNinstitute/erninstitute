@@ -571,11 +571,14 @@ Demo Study N (2024),OR-03,binary,,,,,,,,,,,,,,15,70,10,72,no,Improvement event b
     binary: new Set(['events1', 'total1', 'events2', 'total2']),
     generic: new Set(['effect_metric', 'effect_size', 'sampling_variance', 'standard_error'])
   };
+  // Metadata columns (source labels, moderators, study descriptors) are valid
+  // annotations, not competing instructions for a statistical calculation.
+  const knownCalculationInputs = new Set(Object.values(usedColumnsByType).flatMap(columns => [...columns]));
 
   function unexpectedInputNotices(record, type) {
     const used = usedColumnsByType[type];
     if (!used) return [];
-    return Object.keys(record).filter((key) => key !== '__row' && !commonInputColumns.has(key) && !used.has(key) && String(record[key] || '').trim() !== '').map((key) => ({
+    return Object.keys(record).filter((key) => knownCalculationInputs.has(key) && !commonInputColumns.has(key) && !used.has(key) && String(record[key] || '').trim() !== '').map((key) => ({
       row: record.__row, study_id: record.study_id || '', effect_id: record.effect_id || '', severity: 'information',
       column: key, entered_value: record[key], code: 'INPUT_NOT_USED',
       message: `${key} is populated but is not used by calculation_type ${type}.`,

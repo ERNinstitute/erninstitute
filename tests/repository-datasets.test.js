@@ -30,6 +30,7 @@ for (const [filename, count] of Object.entries(expected)) {
   for (const record of parsed.records) {
     const outcome = converter.calculateRecord(record);
     assert.ok(outcome.result && Number.isFinite(outcome.result.sampling_variance), `${filename} has an invalid effect`);
+    assert.ok(!outcome.notices.some(item => item.code === 'INPUT_NOT_USED'), `${filename} should not flag source metadata as unused statistical input`);
     results.push(outcome.result);
   }
   assert.strictEqual(results.length, count);
