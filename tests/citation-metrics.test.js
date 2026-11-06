@@ -11,6 +11,7 @@ const {
   normalizeDoi,
   fetchOpenAlexWork,
   openAlexWindowCounts,
+  openAlexLifetimeThrough,
   buildCitationCsv
 } = require('../citation-metrics.js');
 
@@ -48,7 +49,7 @@ test('recent rate works without lifetime or benchmark fields', () => {
   assert.equal(result.now, 0);
   assert.equal(result.vsLifetime, null);
   assert.equal(result.vsBenchmark, null);
-  assert.match(formatCitationReport(result), /not calculated; enter publication year and total citations/);
+  assert.match(formatCitationReport(result), /not calculated; enter cumulative citations and citable age/);
 });
 
 test('lifetime comparison follows the workbook minimum age of one year', () => {
@@ -131,21 +132,69 @@ test('normalizes DOIs and retrieves OpenAlex records without private credentials
   assert.equal(work.display_name, 'Example article');
   assert.equal(openAlexWindowCounts(work, 2024, 2025, 2026), 25);
   assert.equal(openAlexWindowCounts(work, 2023, 2025, 2026), 25, 'Omitted years within coverage count as zero');
+  assert.equal(openAlexLifetimeThrough(work, 2025, 2026), 100, 'Older papers use current lifetime total less citations after the cutoff');
   assert.throws(() => openAlexWindowCounts(work, 2015, 2025, 2026), /last ten years/);
   await assert.rejects(fetchOpenAlexWork('10.1073/pnas.2532470123', async () => ({ ok: false, status: 429 })), /rate-limiting/);
+});
+
+test('DOI data aligns the lifetime total with the end of the recent complete-year window', () => {
+  const work = {
+    publication_year: 2023, publication_date: '2023-09-01', cited_by_count: 66,
+    counts_by_year: [
+      { year: 2023, cited_by_count: 3 }, { year: 2024, cited_by_count: 10 },
+      { year: 2025, cited_by_count: 23 }, { year: 2026, cited_by_count: 30 }
+    ]
+  };
+  const cumulative = openAlexLifetimeThrough(work, 2025, 2026);
+  assert.equal(cumulative, 36, '2026 citations must not enter the cumulative 2025 denominator');
+  const result = computeCitationMetrics({
+    publicationYear: '2023', publicationDate: work.publication_date,
+    totalCitations: String(cumulative), lifetimeThroughYear: '2025',
+    recentCitations: '33', windowMode: 'calendar', startYear: '2024', endYear: '2025',
+    checkedDate: '2026-11-05'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.now, 16.5);
+  assert.ok(result.articleAge > 2.3 && result.articleAge < 2.4);
+  assert.ok(result.vsLifetime > 1 && result.vsLifetime < 1.1);
+  assert.match(describeCitationResults(result).lifetime, /through 2025/);
+  assert.ok(!result.warnings.some(message => message.includes('unavailable')));
+
+  const mismatched = computeCitationMetrics({
+    publicationYear: '2023', totalCitations: '66', lifetimeThroughYear: '2026',
+    recentCitations: '33', windowMode: 'calendar', startYear: '2024', endYear: '2025'
+  }, 2026);
+  assert.equal(mismatched.now, 16.5);
+  assert.equal(mismatched.vsLifetime, null, 'Mismatched cutoffs must not produce a misleading 0.75');
+  assert.ok(mismatched.warnings.some(message => message.includes('unavailable')));
+  assert.equal(openAlexLifetimeThrough(work, 2026, 2026), 66);
+  assert.throws(() => openAlexLifetimeThrough(work, 2015, 2026), /cannot reconstruct/);
+});
+
+test('partial-year windows and exact publication dates use elapsed exposure time', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '53', windowMode: 'calendar', startYear: '2025', endYear: '2026',
+    publicationDate: '2023-09-01', publicationYear: '2023', totalCitations: '66',
+    lifetimeThroughYear: '2026', checkedDate: '2026-11-05'
+  }, 2026);
+  assert.ok(result.observationYears > 1.8 && result.observationYears < 1.9);
+  assert.ok(result.articleAge > 3.1 && result.articleAge < 3.3);
+  assert.ok(result.warnings.some(message => message.includes('not yet complete')));
+  assert.ok(result.now > 28, 'The partial current year must not be treated as a completed year');
 });
 
 test('CSV comparison preserves sources, windows, and safe spreadsheet text', () => {
   const result = computeCitationMetrics({
     paperTitle: '=SUM(1,2)', doi: '10.1000/example', windowMode: 'calendar',
     startYear: '2024', endYear: '2025', recentCitations: '25',
-    publicationYear: '2016', totalCitations: '100',
+    publicationYear: '2016', totalCitations: '100', lifetimeThroughYear: '2025',
     benchmarkType: 'jif', benchmarkName: '2025 JIF', benchmarkRate: '3',
     citationSource: 'OpenAlex', checkedDate: '2026-11-05'
   }, 2026);
   const csv = buildCitationCsv([result]);
   assert.match(csv, /"'=SUM\(1,2\)"/);
   assert.match(csv, /"2024","2025","12.5"/);
+  assert.match(csv, /"100","2025","25"/);
   assert.match(csv, /"OpenAlex"/);
   assert.match(csv, /"2026-11-05"/);
   assert.equal(csv.split('\r\n').filter(Boolean).length, 2);
@@ -179,13 +228,17 @@ test('browser calculator includes all form fields and result targets', () => {
     'paperTitle', 'publicationYear', 'totalCitations', 'recentCitations',
     'recentYears', 'benchmarkName', 'benchmarkRate', 'benchmarkSource',
     'citationSource', 'checkedDate', 'selfCitations', 'doi', 'windowMode',
-    'startYear', 'endYear', 'benchmarkType'
+    'startYear', 'endYear', 'benchmarkType', 'publicationDate', 'lifetimeThroughYear'
   ]) assert.ok(html.includes(`name="${name}"`), `Missing calculator field ${name}`);
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261106a"></script>'));
+  assert.ok(html.includes('Citations Per Year (Now vs. Lifetime)</span>'));
+  assert.ok(html.includes('Citations Per Year (Now vs. Benchmark)</span>'));
+  assert.ok(!html.includes('(under review)'), 'A rejected manuscript must not be identified as under review');
   for (const id of ['citation-doi-lookup', 'citation-doi-status', 'citation-metrics-add', 'citation-comparison-body', 'citation-comparison-export']) {
     assert.ok(ids.includes(id), `Missing ${id}`);
   }
+  assert.ok(ids.includes('citation-annual-trend-bars'));
 });

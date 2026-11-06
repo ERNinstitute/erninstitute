@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261105d" rel="stylesheet"/>
+<link href="styles.css?v=20261106a" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -27,7 +27,7 @@
   "version": "1.1",
   "datePublished": "2026-07-28",
   "description": "A transparent article-level reporting framework built around citations per year.",
-  "citation": "Grundy, F., & Grundy, J. G. (under review). Transparent Metrics for Article-Level Impact Using Citations Per Year: Now, Now vs. Lifetime, and Now vs. Benchmark."
+  "citation": "Grundy, F., & Grundy, J. G. (2026). Transparent Metrics for Article-Level Impact Using Citations Per Year: Now, Now vs. Lifetime, and Now vs. Benchmark [Unpublished manuscript]. ERN Institute."
 }
 </script>
 
@@ -93,7 +93,7 @@
   <p class="citation-explainer-lead">The first result is a citation rate. The other two are ratios: a value of 1.00 means the rates are equal, 3.00 means the recent rate is three times as high, and 0.50 means it is half as high.</p>
   <div class="grid-3">
     <article class="metric-card"><span class="metric-kicker">Now</span><h3>Citations Per Year (Now)</h3><p>The average number of citations a paper receives per year during your selected recent period. For example, 20 citations over 2 years gives 10.00 per year.</p></article>
-    <article class="metric-card"><span class="metric-kicker">Now vs. lifetime</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>Compares the recent annual rate with the paper’s own lifetime annual average. A result of 3.00 means the recent rate is three times its lifetime average.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now vs. lifetime</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>Compares the recent annual rate with the paper’s lifetime average <strong>through the same date</strong>. A result of 3.00 means the recent rate is three times that lifetime average. The comparison does not establish a year-by-year trend.</p></article>
     <article class="metric-card"><span class="metric-kicker">Now vs. benchmark</span><h3>Citations Per Year (Now vs. Benchmark)</h3><p>Compares the recent annual rate with a named external annual benchmark. A result of 2.00 means the paper’s recent rate is twice that benchmark.</p></article>
   </div>
 </section>
@@ -123,10 +123,12 @@
             <div class="citation-field"><label for="citation-end-year">End year <span class="citation-required">*</span></label><input id="citation-end-year" name="endYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2025"/></div>
             <p class="citation-field-note citation-field-full">Both years are included. For example, 2024–2025 means January 1, 2024 through December 31, 2025, a two-year window.</p>
           </div>
-          <div class="citation-field"><label for="citation-total">Total lifetime citations <span class="citation-optional">(optional)</span></label><input id="citation-total" name="totalCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 100"/></div>
+          <div class="citation-field"><label for="citation-total">Cumulative citations through cutoff <span class="citation-optional">(optional)</span></label><input id="citation-total" name="totalCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 100"/></div>
+          <div class="citation-field"><label for="citation-lifetime-through">Cumulative count through year <span class="citation-optional">(optional)</span></label><input id="citation-lifetime-through" name="lifetimeThroughYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2025"/><p class="citation-field-note">For exact calendar years, this must match the recent window’s end year.</p></div>
           <div class="citation-field"><label for="citation-published">Publication year <span class="citation-optional">(optional)</span></label><input id="citation-published" name="publicationYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2016"/></div>
+          <div class="citation-field"><label for="citation-publication-date">Exact publication date <span class="citation-optional">(optional)</span></label><input id="citation-publication-date" name="publicationDate" type="date"/><p class="citation-field-note">Recommended for younger papers; DOI lookup fills this when available.</p></div>
         </div>
-        <p class="citation-field-note">The lifetime comparison requires total citations and publication year. Use the same citation database for both recent and lifetime counts. OpenAlex supplies annual counts for the last ten calendar years.</p>
+        <p class="citation-field-note">The lifetime comparison requires cumulative and recent counts from the <strong>same database and cutoff</strong>. When using 2024–2025, include only cumulative citations through December 2025, not citations received in 2026. A DOI lookup handles this automatically. OpenAlex supplies annual counts for the last ten calendar years.</p>
       </fieldset>
       <fieldset>
         <legend>Annual benchmark <span class="citation-optional">(optional)</span></legend>
@@ -164,10 +166,15 @@
         <h3 class="citation-results-title">Calculated results</h3>
         <div class="citation-result-cards">
           <article class="citation-result-card"><span>Citations Per Year (Now)</span><strong data-citation-output="now">0.00</strong><p data-citation-output="now-note"></p></article>
-          <article class="citation-result-card"><span>Now vs. Lifetime</span><strong data-citation-output="lifetime">N/A</strong><p data-citation-output="lifetime-note"></p></article>
-          <article class="citation-result-card"><span>Now vs. Benchmark</span><strong data-citation-output="benchmark">N/A</strong><p data-citation-output="benchmark-note"></p></article>
+          <article class="citation-result-card"><span>Citations Per Year (Now vs. Lifetime)</span><strong data-citation-output="lifetime">N/A</strong><p data-citation-output="lifetime-note"></p></article>
+          <article class="citation-result-card"><span>Citations Per Year (Now vs. Benchmark)</span><strong data-citation-output="benchmark">N/A</strong><p data-citation-output="benchmark-note"></p></article>
         </div>
         <div id="citation-metrics-warnings" class="citation-result-warning" hidden></div>
+        <section id="citation-annual-trend" class="card citation-annual-trend" hidden aria-labelledby="citation-annual-trend-title">
+          <h3 id="citation-annual-trend-title">Annual citation history (OpenAlex)</h3>
+          <p id="citation-annual-trend-note" class="citation-field-note"></p>
+          <div id="citation-annual-trend-bars" class="citation-annual-trend-bars" role="list"></div>
+        </section>
         <div class="card citation-report-card">
           <h3>Copyable reporting summary</h3>
           <p class="citation-field-note">Include the source, time window, and benchmark details when reporting these measures.</p>
@@ -201,14 +208,14 @@
 
 <section class="section section-narrow">
   <h2>2. Citations Per Year (Now vs. Lifetime)</h2>
-  <p>This compares the paper’s recent citations per year with its lifetime citations per year.</p>
+  <p>This compares the paper’s recent citations per year with its lifetime citations per year, <strong>both ending at the same cutoff date</strong>. The lifetime period includes the recent period. A ratio is not a year-by-year trend or a nonoverlapping before-and-after test.</p>
   <p><strong>Example:</strong> A 10-year-old paper has 100 total citations, so its lifetime rate is 10 citations per year. It received 25 citations during the past 5 years, so its recent rate is 5 citations per year. The reported value is <strong>0.50</strong>: the recent rate is half the lifetime rate.</p>
   <table>
     <thead><tr><th>Reported value</th><th>What it means</th></tr></thead>
     <tbody>
       <tr><td>Greater than 1.0</td><td>The paper is being cited faster now than across its lifetime.</td></tr>
       <tr><td>About 1.0</td><td>The recent annual rate is similar to the paper’s lifetime annual rate.</td></tr>
-      <tr><td>Less than 1.0</td><td>The paper is being cited more slowly now than across its lifetime.</td></tr>
+      <tr><td>Less than 1.0</td><td>The stated recent window’s average is lower than the lifetime average through the same cutoff; this alone does not establish a declining annual trend.</td></tr>
     </tbody>
   </table>
 </section>
@@ -243,8 +250,8 @@
 
 <section class="section section-narrow" id="source">
   <h2>Manuscript Source</h2>
-  <p>The supporting manuscript is under review. Please cite it as:</p>
-  <p class="citation-box">Grundy, F., &amp; Grundy, J. G. (under review). Transparent Metrics for Article-Level Impact Using Citations Per Year: Now, Now vs. Lifetime, and Now vs. Benchmark.</p>
+  <p>The framework is described in this unpublished manuscript:</p>
+  <p class="citation-box">Grundy, F., &amp; Grundy, J. G. (2026). <em>Transparent metrics for article-level impact using citations per year: Now, now vs. lifetime, and now vs. benchmark</em> [Unpublished manuscript]. ERN Institute.</p>
 </section>
 
 </main>
@@ -257,7 +264,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js"></script>
+<script src="citation-metrics.js?v=20261106a"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {

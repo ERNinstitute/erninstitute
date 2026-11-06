@@ -23,6 +23,14 @@
     return equal;
   }
 
+  function parseCalendarDate(value) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(value || ''))) return null;
+    const date = new Date(`${value}T00:00:00Z`);
+    return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value ? date : null;
+  }
+
+  const yearsBetween = (start, end) => (end.getTime() - start.getTime()) / (365.2425 * 86400000);
+
   function computeCitationMetrics(input, currentYear = new Date().getFullYear()) {
     const errors = [];
     const recentCitations = asCount(input.recentCitations, 'Recent citations', errors);
@@ -38,11 +46,22 @@
       : asCount(input.recentYears, 'Recent period (years)', errors);
     if (recentYears === 0) errors.push('Recent period must be at least one year.');
 
-    const publicationYear = asCount(input.publicationYear, 'Publication year', errors, true);
+    let publicationYear = asCount(input.publicationYear, 'Publication year', errors, true);
     if (publicationYear !== null && (publicationYear < 1 || publicationYear > currentYear)) {
       errors.push(`Publication year must be between 1 and ${currentYear}.`);
     }
     const totalCitations = asCount(input.totalCitations, 'Total citations', errors, true);
+    const publicationDateText = String(input.publicationDate || '').trim();
+    const publicationDate = publicationDateText ? parseCalendarDate(publicationDateText) : null;
+    if (publicationDateText && !publicationDate) errors.push('Enter a valid publication date.');
+    if (publicationDate && publicationYear !== null && publicationDate.getUTCFullYear() !== publicationYear) {
+      errors.push('Publication date and publication year must agree.');
+    }
+    if (publicationDate && publicationYear === null) publicationYear = publicationDate.getUTCFullYear();
+    const lifetimeThroughYear = asCount(input.lifetimeThroughYear, 'Lifetime count through year', errors, true);
+    if (lifetimeThroughYear !== null && (lifetimeThroughYear < 1 || lifetimeThroughYear > currentYear)) {
+      errors.push(`Lifetime count through year must be between 1 and ${currentYear}.`);
+    }
     if (recentCitations !== null && totalCitations !== null && recentCitations > totalCitations) {
       errors.push('Recent citations cannot exceed total citations when both use the same source.');
     }
@@ -60,20 +79,62 @@
 
     if (errors.length) return { errors };
 
-    const now = recentCitations / recentYears;
-    // The source workbook uses MAX(1, YEAR(TODAY()) - publication year).
-    const articleAge = publicationYear === null ? null : Math.max(1, currentYear - publicationYear);
-    const lifetime = totalCitations === null || articleAge === null ? null : totalCitations / articleAge;
+    let observationYears = recentYears;
+    let articleAge = publicationYear === null ? null : Math.max(1, currentYear - publicationYear);
+    let comparisonAligned = true;
+    const warnings = [];
+    if (windowMode === 'calendar') {
+      const today = parseCalendarDate(String(input.checkedDate || '')) || parseCalendarDate(new Date().toISOString().slice(0, 10));
+      const endExclusive = endYear === currentYear
+        ? new Date(today.getTime() + 86400000)
+        : new Date(Date.UTC(endYear + 1, 0, 1));
+      const windowStart = new Date(Date.UTC(startYear, 0, 1));
+      if (endYear === currentYear && today.getUTCFullYear() !== currentYear) {
+        errors.push('For a current-year window, use a date checked in the current year.');
+      }
+      if (publicationDate && publicationDate >= endExclusive) {
+        errors.push('The paper was published after the selected citation window.');
+      }
+      if (publicationDate && publicationDate > windowStart) {
+        observationYears = yearsBetween(publicationDate, endExclusive);
+        warnings.push('The recent window was shortened to the paper’s actual citable age; prepublication time was excluded.');
+      } else if (publicationYear !== null && publicationYear > startYear && !publicationDate) {
+        observationYears = endYear === currentYear
+          ? yearsBetween(new Date(Date.UTC(publicationYear, 0, 1)), endExclusive)
+          : endYear - publicationYear + 1;
+        warnings.push('Years before publication were excluded. Add the exact publication date to account for a partial first year.');
+      } else if (endYear === currentYear) {
+        observationYears = yearsBetween(windowStart, endExclusive);
+      }
+      if (!publicationDate && publicationYear !== null) {
+        articleAge = endYear === currentYear
+          ? yearsBetween(new Date(Date.UTC(publicationYear, 0, 1)), endExclusive)
+          : endYear - publicationYear + 1;
+        warnings.push('Lifetime age uses the publication year as an approximation. Enter the publication date for an exact citable age.');
+      } else if (publicationDate) {
+        articleAge = yearsBetween(publicationDate, endExclusive);
+      }
+      // The manuscript compares the recent window with the lifetime rate at the SAME endpoint.
+      // Do not mix a 2024–2025 numerator with a lifetime total that includes 2026.
+      comparisonAligned = totalCitations === null || lifetimeThroughYear === endYear;
+      if (!comparisonAligned) {
+        warnings.push(`Citations Per Year (Now vs. Lifetime) is unavailable: the cumulative count must cover citations through ${endYear}, the end of the selected window. Enter that year and its corresponding citation total or look up the DOI again.`);
+      }
+    } else if (lifetimeThroughYear !== null && lifetimeThroughYear !== currentYear) {
+      comparisonAligned = false;
+      warnings.push(`Citations Per Year (Now vs. Lifetime) is unavailable: the lifetime count ends in ${lifetimeThroughYear}, but the recent duration is assumed to end in ${currentYear}. Use exact calendar years or matching counts.`);
+    }
+    if (errors.length || observationYears <= 0 || (articleAge !== null && articleAge <= 0)) {
+      return { errors: errors.length ? errors : ['The citation window must include time after publication.'] };
+    }
+    const now = recentCitations / observationYears;
+    const lifetime = totalCitations === null || articleAge === null || !comparisonAligned ? null : totalCitations / articleAge;
     const vsLifetime = lifetime === null || lifetime === 0 ? null : now / lifetime;
     const vsBenchmark = benchmark === null ? null : now / benchmark;
-    const warnings = [];
     if (windowMode === 'calendar' && endYear === currentYear) {
       warnings.push(`The ${currentYear} calendar year is not yet complete; counts for this year may be partial.`);
     }
-    if (windowMode === 'calendar' && publicationYear !== null && startYear < publicationYear) {
-      warnings.push('The selected citation window begins before the paper’s publication year.');
-    }
-    if (articleAge !== null && recentYears > articleAge) {
+    if (windowMode !== 'calendar' && articleAge !== null && recentYears > articleAge) {
       warnings.push(`The recent window (${recentYears} years) exceeds the paper’s age used by the calculator (${articleAge} years). Confirm that this is the period you intend to report.`);
     }
     if (lifetime === 0) warnings.push('Now vs. Lifetime is undefined when the lifetime annual citation rate is zero.');
@@ -88,7 +149,8 @@
 
     return {
       errors: [], warnings, now, lifetime, vsLifetime, vsBenchmark, articleAge,
-      recentCitations, recentYears, totalCitations, publicationYear, windowMode, startYear, endYear,
+      recentCitations, recentYears, observationYears, totalCitations, publicationYear,
+      publicationDate: publicationDateText, lifetimeThroughYear, comparisonAligned, windowMode, startYear, endYear,
       benchmark, benchmarkName: String(input.benchmarkName || '').trim(),
       benchmarkSource: String(input.benchmarkSource || '').trim(), benchmarkType, isJournalBenchmark,
       paperTitle: String(input.paperTitle || '').trim(),
@@ -108,12 +170,12 @@
       ? `from ${result.startYear} through ${result.endYear} (inclusive)`
       : `over ${result.recentYears} ${result.recentYears === 1 ? 'year' : 'years'}`;
     return {
-      now: `The paper received ${result.recentCitations} citations ${windowDescription}, averaging ${formatNumber(result.now)} per year.`,
+      now: `The paper received ${result.recentCitations} citations ${windowDescription}, averaging ${formatNumber(result.now)} per year${Math.abs(result.observationYears - result.recentYears) > 0.001 ? ` across ${formatNumber(result.observationYears)} citable years` : ''}.`,
       lifetime: result.lifetime === null
-        ? 'Enter the publication year and total citations to compare with the lifetime average.'
+        ? (result.comparisonAligned ? 'Enter the publication year and cumulative citations to compare with the lifetime average.' : 'The lifetime comparison requires a cumulative count ending in the same year as the recent window.')
         : result.vsLifetime === null
           ? 'The lifetime comparison is undefined because the lifetime annual rate is zero.'
-          : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year.`,
+          : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year${result.windowMode === 'calendar' ? `, calculated through ${result.endYear}` : ''}. This is a comparison with an overlapping lifetime average, not a year-by-year trend measure.`,
       benchmark: result.vsBenchmark === null
         ? 'Enter a named annual benchmark and its value to calculate this comparison.'
         : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : ''}`
@@ -129,13 +191,15 @@
       `Paper: ${title}`
     ];
     if (result.doi) lines.push(`DOI: ${result.doi}.`);
+    if (result.publicationDate) lines.push(`Publication date: ${result.publicationDate}.`);
     lines.push(`Citations Per Year (Now): ${formatNumber(result.now)}. ${descriptions.now}`);
     if (result.lifetime === null) {
-      lines.push('Citations Per Year (Now vs. Lifetime): not calculated; enter publication year and total citations.');
+      lines.push('Citations Per Year (Now vs. Lifetime): not calculated; enter cumulative citations and citable age with a matching time cutoff.');
     } else if (result.vsLifetime === null) {
       lines.push('Citations Per Year (Now vs. Lifetime): undefined (lifetime citation rate is zero).');
     } else {
       lines.push(`Citations Per Year (Now vs. Lifetime): ${formatNumber(result.vsLifetime)}. ${descriptions.lifetime}`);
+      lines.push(`Lifetime calculation: ${result.totalCitations} citations / ${formatNumber(result.articleAge)} citable years${result.lifetimeThroughYear !== null ? `, through ${result.lifetimeThroughYear}` : ''}.`);
     }
     if (result.vsBenchmark === null) {
       lines.push('Citations Per Year (Now vs. Benchmark): not calculated; add a named annual benchmark and its value.');
@@ -200,12 +264,34 @@
     return total;
   }
 
+  function openAlexLifetimeThrough(work, endYear, currentYear = new Date().getFullYear()) {
+    if (!Number.isInteger(endYear) || endYear > currentYear || endYear < 1) {
+      throw new Error('Select a valid cumulative citation cutoff year.');
+    }
+    if (endYear === currentYear) return work.cited_by_count;
+    const oldest = currentYear - 9;
+    if (endYear < oldest - 1) {
+      throw new Error(`OpenAlex cannot reconstruct lifetime citations through ${endYear} from its ten-year annual history. Enter an independently verified cumulative count for that year.`);
+    }
+    if (!Array.isArray(work.counts_by_year)) {
+      throw new Error('OpenAlex did not supply annual citation counts needed to align the lifetime comparison.');
+    }
+    // For recent papers, annual counts provide the clearest same-cutoff cumulative baseline.
+    if (Number.isInteger(work.publication_year) && work.publication_year >= oldest) {
+      return openAlexWindowCounts(work, work.publication_year, endYear, currentYear);
+    }
+    const laterCitations = openAlexWindowCounts(work, endYear + 1, currentYear, currentYear);
+    const throughYear = work.cited_by_count - laterCitations;
+    if (throughYear < 0) throw new Error('OpenAlex totals and annual counts do not reconcile; enter a verified cumulative count manually.');
+    return throughYear;
+  }
+
   const csvHeaders = [
-    'Paper title', 'DOI', 'Publication year', 'Total citations', 'Recent citations',
+    'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
     'Lifetime citations per year', 'Now vs lifetime', 'Benchmark type', 'Benchmark name',
     'Benchmark annual rate', 'Now vs benchmark', 'Benchmark source', 'Citation source',
-    'Date checked', 'Self-citations'
+    'Date checked', 'Self-citations', 'Citable age (years)', 'Observed recent years'
   ];
 
   function buildCitationCsv(results) {
@@ -217,18 +303,18 @@
       return `"${content.replace(/"/g, '""')}"`;
     };
     const rows = results.map((r) => [
-      r.paperTitle, r.doi, r.publicationYear ?? '', r.totalCitations ?? '', r.recentCitations,
+      r.paperTitle, r.doi, r.publicationYear ?? '', r.publicationDate, r.totalCitations ?? '', r.lifetimeThroughYear ?? '', r.recentCitations,
       r.recentYears, r.startYear ?? '', r.endYear ?? '', number(r.now),
       number(r.lifetime), number(r.vsLifetime), r.benchmarkType, r.benchmarkName,
       number(r.benchmark), number(r.vsBenchmark), r.benchmarkSource, r.citationSource,
-      r.checkedDate, r.selfCitations
+      r.checkedDate, r.selfCitations, number(r.articleAge), number(r.observationYears)
     ]);
-    return [csvHeaders, ...rows].map((row, rowIndex) => row.map((value, i) => safeCell(value, rowIndex === 0 || [0, 1, 11, 12, 15, 16, 17, 18].includes(i))).join(',')).join('\r\n') + '\r\n';
+    return [csvHeaders, ...rows].map((row, rowIndex) => row.map((value, i) => safeCell(value, rowIndex === 0 || [0, 1, 13, 14, 17, 18, 19, 20].includes(i))).join(',')).join('\r\n') + '\r\n';
   }
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, openAlexWindowCounts, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -250,6 +336,9 @@
   const comparisonPanel = document.getElementById('citation-comparison');
   const comparisonBody = document.getElementById('citation-comparison-body');
   const exportButton = document.getElementById('citation-comparison-export');
+  const annualTrend = document.getElementById('citation-annual-trend');
+  const annualTrendNote = document.getElementById('citation-annual-trend-note');
+  const annualTrendBars = document.getElementById('citation-annual-trend-bars');
   const durationField = document.getElementById('citation-duration-field');
   const calendarFields = document.getElementById('citation-calendar-fields');
   const windowModeField = form.elements.namedItem('windowMode');
@@ -258,6 +347,7 @@
   let comparisonRows = [];
   let nextComparisonId = 1;
   let editingRowId = null;
+  let lastDoiWindow = null;
 
   const currentDate = new Date();
   const localDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
@@ -280,6 +370,48 @@
     form.elements.namedItem('recentYears').required = !calendar;
     form.elements.namedItem('startYear').required = calendar;
     form.elements.namedItem('endYear').required = calendar;
+  }
+
+  function citationWindowSignature() {
+    const input = readInput();
+    return [input.doi, input.windowMode, input.recentYears, input.startYear, input.endYear].join('|');
+  }
+
+  function renderAnnualTrend(work, endYear, currentYear) {
+    annualTrendBars.replaceChildren();
+    if (!Array.isArray(work.counts_by_year)) {
+      annualTrend.hidden = true;
+      return;
+    }
+    const counts = new Map(work.counts_by_year.map(({ year, cited_by_count }) => [year, cited_by_count]));
+    const firstYear = Math.max(work.publication_year, currentYear - 9);
+    const values = [];
+    for (let year = firstYear; year <= currentYear; year += 1) {
+      values.push({ year, count: counts.get(year) || 0 });
+    }
+    const max = Math.max(1, ...values.map((entry) => entry.count));
+    for (const item of values) {
+      const row = document.createElement('div');
+      row.className = 'citation-trend-row';
+      row.setAttribute('role', 'listitem');
+      const label = document.createElement('span');
+      label.className = 'citation-trend-year';
+      label.textContent = `${item.year}${item.year === currentYear ? ' YTD' : ''}`;
+      const track = document.createElement('span');
+      track.className = 'citation-trend-track';
+      const bar = document.createElement('span');
+      bar.className = 'citation-trend-bar';
+      if (item.year === currentYear) bar.classList.add('citation-trend-bar-partial');
+      bar.style.width = `${100 * item.count / max}%`;
+      track.appendChild(bar);
+      const count = document.createElement('strong');
+      count.className = 'citation-trend-count';
+      count.textContent = item.count.toLocaleString('en');
+      row.append(label, track, count);
+      annualTrendBars.appendChild(row);
+    }
+    annualTrendNote.textContent = `The ${currentYear} count is year to date, not a completed year. The selected recent rate uses ${endYear === currentYear ? 'a partial current-year window' : `completed years through ${endYear}`}. These annual counts are from OpenAlex, which may differ from Google Scholar.`;
+    annualTrend.hidden = false;
   }
 
   function setText(name, text) {
@@ -386,9 +518,26 @@
     calculated = true;
     calculate();
   });
-  form.addEventListener('input', () => { if (calculated) calculate(); });
+  form.addEventListener('input', (event) => {
+    if (lastDoiWindow !== null && ['doi', 'windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)
+        && citationWindowSignature() !== lastDoiWindow) {
+      setField('recentCitations', '');
+      setField('totalCitations', '');
+      setField('lifetimeThroughYear', '');
+      lastDoiWindow = null;
+      lookupStatus.textContent = 'The citation window changed. Look up the DOI again to retrieve matching counts, or enter verified counts manually.';
+    }
+    if (calculated) calculate();
+  });
   form.addEventListener('change', () => {
     updateWindowMode();
+    if (lastDoiWindow !== null && citationWindowSignature() !== lastDoiWindow) {
+      setField('recentCitations', '');
+      setField('totalCitations', '');
+      setField('lifetimeThroughYear', '');
+      lastDoiWindow = null;
+      lookupStatus.textContent = 'The citation window changed. Look up the DOI again to retrieve matching counts, or enter verified counts manually.';
+    }
     if (calculated) calculate();
   });
   updateWindowMode();
@@ -408,10 +557,19 @@
       const startYear = input.windowMode === 'calendar' ? Number(input.startYear) : currentYear - duration;
       const endYear = input.windowMode === 'calendar' ? Number(input.endYear) : currentYear - 1;
       const recentCitations = openAlexWindowCounts(work, startYear, endYear, currentYear);
+      let cumulativeCitations = null;
+      let cumulativeWarning = '';
+      try {
+        cumulativeCitations = openAlexLifetimeThrough(work, endYear, currentYear);
+      } catch (error) {
+        cumulativeWarning = error.message;
+      }
       setField('doi', normalizeDoi(doi));
       setField('paperTitle', work.display_name);
       setField('publicationYear', work.publication_year);
-      setField('totalCitations', work.cited_by_count);
+      setField('publicationDate', work.publication_date || '');
+      setField('totalCitations', cumulativeCitations);
+      setField('lifetimeThroughYear', cumulativeCitations === null ? '' : endYear);
       setField('recentCitations', recentCitations);
       setField('windowMode', 'calendar');
       setField('startYear', startYear);
@@ -421,7 +579,11 @@
       setField('checkedDate', localDate);
       setField('selfCitations', 'Not specified');
       updateWindowMode();
-      lookupStatus.textContent = `Retrieved ${work.cited_by_count} lifetime citations and ${recentCitations} citations during ${startYear}–${endYear} from OpenAlex. Review the values and source before reporting.`;
+      lastDoiWindow = citationWindowSignature();
+      lookupStatus.textContent = cumulativeCitations === null
+        ? `Retrieved ${recentCitations} citations during ${startYear}–${endYear} from OpenAlex. ${cumulativeWarning} Its current total is ${work.cited_by_count}; that total cannot be used as a historical cutoff.`
+        : `OpenAlex reports ${work.cited_by_count} citations in total as of this lookup. For the matching ${startYear}–${endYear} comparison, it supplies ${recentCitations} recent citations and ${cumulativeCitations} cumulative citations through ${endYear}. Later citations are excluded from the lifetime comparison.`;
+      renderAnnualTrend(work, endYear, currentYear);
       calculated = true;
       calculate();
     } catch (error) {
@@ -468,6 +630,8 @@
       return;
     }
     fields.forEach((field) => { field.value = row.input[field.name] ?? ''; });
+    lastDoiWindow = null;
+    annualTrend.hidden = true;
     editingRowId = id;
     addButton.textContent = 'Update comparison row';
     lookupStatus.textContent = 'Loaded this comparison row. Review the citation source and counts before updating it.';
@@ -500,6 +664,8 @@
       checkedDate: localDate, selfCitations: 'Included'
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
+    lastDoiWindow = null;
+    annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
     resetEditing();
     updateWindowMode();
@@ -508,6 +674,8 @@
   });
   document.getElementById('citation-metrics-clear').addEventListener('click', () => {
     form.reset();
+    lastDoiWindow = null;
+    annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
     lookupStatus.textContent = 'OpenAlex can fill in the title, publication year, lifetime citations, and recent annual counts. Review the retrieved values before using them.';
     resetEditing();

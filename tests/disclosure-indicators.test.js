@@ -48,7 +48,7 @@ const pages = [
 ];
 for (const page of pages) {
   const html = fs.readFileSync(path.join(root, page), 'utf8');
-  assert.match(html, /styles\.css\?v=20261105[a-z]/, `${page} must load the updated disclosure styles`);
+  assert.match(html, /styles\.css\?v=2026110[56][a-z]/, `${page} must load the updated disclosure styles`);
 }
 
 console.log('Disclosure indicator and stylesheet-cache tests passed.');

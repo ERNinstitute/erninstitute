@@ -2935,6 +2935,43 @@ li {
   box-shadow: none;
 }
 
+.citation-annual-trend {
+  margin-top: 1rem;
+  box-shadow: none;
+}
+
+.citation-annual-trend h3 {
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.citation-annual-trend-bars {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.95rem;
+}
+
+.citation-trend-row {
+  display: grid;
+  grid-template-columns: minmax(64px, auto) minmax(0, 1fr) 38px;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.84rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.citation-trend-year { color: var(--muted); }
+.citation-trend-count { text-align: right; color: var(--accent-dark); }
+.citation-trend-track {
+  display: block;
+  overflow: hidden;
+  height: 15px;
+  border-radius: 5px;
+  background: #e7eef5;
+}
+.citation-trend-bar { display: block; height: 100%; border-radius: 5px; background: var(--accent-cyan); }
+.citation-trend-bar-partial { background: #a9733d; }
+
 .citation-add-comparison {
   width: 100%;
   margin-top: 0.9rem;
