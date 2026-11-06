@@ -326,13 +326,20 @@
   const fields = Array.from(form.querySelectorAll('[name]'));
   const errorsBox = document.getElementById('citation-metrics-errors');
   const resultsBox = document.getElementById('citation-metrics-results');
+  const resultsSource = document.getElementById('citation-results-source');
   const emptyBox = document.getElementById('citation-metrics-empty');
   const warningBox = document.getElementById('citation-metrics-warnings');
   const reportBox = document.getElementById('citation-metrics-report');
   const copyButton = document.getElementById('citation-metrics-copy');
   const addButton = document.getElementById('citation-metrics-add');
   const lookupButton = document.getElementById('citation-doi-lookup');
+  const lookupInput = document.getElementById('citation-doi');
   const lookupStatus = document.getElementById('citation-doi-status');
+  const lookupPaper = document.getElementById('citation-doi-paper');
+  const manualDetails = document.getElementById('citation-manual-details');
+  const datesDetails = document.getElementById('citation-dates-details');
+  const benchmarkDetails = document.getElementById('citation-benchmark-details');
+  const reportingDetails = document.getElementById('citation-reporting-details');
   const comparisonPanel = document.getElementById('citation-comparison');
   const comparisonBody = document.getElementById('citation-comparison-body');
   const exportButton = document.getElementById('citation-comparison-export');
@@ -446,6 +453,7 @@
     }
     latestResult = result;
     const descriptions = describeCitationResults(result);
+    resultsSource.textContent = `Citation source: ${result.citationSource || 'Not specified'}`;
     setText('now', formatNumber(result.now));
     setText('now-note', descriptions.now);
     setText('lifetime', result.vsLifetime === null ? 'N/A' : formatNumber(result.vsLifetime));
@@ -480,6 +488,11 @@
         const td = document.createElement('td');
         td.dataset.label = label;
         td.textContent = cells[i];
+        if (i === 0 && result.citationSource) {
+          const source = document.createElement('small');
+          source.textContent = `Source: ${result.citationSource}`;
+          td.appendChild(source);
+        }
         if (i === 4 && result.benchmarkName) {
           const value = document.createElement('span');
           value.textContent = cells[i];
@@ -519,11 +532,27 @@
     calculate();
   });
   form.addEventListener('input', (event) => {
+    if (event.target.name === 'citationSource' && lastDoiWindow !== null
+        && String(event.target.value).trim().toLowerCase() !== 'openalex') {
+      // Counts retrieved from OpenAlex must never be relabeled as a different database.
+      setField('recentCitations', '');
+      setField('totalCitations', '');
+      setField('lifetimeThroughYear', '');
+      annualTrend.hidden = true;
+      lastDoiWindow = null;
+      lookupStatus.textContent = 'OpenAlex counts have been cleared. Enter recent and cumulative counts from your selected citation database, using the same cutoff.';
+    }
+    if (event.target.name === 'totalCitations' && event.target.value && windowModeField.value === 'calendar'
+        && !form.elements.namedItem('lifetimeThroughYear').value) {
+      datesDetails.open = true;
+    }
     if (lastDoiWindow !== null && ['doi', 'windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)
         && citationWindowSignature() !== lastDoiWindow) {
       setField('recentCitations', '');
       setField('totalCitations', '');
       setField('lifetimeThroughYear', '');
+      annualTrend.hidden = true;
+      if (event.target.name === 'doi') lookupPaper.hidden = true;
       lastDoiWindow = null;
       lookupStatus.textContent = 'The citation window changed. Look up the DOI again to retrieve matching counts, or enter verified counts manually.';
     }
@@ -535,6 +564,7 @@
       setField('recentCitations', '');
       setField('totalCitations', '');
       setField('lifetimeThroughYear', '');
+      annualTrend.hidden = true;
       lastDoiWindow = null;
       lookupStatus.textContent = 'The citation window changed. Look up the DOI again to retrieve matching counts, or enter verified counts manually.';
     }
@@ -542,8 +572,16 @@
   });
   updateWindowMode();
 
+  lookupInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (!lookupButton.disabled) lookupButton.click();
+    }
+  });
+
   lookupButton.addEventListener('click', async () => {
     const doi = form.elements.namedItem('doi').value;
+    lookupPaper.hidden = true;
     lookupButton.disabled = true;
     lookupButton.textContent = 'Looking up…';
     lookupStatus.textContent = 'Checking OpenAlex for public citation information…';
@@ -580,9 +618,11 @@
       setField('selfCitations', 'Not specified');
       updateWindowMode();
       lastDoiWindow = citationWindowSignature();
+      lookupPaper.textContent = `${work.display_name} (${work.publication_year})`;
+      lookupPaper.hidden = false;
       lookupStatus.textContent = cumulativeCitations === null
-        ? `Retrieved ${recentCitations} citations during ${startYear}–${endYear} from OpenAlex. ${cumulativeWarning} Its current total is ${work.cited_by_count}; that total cannot be used as a historical cutoff.`
-        : `OpenAlex reports ${work.cited_by_count} citations in total as of this lookup. For the matching ${startYear}–${endYear} comparison, it supplies ${recentCitations} recent citations and ${cumulativeCitations} cumulative citations through ${endYear}. Later citations are excluded from the lifetime comparison.`;
+        ? `OpenAlex: ${recentCitations} citations in ${startYear}–${endYear}. ${cumulativeWarning} Its current total of ${work.cited_by_count} cannot be used for a historical cutoff.`
+        : `OpenAlex: ${recentCitations} citations in ${startYear}–${endYear}, ${cumulativeCitations} cumulative citations through ${endYear} (${work.cited_by_count} in total as of this lookup). Later citations are excluded from the comparison.`;
       renderAnnualTrend(work, endYear, currentYear);
       calculated = true;
       calculate();
@@ -593,7 +633,7 @@
     } finally {
       clearTimeout(timeout);
       lookupButton.disabled = false;
-      lookupButton.textContent = 'Look up DOI';
+      lookupButton.textContent = 'Get citation metrics';
     }
   });
 
@@ -630,6 +670,11 @@
       return;
     }
     fields.forEach((field) => { field.value = row.input[field.name] ?? ''; });
+    manualDetails.open = true;
+    datesDetails.open = !!row.input.lifetimeThroughYear || !!row.input.publicationDate;
+    benchmarkDetails.open = !!row.input.benchmarkRate || !!row.input.benchmarkName;
+    reportingDetails.open = !!row.input.selfCitations && row.input.selfCitations !== 'Not specified';
+    lookupPaper.hidden = true;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     editingRowId = id;
@@ -664,6 +709,11 @@
       checkedDate: localDate, selfCitations: 'Included'
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
+    manualDetails.open = true;
+    datesDetails.open = false;
+    benchmarkDetails.open = true;
+    reportingDetails.open = false;
+    lookupPaper.hidden = true;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
@@ -674,10 +724,15 @@
   });
   document.getElementById('citation-metrics-clear').addEventListener('click', () => {
     form.reset();
+    manualDetails.open = false;
+    datesDetails.open = false;
+    benchmarkDetails.open = false;
+    reportingDetails.open = false;
+    lookupPaper.hidden = true;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
-    lookupStatus.textContent = 'OpenAlex can fill in the title, publication year, lifetime citations, and recent annual counts. Review the retrieved values before using them.';
+    lookupStatus.textContent = 'Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.';
     resetEditing();
     updateWindowMode();
     calculated = false;

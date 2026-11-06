@@ -233,7 +233,14 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261106a"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261106b"></script>'));
+  assert.ok(html.includes('href="styles.css?v=20261106b"'));
+  assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
+  assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
+  assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
+  assert.ok(html.includes('id="citation-reporting-details"'), 'Optional reporting fields should have their own disclosure');
+  assert.ok(html.includes('<option value="Google Scholar">') && html.includes('<option value="Web of Science">') && html.includes('<option value="ResearchGate">'), 'Manual citation sources must be offered');
+  assert.ok(html.includes('id="citation-results-source"'), 'Calculated results should identify the citation database');
   assert.ok(html.includes('Citations Per Year (Now vs. Lifetime)</span>'));
   assert.ok(html.includes('Citations Per Year (Now vs. Benchmark)</span>'));
   assert.ok(!html.includes('(under review)'), 'A rejected manuscript must not be identified as under review');
