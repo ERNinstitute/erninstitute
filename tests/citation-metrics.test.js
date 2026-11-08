@@ -12,9 +12,7 @@ const {
   fetchOpenAlexWork,
   openAlexWindowCounts,
   openAlexLifetimeThrough,
-  buildCitationCsv,
-  fetchOpenAlexJournal,
-  openAlexJournalBenchmark
+  buildCitationCsv
 } = require('../citation-metrics.js');
 
 test('matches the existing Excel workbook example', () => {
@@ -235,8 +233,8 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108auto"></script>'));
-  assert.ok(html.includes('href="styles.css?v=20261108auto"'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108jif"></script>'));
+  assert.ok(html.includes('href="styles.css?v=20261108jif"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
   assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
@@ -252,39 +250,19 @@ test('browser calculator includes all form fields and result targets', () => {
   assert.ok(ids.includes('citation-annual-trend-bars'));
 });
 
-test('automatic journal benchmark uses OpenAlex source metadata, not a fabricated Journal Impact Factor', async () => {
-  const mock = async (url) => {
-    assert.equal(url, 'https://api.openalex.org/sources/S123456');
-    return { ok: true, json: async () => ({
-      id: 'https://openalex.org/S123456', type: 'journal', display_name: 'Test Journal',
-      summary_stats: { '2yr_mean_citedness': 2.75 }
-    }) };
-  };
-  const journal = await fetchOpenAlexJournal('S123456', mock);
-  const benchmark = openAlexJournalBenchmark(journal, '2026-11-08');
-  assert.equal(benchmark.type, 'openalex');
-  assert.equal(benchmark.rate, 2.75);
-  assert.equal(benchmark.source, 'https://openalex.org/sources/S123456');
-  assert.match(benchmark.name, /OpenAlex two-year mean citedness/);
-  assert.doesNotMatch(benchmark.name, /Journal Impact Factor/);
-  assert.equal(openAlexJournalBenchmark({ ...journal, summary_stats: {} }, '2026-11-08'), null);
-  assert.equal(openAlexJournalBenchmark({ ...journal, type: 'repository' }, '2026-11-08'), null);
-  await assert.rejects(fetchOpenAlexJournal('not-an-id', mock), /Invalid OpenAlex/);
-});
-
-test('OpenAlex journal ratio is calculated automatically with clear provenance', () => {
+test('publisher-listed JIF with an unconfirmed reporting year is clearly provisional', () => {
   const result = computeCitationMetrics({
     recentCitations: '37', recentYears: '5',
-    benchmarkName: 'Test Journal — OpenAlex two-year mean citedness (checked 2026-11-08)',
-    benchmarkType: 'openalex', benchmarkRate: '2.75',
-    benchmarkSource: 'https://openalex.org/sources/S123456',
+    benchmarkName: 'Test Journal publisher-listed Journal Impact Factor (year unstated; checked 2026-11-08)',
+    benchmarkType: 'jif-unverified', benchmarkRate: '2.75',
+    benchmarkSource: 'https://www.sciencedirect.com/journal/test-journal',
     citationSource: 'OpenAlex', checkedDate: '2026-11-08'
   }, 2026);
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 7.4);
   assert.ok(Math.abs(result.vsBenchmark - 7.4 / 2.75) < 1e-12);
-  assert.match(describeCitationResults(result).benchmark, /not an official Journal Impact Factor/);
-  assert.match(formatCitationReport(result), /OpenAlex two-year mean citedness/);
+  assert.match(describeCitationResults(result).benchmark, /reporting year; treat this result as provisional/);
+  assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
 });
 
 test('benchmark controls remain optional and outside the manual citation panel', () => {
