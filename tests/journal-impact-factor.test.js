@@ -18,6 +18,8 @@ test('publisher parser distinguishes standard and five-year impact factors', asy
   assert.deepEqual(parsePublisherJif(elsevier, 'Neuropsychologia'), { value: 2, year: null });
   assert.equal(parsePublisherJif(springer, 'Neuropsychologia'), null);
   assert.equal(parsePublisherJif('<html><title>Neuropsychologia | Elsevier</title><body>' +
+    'Journal Impact Factor 2025 is not a valid value without a number.</body></html>', 'Neuropsychologia'), null);
+  assert.equal(parsePublisherJif('<html><title>Neuropsychologia | Elsevier</title><body>' +
     '5-year Journal Impact Factor 3.5 (2025), with other information.</body></html>', 'Neuropsychologia'), null);
 });
 
