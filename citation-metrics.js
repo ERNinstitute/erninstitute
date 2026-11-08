@@ -66,15 +66,15 @@
       errors.push('Recent citations cannot exceed total citations when both use the same source.');
     }
 
+    const benchmarkType = String(input.benchmarkType || 'jif-unverified');
+    let benchmarkName = String(input.benchmarkName || '').trim();
     let benchmark = null;
     if (input.benchmarkRate !== '' && input.benchmarkRate !== null && input.benchmarkRate !== undefined) {
       benchmark = Number(input.benchmarkRate);
       if (!Number.isFinite(benchmark) || benchmark <= 0) {
         errors.push('Benchmark annual rate must be greater than zero.');
       }
-      if (!String(input.benchmarkName || '').trim()) {
-        errors.push('Name the benchmark when entering a benchmark rate.');
-      }
+      if (!benchmarkName) benchmarkName = benchmarkType === 'annual' ? 'annual citation benchmark' : '2-year Journal Impact Factor';
     }
 
     if (errors.length) return { errors };
@@ -138,14 +138,10 @@
       warnings.push(`The recent window (${recentYears} years) exceeds the paper’s age used by the calculator (${articleAge} years). Confirm that this is the period you intend to report.`);
     }
     if (lifetime === 0) warnings.push('Now vs. Lifetime is undefined when the lifetime annual citation rate is zero.');
-    if (benchmark === null && String(input.benchmarkName || '').trim()) {
-      warnings.push('Enter the annual rate to calculate Now vs. Benchmark.');
+    if (benchmark === null && benchmarkName) {
+      warnings.push('Enter a benchmark value to calculate Now vs. Benchmark.');
     }
-    const benchmarkType = String(input.benchmarkType || 'annual');
     const isJournalBenchmark = benchmarkType === 'jif' || benchmarkType === 'jif-unverified' || /\b(?:journal impact factor|jif|impact factor)\b/i.test(input.benchmarkName || '');
-    if (benchmark !== null && isJournalBenchmark) {
-      warnings.push('The Journal Impact Factor is a journal-level comparison, not evidence of an individual paper’s research quality or relative scientific importance.');
-    }
     if (benchmark !== null && benchmarkType === 'jif-unverified') {
       warnings.push('The publisher displays this Journal Impact Factor without its reporting year. The comparison is provisional. Verify the exact JIF year before formal reporting.');
     }
@@ -154,7 +150,7 @@
       errors: [], warnings, now, lifetime, vsLifetime, vsBenchmark, articleAge,
       recentCitations, recentYears, observationYears, totalCitations, publicationYear,
       publicationDate: publicationDateText, lifetimeThroughYear, comparisonAligned, windowMode, startYear, endYear,
-      benchmark, benchmarkName: String(input.benchmarkName || '').trim(),
+      benchmark, benchmarkName,
       benchmarkSource: String(input.benchmarkSource || '').trim(), benchmarkType, isJournalBenchmark,
       paperTitle: String(input.paperTitle || '').trim(),
       doi: String(input.doi || '').trim(),
@@ -170,18 +166,37 @@
 
   function describeCitationResults(result) {
     const windowDescription = result.windowMode === 'calendar'
-      ? `from ${result.startYear} through ${result.endYear} (inclusive)`
-      : `over ${result.recentYears} ${result.recentYears === 1 ? 'year' : 'years'}`;
+      ? `${result.startYear}–${result.endYear}`
+      : `the selected ${result.recentYears}-year period`;
+    let lifetimeDescription;
+    if (result.lifetime === null) {
+      lifetimeDescription = result.comparisonAligned
+        ? 'Add the publication year and lifetime citation count to see this comparison.'
+        : 'Use lifetime citations from the same cutoff year as the recent citation period.';
+    } else if (result.vsLifetime === null) {
+      lifetimeDescription = 'The lifetime annual citation rate is zero, so a ratio cannot be calculated.';
+    } else {
+      const percentDifference = Math.round(Math.abs(result.vsLifetime - 1) * 100);
+      const relationship = percentDifference < 1
+        ? 'approximately the same as'
+        : result.vsLifetime < 1
+          ? `${percentDifference}% below`
+          : `${percentDifference}% above`;
+      lifetimeDescription = `During ${windowDescription}, this paper's citation rate was ${relationship} its lifetime average (${formatNumber(result.lifetime)} per year).`;
+    }
+    let benchmarkDescription;
+    if (result.vsBenchmark === null) {
+      benchmarkDescription = 'Enter the journal’s 2-year Impact Factor above to calculate this comparison.';
+    } else {
+      benchmarkDescription = `The paper's recent citation rate was ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} (${formatNumber(result.benchmark)}).`;
+      if (result.benchmarkType === 'jif-unverified') {
+        benchmarkDescription += ' Reporting year not supplied.';
+      }
+    }
     return {
-      now: `The paper received ${result.recentCitations} citations ${windowDescription}, averaging ${formatNumber(result.now)} per year${Math.abs(result.observationYears - result.recentYears) > 0.001 ? ` across ${formatNumber(result.observationYears)} citable years` : ''}.`,
-      lifetime: result.lifetime === null
-        ? (result.comparisonAligned ? 'Enter the publication year and cumulative citations to compare with the lifetime average.' : 'The lifetime comparison requires a cumulative count ending in the same year as the recent window.')
-        : result.vsLifetime === null
-          ? 'The lifetime comparison is undefined because the lifetime annual rate is zero.'
-          : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year${result.windowMode === 'calendar' ? `, calculated through ${result.endYear}` : ''}. This is a comparison with an overlapping lifetime average, not a year-by-year trend measure.`,
-      benchmark: result.vsBenchmark === null
-        ? 'Enter a named annual benchmark and its value to calculate this comparison.'
-        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.benchmarkType === 'jif-unverified' ? ' The publisher has not confirmed the JIF reporting year; treat this result as provisional.' : result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : ''}`
+      now: `${result.recentCitations} citations during ${windowDescription}, averaging ${formatNumber(result.now)} per year.`,
+      lifetime: lifetimeDescription,
+      benchmark: benchmarkDescription
     };
   }
 
@@ -205,7 +220,7 @@
       lines.push(`Lifetime calculation: ${result.totalCitations} citations / ${formatNumber(result.articleAge)} citable years${result.lifetimeThroughYear !== null ? `, through ${result.lifetimeThroughYear}` : ''}.`);
     }
     if (result.vsBenchmark === null) {
-      lines.push('Citations Per Year (Now vs. Benchmark): not calculated; add a named annual benchmark and its value.');
+      lines.push('Citations Per Year (Now vs. Benchmark): not calculated; no journal Impact Factor entered or retrieved.');
     } else {
       lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)}. ${descriptions.benchmark}`);
       lines.push(`Benchmark source: ${result.benchmarkSource || 'Not specified'}.`);
@@ -214,7 +229,6 @@
     lines.push(`Date checked: ${result.checkedDate || 'Not specified'}.`);
     lines.push(`Self-citations: ${result.selfCitations}.`);
     result.warnings.forEach((warning) => lines.push(`Review: ${warning}`));
-    lines.push('These descriptive comparisons are not measures of research quality. Interpret with field, age, article type, and database context.');
     return lines.join('\n');
   }
 
