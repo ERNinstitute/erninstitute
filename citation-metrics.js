@@ -665,6 +665,10 @@
   });
   form.addEventListener('input', (event) => {
     if (event.target.name === 'doi') resetPublisherLookup(true);
+    if (['benchmarkType', 'benchmarkName', 'benchmarkRate', 'benchmarkSource'].includes(event.target.name)) {
+      manualBenchmark = true;
+      autoBenchmarkSource = null;
+    }
     if (event.target.name === 'citationSource' && lastDoiWindow !== null
         && String(event.target.value).trim().toLowerCase() !== 'openalex') {
       // Counts retrieved from OpenAlex must never be relabeled as a different database.
@@ -715,6 +719,15 @@
   lookupButton.addEventListener('click', async () => {
     const doi = form.elements.namedItem('doi').value;
     resetPublisherLookup(true);
+    try {
+      const normalized = normalizeDoi(doi);
+      if (lastLookedUpDoi !== normalized) {
+        ['benchmarkName', 'benchmarkRate', 'benchmarkSource'].forEach(name => setField(name, ''));
+        setField('benchmarkType', 'annual');
+        manualBenchmark = false;
+      }
+      lastLookedUpDoi = normalized;
+    } catch { /* The lookup below reports an invalid DOI. */ }
     lookupPaper.hidden = true;
     lookupButton.disabled = true;
     lookupButton.textContent = 'Looking up…';
@@ -761,7 +774,7 @@
       calculated = true;
       calculate();
       // Publisher fetching must not block the primary citation results.
-      void lookupPublisherJif(work, normalizeDoi(doi));
+      void lookupJournalBenchmark(work, normalizeDoi(doi));
     } catch (error) {
       lookupStatus.textContent = error.name === 'AbortError'
         ? 'OpenAlex did not respond within 15 seconds. You can enter citation counts manually.'
@@ -771,6 +784,12 @@
       lookupButton.disabled = false;
       lookupButton.textContent = 'Get citation metrics';
     }
+  });
+
+  changeBenchmarkButton.addEventListener('click', () => {
+    benchmarkDetails.open = true;
+    benchmarkDetails.scrollIntoView({ block: 'nearest' });
+    form.elements.namedItem('benchmarkRate').focus();
   });
 
   addButton.addEventListener('click', () => {
@@ -812,6 +831,8 @@
     reportingDetails.open = !!row.input.selfCitations && row.input.selfCitations !== 'Not specified';
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
+    manualBenchmark = true;
+    lastLookedUpDoi = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     editingRowId = id;
@@ -840,18 +861,20 @@
   document.getElementById('citation-metrics-example').addEventListener('click', () => {
     const example = {
       paperTitle: 'Example paper', publicationYear: '2016', totalCitations: '100',
-      recentCitations: '25', recentYears: '5', windowMode: 'duration', benchmarkType: 'jif',
-      benchmarkName: '2025 two-year Journal Impact Factor',
-      benchmarkRate: '3', benchmarkSource: 'Example benchmark', citationSource: 'Example citation source',
+      recentCitations: '25', recentYears: '5', windowMode: 'duration', benchmarkType: 'annual',
+      benchmarkName: 'Illustrative annual benchmark (not a real journal factor)',
+      benchmarkRate: '3', benchmarkSource: 'Illustrative example only', citationSource: 'Illustrative example',
       checkedDate: localDate, selfCitations: 'Included'
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
     manualDetails.open = true;
     datesDetails.open = false;
-    benchmarkDetails.open = true;
+    benchmarkDetails.open = false;
     reportingDetails.open = false;
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
+    manualBenchmark = true;
+    lastLookedUpDoi = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
@@ -868,6 +891,8 @@
     reportingDetails.open = false;
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
+    manualBenchmark = false;
+    lastLookedUpDoi = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
