@@ -69,9 +69,8 @@ function parsePublisherJif(html, journalName) {
       const value = Number(m[1]);
       if (!(value > 0 && value <= 99)) continue;
       const preceding = text.slice(Math.max(0, m.index - 25), m.index);
-      const around = text.slice(Math.max(0, m.index - 35), m.index + m[0].length + 30);
-      if (/(?:5|five)[- ]year\s+(?:journal\s+)?impact\s+factor/i.test(around) ||
-          /(?:5|five)[- ]year\s*$/i.test(preceding)) continue;
+      // The next metric on the page may be a 5-year JIF. Exclude only if THIS match is 5-year.
+      if (/(?:5|five)[- ]year\s*$/i.test(preceding)) continue;
       const yearBefore = preceding.match(/\b(20\d{2})\s*(?:[-:])?\s*$/);
       const year = m[2] ? Number(m[2]) : yearBefore ? Number(yearBefore[1]) : null;
       if (year && (year < 2000 || year > new Date().getUTCFullYear())) continue;
