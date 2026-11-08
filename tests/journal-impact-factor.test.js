@@ -78,7 +78,7 @@ test('calculator retains manuscript names and has DOI-lookup publisher UI', () =
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /id="citation-journal-status"/);
   assert.match(html, /id="citation-jif-source-link"/);
-  assert.match(js, /lookupPublisherJif\(work, normalizeDoi\(doi\)\)/);
+  assert.match(js, /lookupJournalBenchmark\(work, normalizeDoi\(doi\)\)/);
   for (const label of ['Citations Per Year (Now)', 'Citations Per Year (Now vs. Lifetime)',
     'Citations Per Year (Now vs. Benchmark)']) {
     assert.ok(html.includes(label));
