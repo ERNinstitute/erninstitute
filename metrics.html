@@ -113,7 +113,7 @@
         <div class="citation-field">
           <label for="citation-doi">Digital Object Identifier (DOI)</label>
           <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-primary" id="citation-doi-lookup" type="button">Get citation metrics</button></div>
-          <div class="citation-quick-benchmark">
+          <div class="citation-field citation-quick-benchmark">
             <label for="citation-benchmark-rate">2-year Journal Impact Factor <span class="citation-optional">(optional)</span></label>
             <input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="Found automatically, or enter a number"/>
             <p class="citation-field-note">Automatically filled when available. If missing, enter just the journal’s Impact Factor.</p>
@@ -121,7 +121,7 @@
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
           <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.</p>
           <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
-          <button id="citation-benchmark-change" class="citation-benchmark-change" type="button" hidden>Change benchmark</button>
+          <button id="citation-benchmark-change" class="citation-benchmark-change" type="button" hidden>Benchmark details</button>
           <a id="citation-jif-source-link" class="citation-publisher-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View publisher journal page</a>
         </div>
       </section>
