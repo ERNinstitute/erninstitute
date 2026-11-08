@@ -78,23 +78,22 @@
   <div class="metrics-hero-copy">
     <p class="eyebrow">Browser calculator · November 2026</p>
     <h1>Transparent Article-Level Citation Metrics</h1>
-    <p class="subtitle lead">Three plain-language metrics answer three questions: How many citations per year is a paper receiving now? How does now compare with its lifetime annual rate? How does now compare with a named annual benchmark?</p>
-    <p class="subtitle">These are descriptive tools. They make article-level citation claims easier to understand and reproduce, but they do not replace peer review, field-sensitive evaluation, or expert judgment.</p>
+    <p class="subtitle lead">Three numbers show a paper’s recent citation rate, how it compares with the paper’s lifetime average, and how it compares with a journal benchmark.</p>
     <div class="btn-row"><a class="btn btn-primary" href="#calculator">Use browser calculator</a><a class="btn btn-outline" href="downloads/citations-per-year-calculator.xlsx" download>Download Excel workbook</a><a class="text-link" href="#source">Manuscript source</a></div>
   </div>
   <div class="card formula-card">
-    <h3>One common starting point</h3>
-    <p>All three metrics begin with <strong>citations per year</strong>. The first reports the annual rate itself. The other two compare that annual rate with another annual rate, so their results are ratios.</p>
+    <h3>How to read the ratios</h3>
+    <p><strong>1.00</strong> means equal rates. <strong>Above 1.00</strong> means higher than the comparison rate, and <strong>below 1.00</strong> means lower.</p>
   </div>
 </section>
 
 <section class="section citation-metrics-explainer" aria-labelledby="citation-metrics-explainer-heading">
   <h2 id="citation-metrics-explainer-heading">What the three metrics tell you</h2>
-  <p class="citation-explainer-lead">The first result is a citation rate. The other two are ratios: a value of 1.00 means the rates are equal, 3.00 means the recent rate is three times as high, and 0.50 means it is half as high.</p>
+  <p class="citation-explainer-lead">A value of 0.79 means the recent rate is about 21% below the comparison rate; 2.71 means about 2.71 times the comparison rate.</p>
   <div class="grid-3">
-    <article class="metric-card"><span class="metric-kicker">Now</span><h3>Citations Per Year (Now)</h3><p>The average number of citations a paper receives per year during your selected recent period. For example, 20 citations over 2 years gives 10.00 per year.</p></article>
-    <article class="metric-card"><span class="metric-kicker">Now vs. lifetime</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>Compares the recent annual rate with the paper’s lifetime average <strong>through the same date</strong>. A result of 3.00 means the recent rate is three times that lifetime average. The comparison does not establish a year-by-year trend.</p></article>
-    <article class="metric-card"><span class="metric-kicker">Now vs. benchmark</span><h3>Citations Per Year (Now vs. Benchmark)</h3><p>Compares the recent annual rate with a named external annual benchmark. A result of 2.00 means the paper’s recent rate is twice that benchmark.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now</span><h3>Citations Per Year (Now)</h3><p>Average citations per year during the selected recent period.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now vs. lifetime</span><h3>Citations Per Year (Now vs. Lifetime)</h3><p>Shows whether the paper’s recent citation rate is above or below its lifetime average, using the same citation cutoff.</p></article>
+    <article class="metric-card"><span class="metric-kicker">Now vs. benchmark</span><h3>Citations Per Year (Now vs. Benchmark)</h3><p>Shows how the paper’s recent citation rate compares with the journal’s two-year Impact Factor or another annual benchmark.</p></article>
   </div>
 </section>
 
@@ -119,7 +118,7 @@
             <p class="citation-field-note">Automatically filled when available. If missing, enter just the journal’s Impact Factor.</p>
           </div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
-          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.</p>
+          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last five complete calendar years.</p>
           <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
           <button id="citation-benchmark-change" class="citation-benchmark-change" type="button" hidden>Benchmark details</button>
           <a id="citation-jif-source-link" class="citation-publisher-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View publisher journal page</a>
