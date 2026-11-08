@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261108jif" rel="stylesheet"/>
+<link href="styles.css?v=20261108simple" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -102,17 +102,22 @@
   <div class="citation-calculator-intro">
     <p class="eyebrow">Free research tool</p>
     <h2 id="citation-calculator-heading">Calculate citation metrics in your browser</h2>
-    <p>Enter a DOI to get the citation metrics and an automatically selected journal benchmark, when available. Prefer Google Scholar, Web of Science, or ResearchGate citation counts? Manual entry is optional. No account is required.</p>
+    <p>Enter a DOI to calculate all three metrics. If we cannot find the journal’s Impact Factor, you can enter that one number. No account required.</p>
   </div>
   <div class="citation-calculator-layout">
     <form id="citation-metrics-form" class="card citation-calculator-form" novalidate>
       <section class="citation-doi-start" aria-labelledby="citation-doi-start-title">
         <span class="citation-step-kicker">Quick start</span>
         <h3 id="citation-doi-start-title">Look up a paper by DOI</h3>
-        <p>Paste a DOI and select <strong>Get citation metrics</strong>. We will retrieve citation data, identify the journal, and look for a benchmark automatically. You can change any value afterward.</p>
+        <p>Paste a DOI and select <strong>Get citation metrics</strong>. We’ll retrieve citation counts and check the journal’s Impact Factor for you.</p>
         <div class="citation-field">
           <label for="citation-doi">Digital Object Identifier (DOI)</label>
           <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-primary" id="citation-doi-lookup" type="button">Get citation metrics</button></div>
+          <div class="citation-quick-benchmark">
+            <label for="citation-benchmark-rate">2-year Journal Impact Factor <span class="citation-optional">(optional)</span></label>
+            <input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="Found automatically, or enter a number"/>
+            <p class="citation-field-note">Automatically filled when available. If missing, enter just the journal’s Impact Factor.</p>
+          </div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
           <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.</p>
           <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
@@ -121,8 +126,11 @@
         </div>
       </section>
 
+      <details class="citation-advanced-details" id="citation-advanced-details">
+        <summary>More options <span>Manual citation counts, benchmark details, reporting</span></summary>
+        <div class="citation-advanced-content">
       <details class="citation-manual-details" id="citation-manual-details">
-        <summary>Enter or edit citation counts manually <span>Google Scholar, Web of Science, ResearchGate, or another source</span></summary>
+        <summary>Enter citation counts manually <span>Google Scholar, Web of Science, ResearchGate</span></summary>
         <div class="citation-manual-content">
       <fieldset>
         <legend>Paper and citation counts</legend>
@@ -164,16 +172,18 @@
         </div>
       </details>
       <details class="citation-optional-details" id="citation-benchmark-details">
-        <summary>Use a different benchmark <span>(optional)</span></summary>
+        <summary>Benchmark details <span>(optional)</span></summary>
       <fieldset>
         <div class="citation-fields">
-          <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="annual">Other annual citation benchmark</option><option value="jif">Journal Impact Factor (official, journal-level)</option><option value="jif-unverified">Publisher-listed Impact Factor (year unconfirmed)</option></select></div>
-          <div class="citation-field citation-field-full"><label for="citation-benchmark-name">Benchmark name and year</label><input id="citation-benchmark-name" name="benchmarkName" type="text" placeholder="e.g., 2025 two-year Journal Impact Factor"/></div>
-          <div class="citation-field"><label for="citation-benchmark-rate">Benchmark citations per year</label><input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="e.g., 3.0"/></div>
-          <div class="citation-field"><label for="citation-benchmark-source">Benchmark source</label><input id="citation-benchmark-source" name="benchmarkSource" type="text" placeholder="e.g., Journal Citation Reports"/></div>
+          <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="jif-unverified">2-year Journal Impact Factor (year not specified)</option><option value="jif">2-year Journal Impact Factor (year confirmed)</option><option value="annual">Another annual benchmark</option></select></div>
+          <div class="citation-field citation-field-full"><label for="citation-benchmark-name">Journal / benchmark name and year <span class="citation-optional">(optional)</span></label><input id="citation-benchmark-name" name="benchmarkName" type="text" placeholder="e.g., 2025 two-year Journal Impact Factor"/></div>
+          
+          <div class="citation-field"><label for="citation-benchmark-source">Benchmark source <span class="citation-optional">(optional)</span></label><input id="citation-benchmark-source" name="benchmarkSource" type="text" placeholder="e.g., Journal Citation Reports"/></div>
         </div>
-        <p class="citation-field-note">The DOI lookup checks the publisher’s journal page and automatically fills a Journal Impact Factor when one is found. If the publisher does not state its reporting year, the value is marked provisional until checked. These fields are only for choosing another benchmark; no manual entry is needed for the first two citation metrics. A Journal Impact Factor does not measure a paper’s research quality.</p>
+        <p class="citation-field-note">You only need to enter the two-year Impact Factor above. Add its year, source, or a different benchmark here if you want a more detailed report.</p>
       </fieldset>
+      </details>
+        </div>
       </details>
       <div class="citation-form-secondary-actions"><button class="citation-clear-button" id="citation-metrics-example" type="button">Try an example</button><button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear form</button></div>
     </form>
@@ -288,7 +298,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261108cognition"></script>
+<script src="citation-metrics.js?v=20261108simple"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
