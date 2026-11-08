@@ -132,3 +132,13 @@ The public datasets and their provenance remain at `repository.html`. Their open
 The raw-data conversion pathways do not directly support paired, repeated-measures, cluster-randomized, multilevel, adjusted-model, omnibus-F, or survival-statistic extraction. Researchers who have already calculated an appropriate effect estimate and sampling variance for such designs can use the generic inverse-variance pathway when the resulting effects can legitimately be treated as independent.
 
 Dependency-aware meta-analysis, moderator analysis, and publication-bias diagnostics are outside the current Version 1.0 scope.
+
+
+## Citation metrics: journal Impact Factor fallback (November 8, 2026)
+
+The Citation Metrics page uses OpenAlex for DOI and article-level annual counts. A journal's Impact Factor is a **separate annual benchmark**, not an OpenAlex citation count. When available, the page tries `/api/journal-impact-factor?source=...` as a server-side publisher lookup. **This endpoint requires Cloudflare Pages Functions or equivalent server support and will not run on static GitHub Pages.** Do not assume the function is live just because the repository contains a `functions/` directory.
+
+The client also reads `/journal-impact-factors.json`, a small conservative registry of source-verified JIF values keyed by OpenAlex journal ID. This works with static hosting and is checked before the server lookup finishes. On November 8, 2026, the registry includes *Cognition* (OpenAlex `S88198767`, ISSN-L `0010-0277`), with the 2025 JIF of **3.1** displayed on Elsevier's journal page and independently cross-checked against 2025 JCR listings. The regression case `10.1016/j.cognition.2017.02.010` computes **8.40 / 3.1 = 2.71** for the benchmark comparison using the cited screen-captured 2021–2025 citation counts.
+
+The cache is intentionally **not** a universal JIF catalogue. Unknown or unreliable journal metrics remain N/A; they must not silently substitute CiteScore or OpenAlex two-year mean citedness. Every cached entry requires a journal ID, exact title, ISSN, source URL, JIF reporting year, value, corroboration, and verification date. JIF updates must be explicitly audited and updated as annual reports change. Publisher extraction can be blocked by robots/access controls; do not work around publisher access restrictions. Before claiming live operation, verify the current deployed `metrics.html`, `citation-metrics.js`, and `journal-impact-factors.json` in a browser.
+
