@@ -2740,6 +2740,25 @@ li {
   font-weight: 750;
   overflow-wrap: anywhere;
 }
+.citation-benchmark-change {
+  display: inline-flex;
+  margin: 0.45rem 0 0;
+  padding: 0.2rem 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.citation-benchmark-change:focus-visible {
+  outline: 3px solid var(--accent-cyan);
+  outline-offset: 2px;
+}
+
 .citation-publisher-link:focus-visible {
   outline: 3px solid var(--accent-cyan);
   outline-offset: 2px;
