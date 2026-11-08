@@ -1,7 +1,7 @@
 // Publisher-sourced Journal Impact Factor lookup for Cloudflare Pages.
 // Source metadata comes from OpenAlex; the only remote HTML targets are approved publisher hosts.
 const PUBLISHER_HOSTS = new Set([
-  'www.sciencedirect.com', 'sciencedirect.com', 'www.elsevier.com',
+  'www.sciencedirect.com', 'sciencedirect.com', 'www.elsevier.com', 'journals.elsevier.com',
   'link.springer.com', 'www.springer.com', 'springer.com',
   'onlinelibrary.wiley.com', 'journals.sagepub.com',
   'www.tandfonline.com', 'tandfonline.com', 'academic.oup.com',
@@ -60,8 +60,8 @@ function parsePublisherJif(html, journalName) {
     h.includes(' ' + expected + ' ') || h.endsWith(' ' + expected))) return null;
   const text = plainText(html);
   const patterns = [
-    /(?:Journal\s+)?Impact\s+Factor\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,3})?)(?:\s*\((20\d{2})\))?/gi,
-    /(\d{1,2}(?:\.\d{1,3})?)\s+(?:Journal\s+)?Impact\s+Factor(?:\s*\((20\d{2})\))?/gi
+    /(?:Journal\s+)?Impact\s+Factor\s*[:\-]?\s*(\d{1,2}(?:\.\d{1,3})?)(?![\d.\-])(?:\s*\((20\d{2})\))?/gi,
+    /(\d{1,2}(?:\.\d{1,3})?)(?![\d.\-])\s+(?:Journal\s+)?Impact\s+Factor(?:\s*\((20\d{2})\))?/gi
   ];
   const candidates = [];
   for (const pattern of patterns) {
