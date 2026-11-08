@@ -142,12 +142,12 @@
       warnings.push('Enter the annual rate to calculate Now vs. Benchmark.');
     }
     const benchmarkType = String(input.benchmarkType || 'annual');
-    const isJournalBenchmark = benchmarkType === 'jif' || /\b(?:journal impact factor|jif|impact factor)\b/i.test(input.benchmarkName || '');
+    const isJournalBenchmark = benchmarkType === 'jif' || benchmarkType === 'jif-unverified' || /\b(?:journal impact factor|jif|impact factor)\b/i.test(input.benchmarkName || '');
     if (benchmark !== null && isJournalBenchmark) {
       warnings.push('The Journal Impact Factor is a journal-level comparison, not evidence of an individual paper’s research quality or relative scientific importance.');
     }
-    if (benchmark !== null && benchmarkType === 'openalex') {
-      warnings.push('OpenAlex two-year mean citedness is a journal-level indicator, not the official Journal Impact Factor. Their database coverage and values may differ.');
+    if (benchmark !== null && benchmarkType === 'jif-unverified') {
+      warnings.push('The publisher displays this Journal Impact Factor without its reporting year. The comparison is provisional. Verify the exact JIF year before formal reporting.');
     }
 
     return {
@@ -181,7 +181,7 @@
           : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year${result.windowMode === 'calendar' ? `, calculated through ${result.endYear}` : ''}. This is a comparison with an overlapping lifetime average, not a year-by-year trend measure.`,
       benchmark: result.vsBenchmark === null
         ? 'Enter a named annual benchmark and its value to calculate this comparison.'
-        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : result.benchmarkType === 'openalex' ? ' This is OpenAlex journal-level mean citedness, not an official Journal Impact Factor.' : ''}`
+        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.benchmarkType === 'jif-unverified' ? ' The publisher has not confirmed the JIF reporting year; treat this result as provisional.' : result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : ''}`
     };
   }
 
@@ -289,31 +289,6 @@
     return throughYear;
   }
 
-  async function fetchOpenAlexJournal(sourceId, fetcher = fetch, options = {}) {
-    if (!/^S\d{3,15}$/.test(String(sourceId || ''))) throw new Error('Invalid OpenAlex journal ID.');
-    const response = await fetcher(`https://api.openalex.org/sources/${sourceId}`,
-      { headers: { Accept: 'application/json' }, signal: options.signal });
-    if (!response.ok) throw new Error('OpenAlex journal lookup unavailable.');
-    const journal = await response.json();
-    if (journal.type !== 'journal' || String(journal.id || '').split('/').pop() !== sourceId) {
-      throw new Error('The source is not the matching journal.');
-    }
-    return journal;
-  }
-
-  function openAlexJournalBenchmark(journal, checkedDate) {
-    if (journal?.type !== 'journal') return null;
-    const rate = journal.summary_stats?.['2yr_mean_citedness'];
-    const sourceId = String(journal.id || '').match(/S\d{3,15}$/)?.[0];
-    if (!sourceId || !Number.isFinite(rate) || rate <= 0) return null;
-    return {
-      type: 'openalex', rate,
-      name: `${journal.display_name} — OpenAlex two-year mean citedness (checked ${checkedDate})`,
-      source: `https://openalex.org/sources/${sourceId}`,
-      journal: String(journal.display_name || '')
-    };
-  }
-
   const csvHeaders = [
     'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
@@ -342,7 +317,7 @@
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, fetchOpenAlexJournal, openAlexJournalBenchmark, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -442,49 +417,46 @@
     journalStatus.hidden = false;
     if (!name || !sourceId) {
       journalStatus.textContent = name
-        ? `Journal: ${name}. No automatic benchmark is available.`
-        : 'The DOI record does not identify a journal. A benchmark is optional.';
+        ? `Journal: ${name}. A journal benchmark is optional.`
+        : 'No journal was identified. A journal benchmark is optional.';
       return;
     }
-    journalStatus.textContent = `Journal: ${name}. Looking for a journal benchmark…`;
-    // Run publisher lookup in parallel, but do not delay initial DOI citation results.
-    // The direct OpenAlex source lookup works even when this site's Pages Function is unavailable.
-    const publisher = fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
-      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(9000) })
-      .then(async response => response.ok ? response.json() : null).catch(() => null);
+    journalStatus.textContent = `Journal: ${name}. Looking for its publisher-reported Impact Factor…`;
     try {
-      const source = await fetchOpenAlexJournal(sourceId, fetch,
-        { signal: AbortSignal.timeout(9000) });
+      const response = await fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
+        { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(9000) });
+      if (!response.ok) throw new Error('Publisher metric lookup unavailable');
+      const data = await response.json();
       if (sequence !== publisherLookupSequence ||
           normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
-      const fallback = openAlexJournalBenchmark(source, localDate);
-      if (fallback) {
-        applyAutomaticBenchmark(fallback);
-        journalStatus.textContent = `Journal: ${name}. Automatic OpenAlex two-year mean citedness: ${fallback.rate.toFixed(2)} (not an official Journal Impact Factor).`;
-        showBenchmarkSource(fallback.source, 'View OpenAlex journal benchmark source');
-      } else {
-        journalStatus.textContent = `Journal: ${name}. OpenAlex has no usable two-year journal benchmark.`;
+      if (typeof data.url === 'string') {
+        showBenchmarkSource(data.url, 'View publisher journal page');
+      }
+      if (!data.verified || !Number.isFinite(data.impactFactor) || data.impactFactor <= 0) {
+        journalStatus.textContent = `Journal: ${name}. Its Impact Factor could not be retrieved reliably. The benchmark remains optional.`;
+        return;
+      }
+      const reportingYear = Number.isInteger(data.impactFactorYear)
+        ? String(data.impactFactorYear) : null;
+      const label = String(data.journal || name);
+      const type = reportingYear ? 'jif' : 'jif-unverified';
+      const chosen = applyAutomaticBenchmark({
+        type,
+        name: reportingYear
+          ? `${label} ${reportingYear} Journal Impact Factor`
+          : `${label} publisher-listed Journal Impact Factor (year unstated; checked ${localDate})`,
+        rate: data.impactFactor,
+        source: data.url
+      });
+      if (chosen) {
+        journalStatus.textContent = reportingYear
+          ? `Journal: ${label}. Publisher-reported ${reportingYear} Journal Impact Factor: ${data.impactFactor.toFixed(2)}.`
+          : `Journal: ${label}. Publisher displays an Impact Factor of ${data.impactFactor.toFixed(2)}, but its year is not stated. This benchmark is provisional; confirm the reporting year before publication.`;
+        showBenchmarkSource(data.url, 'View publisher Impact Factor source');
       }
     } catch {
       if (sequence !== publisherLookupSequence) return;
-      journalStatus.textContent = `Journal: ${name}. OpenAlex journal benchmark unavailable.`;
-    }
-    const data = await publisher;
-    if (sequence !== publisherLookupSequence ||
-        normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
-    if (data?.verified && Number.isFinite(data.impactFactor) &&
-        data.impactFactor > 0 && Number.isInteger(data.impactFactorYear)) {
-      const label = String(data.journal || name);
-      if (applyAutomaticBenchmark({
-        type: 'jif', name: `${label} ${data.impactFactorYear} Journal Impact Factor`,
-        rate: data.impactFactor, source: data.url
-      })) {
-        journalStatus.textContent = `Journal: ${label}. Publisher-verified ${data.impactFactorYear} Journal Impact Factor: ${data.impactFactor.toFixed(2)}.`;
-        showBenchmarkSource(data.url, 'View publisher JIF source');
-      }
-    } else if (!autoBenchmarkSource && !manualBenchmark) {
-      journalStatus.textContent += ' You may add a verified benchmark manually.';
-      if (typeof data?.url === 'string') showBenchmarkSource(data.url, 'Check publisher journal page');
+      journalStatus.textContent = `Journal: ${name}. Publisher metric lookup is unavailable. No benchmark is required.`;
     }
   }
 
