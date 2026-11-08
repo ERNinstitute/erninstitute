@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261106b" rel="stylesheet"/>
+<link href="styles.css?v=20261107jif" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -115,6 +115,8 @@
           <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-primary" id="citation-doi-lookup" type="button">Get citation metrics</button></div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
           <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.</p>
+          <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
+          <a id="citation-jif-source-link" class="citation-publisher-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View publisher journal page</a>
         </div>
       </section>
 
@@ -285,7 +287,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261106b"></script>
+<script src="citation-metrics.js?v=20261107jif"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
