@@ -289,6 +289,40 @@
     return throughYear;
   }
 
+  function matchCuratedJournalJif(data, sourceId, journalName, journalIssn = '') {
+    if (!/^S\d{3,15}$/.test(String(sourceId || ''))) return null;
+    const entry = data?.journals?.[sourceId];
+    if (!entry || typeof entry !== 'object') return null;
+    const normalize = value => String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    if (!normalize(journalName) || normalize(entry.journal) !== normalize(journalName)) return null;
+    if (journalIssn && entry.issn_l && journalIssn !== entry.issn_l) return null;
+    if (!(Number.isFinite(entry.impact_factor) && entry.impact_factor > 0 && entry.impact_factor < 100)) return null;
+    const year = Number(entry.impact_factor_year);
+    if (!Number.isSafeInteger(year) || year < 2000 || year > new Date().getFullYear()) return null;
+    const page = String(entry.publisher_page || '');
+    if (!/^https:\/\//i.test(page)) return null;
+    return {
+      type: 'jif',
+      name: `${entry.journal} ${year} Journal Impact Factor`,
+      rate: entry.impact_factor,
+      source: page,
+      year,
+      checkedDate: String(entry.checked_date || ''),
+      yearSource: String(entry.year_corrob || ''),
+      journal: entry.journal
+    };
+  }
+
+  async function fetchCuratedJournalJif(sourceId, journalName, journalIssn = '', fetcher = fetch, options = {}) {
+    if (!/^S\d{3,15}$/.test(String(sourceId || ''))) return null;
+    const response = await fetcher('/journal-impact-factors.json?v=20261108a',
+      { headers: { Accept: 'application/json' }, signal: options.signal });
+    if (!response.ok) return null;
+    const registry = await response.json();
+    if (registry?.schema_version !== 1) return null;
+    return matchCuratedJournalJif(registry, sourceId, journalName, journalIssn);
+  }
+
   const csvHeaders = [
     'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
@@ -317,7 +351,7 @@
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, matchCuratedJournalJif, fetchCuratedJournalJif, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -417,46 +451,55 @@
     journalStatus.hidden = false;
     if (!name || !sourceId) {
       journalStatus.textContent = name
-        ? `Journal: ${name}. A journal benchmark is optional.`
-        : 'No journal was identified. A journal benchmark is optional.';
+        ? `Journal: ${name}. The journal benchmark is optional.`
+        : 'No journal was identified. The journal benchmark is optional.';
       return;
     }
-    journalStatus.textContent = `Journal: ${name}. Looking for its publisher-reported Impact Factor…`;
+    journalStatus.textContent = `Journal: ${name}. Checking the publisher’s Impact Factor…`;
+    // The static, source-documented registry works on GitHub Pages and other static hosts.
+    // The separate server-side parser remains best effort for journals not in that registry.
+    const publisher = fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
+      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+      .then(async response => response.ok ? response.json() : null).catch(() => null);
+
+    let cached = null;
     try {
-      const response = await fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
-        { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(9000) });
-      if (!response.ok) throw new Error('Publisher metric lookup unavailable');
-      const data = await response.json();
-      if (sequence !== publisherLookupSequence ||
-          normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
-      if (typeof data.url === 'string') {
-        showBenchmarkSource(data.url, 'View publisher journal page');
-      }
-      if (!data.verified || !Number.isFinite(data.impactFactor) || data.impactFactor <= 0) {
-        journalStatus.textContent = `Journal: ${name}. Its Impact Factor could not be retrieved reliably. The benchmark remains optional.`;
-        return;
-      }
-      const reportingYear = Number.isInteger(data.impactFactorYear)
-        ? String(data.impactFactorYear) : null;
+      cached = await fetchCuratedJournalJif(sourceId, name, String(journal?.issn_l || ''), fetch,
+        { signal: AbortSignal.timeout(6500) });
+    } catch { /* The publisher lookup may still succeed. */ }
+    if (sequence !== publisherLookupSequence ||
+        normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
+
+    if (cached && applyAutomaticBenchmark(cached)) {
+      journalStatus.textContent = `Journal: ${name}. ${cached.year} Journal Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; verified ${cached.checkedDate}).`;
+      showBenchmarkSource(cached.source, 'View journal’s publisher page');
+    }
+
+    const data = await publisher;
+    if (sequence !== publisherLookupSequence ||
+        normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
+    if (data?.verified && Number.isFinite(data.impactFactor) && data.impactFactor > 0) {
       const label = String(data.journal || name);
-      const type = reportingYear ? 'jif' : 'jif-unverified';
-      const chosen = applyAutomaticBenchmark({
-        type,
-        name: reportingYear
-          ? `${label} ${reportingYear} Journal Impact Factor`
-          : `${label} publisher-listed Journal Impact Factor (year unstated; checked ${localDate})`,
-        rate: data.impactFactor,
-        source: data.url
-      });
-      if (chosen) {
-        journalStatus.textContent = reportingYear
-          ? `Journal: ${label}. Publisher-reported ${reportingYear} Journal Impact Factor: ${data.impactFactor.toFixed(2)}.`
-          : `Journal: ${label}. Publisher displays an Impact Factor of ${data.impactFactor.toFixed(2)}, but its year is not stated. This benchmark is provisional; confirm the reporting year before publication.`;
-        showBenchmarkSource(data.url, 'View publisher Impact Factor source');
+      const year = Number.isInteger(data.impactFactorYear) ? data.impactFactorYear : null;
+      // A dated source-documented benchmark takes precedence over undated or older HTML.
+      if (!cached || (year && year >= cached.year)) {
+        const chosen = applyAutomaticBenchmark({
+          type: year ? 'jif' : 'jif-unverified',
+          name: year ? `${label} ${year} Journal Impact Factor`
+            : `${label} publisher-listed Journal Impact Factor (year unstated; checked ${localDate})`,
+          rate: data.impactFactor,
+          source: data.url
+        });
+        if (chosen) {
+          journalStatus.textContent = year
+            ? `Journal: ${label}. Publisher-reported ${year} Journal Impact Factor: ${data.impactFactor.toFixed(2)}.`
+            : `Journal: ${label}. Publisher reports an Impact Factor of ${data.impactFactor.toFixed(2)}, but its year is not stated. Provisional until the year is verified.`;
+          showBenchmarkSource(data.url, 'View publisher Impact Factor source');
+        }
       }
-    } catch {
-      if (sequence !== publisherLookupSequence) return;
-      journalStatus.textContent = `Journal: ${name}. Publisher metric lookup is unavailable. No benchmark is required.`;
+    } else if (!cached) {
+      journalStatus.textContent = `Journal: ${name}. The publisher metric could not be retrieved automatically. The first two citation metrics remain available.`;
+      if (typeof data?.url === 'string') showBenchmarkSource(data.url, 'View publisher journal page');
     }
   }
 
