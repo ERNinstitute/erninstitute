@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "updated_utc": "2026-11-08",
+  "description": "Conservatively curated publisher-listed JIFs for client-side fallback when a publisher/API lookup is unavailable. Each entry is keyed by its OpenAlex journal ID. Do not infer missing values.",
+  "journals": {
+    "S88198767": {
+      "journal": "Cognition",
+      "issn_l": "0010-0277",
+      "publisher": "Elsevier",
+      "impact_factor": 3.1,
+      "impact_factor_year": 2025,
+      "publisher_page": "https://www.sciencedirect.com/journal/cognition",
+      "year_corrob": "https://referencecitationanalysis.com/InCiteJournalInfo?id=6749",
+      "checked_date": "2026-11-08",
+      "note": "Publisher journal page shows Impact Factor 3.1; independent 2025 JCR listings identify 2025 as its reporting year."
+    }
+  }
+}
