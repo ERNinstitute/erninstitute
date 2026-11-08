@@ -75,7 +75,7 @@ test('validates missing, negative, fractional, and inconsistent inputs', () => {
   assert.ok(computeCitationMetrics({ recentCitations: '2', recentYears: '0' }, 2026).errors.length);
   assert.ok(computeCitationMetrics({ recentCitations: '4', recentYears: '2', totalCitations: '3' }, 2026).errors.length);
   assert.ok(computeCitationMetrics({ recentCitations: '4', recentYears: '2', publicationYear: '2027' }, 2026).errors.length);
-  assert.ok(computeCitationMetrics({ recentCitations: '4', recentYears: '2', benchmarkRate: '3' }, 2026).errors.length);
+  assert.equal(computeCitationMetrics({ recentCitations: '4', recentYears: '2', benchmarkRate: '3' }, 2026).vsBenchmark, 2 / 3);
   assert.ok(computeCitationMetrics({ recentCitations: '4', recentYears: '2', benchmarkName: 'Journal', benchmarkRate: '0' }, 2026).errors.length);
 });
 
@@ -100,21 +100,22 @@ test('exact inclusive calendar-year windows determine the denominator and report
   assert.deepEqual(result.errors, []);
   assert.equal(result.recentYears, 2);
   assert.equal(result.now, 44.5);
-  assert.match(describeCitationResults(result).now, /from 2024 through 2025 \(inclusive\)/);
+  assert.match(describeCitationResults(result).now, /during 2024–2025/);
   assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2025' }, 2026).errors.length);
   assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2027' }, 2026).errors.length);
   const partial = computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2025', endYear: '2026' }, 2026);
   assert.ok(partial.warnings.some((message) => message.includes('not yet complete')));
 });
 
-test('journal-level benchmark is labeled and qualified', () => {
+test('journal-level benchmark has a concise functional interpretation', () => {
   const result = computeCitationMetrics({
     recentCitations: '89', recentYears: '2', benchmarkName: '2025 Journal Impact Factor',
     benchmarkType: 'jif', benchmarkRate: '3'
   }, 2026);
   assert.deepEqual(result.errors, []);
-  assert.match(describeCitationResults(result).benchmark, /not a measure of the paper’s quality/);
-  assert.ok(result.warnings.some((message) => message.includes('journal-level')));
+  assert.match(describeCitationResults(result).benchmark, /14\.83 times the 2025 Journal Impact Factor \(3\.00\)/);
+  assert.equal(result.isJournalBenchmark, true);
+  assert.ok(!result.warnings.some(message => message.includes('research quality')));
 });
 
 test('normalizes DOIs and retrieves OpenAlex records without private credentials', async () => {
@@ -210,10 +211,10 @@ test('describes the displayed rates and ratios in plain language', () => {
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 44.5);
   const descriptions = describeCitationResults(result);
-  assert.match(descriptions.now, /89 citations over 2 years, averaging 44\.50 per year/);
-  assert.match(descriptions.lifetime, /3\.00 times the paper’s lifetime annual average of 14\.82 citations per year/);
-  assert.match(descriptions.benchmark, /14\.83 times the IF 2-year benchmark of 3\.00 citations per year/);
-  assert.match(formatCitationReport(result), /The recent citation rate is 3\.00 times/);
+  assert.match(descriptions.now, /89 citations during the selected 2-year period, averaging 44\.50 per year/);
+  assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 per year\)/);
+  assert.match(descriptions.benchmark, /14\.83 times the IF 2-year \(3\.00\)/);
+  assert.match(formatCitationReport(result), /200% above its lifetime average/);
 });
 
 test('browser calculator includes all form fields and result targets', () => {
@@ -235,8 +236,8 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108cognition"></script>'));
-  assert.ok(html.includes('href="styles.css?v=20261108jif"'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108simple"></script>'));
+  assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
   assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
@@ -263,7 +264,7 @@ test('publisher-listed JIF with an unconfirmed reporting year is clearly provisi
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 7.4);
   assert.ok(Math.abs(result.vsBenchmark - 7.4 / 2.75) < 1e-12);
-  assert.match(describeCitationResults(result).benchmark, /reporting year; treat this result as provisional/);
+  assert.match(describeCitationResults(result).benchmark, /Reporting year not supplied/);
   assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
 });
 
@@ -274,7 +275,11 @@ test('benchmark controls remain optional and outside the manual citation panel',
   const report = html.indexOf('id="citation-reporting-details"');
   const benchmark = html.indexOf('id="citation-benchmark-details"');
   const example = html.indexOf('id="citation-metrics-example"');
-  assert.ok(manual < report && report < benchmark && benchmark < example);
+  const advanced = html.indexOf('id="citation-advanced-details"');
+  const rate = html.indexOf('id="citation-benchmark-rate"');
+  assert.ok(rate < advanced && advanced < manual && manual < report && report < benchmark && benchmark < example);
+  assert.equal((html.match(/name="benchmarkRate"/g) || []).length, 1, 'Only one Impact Factor input should exist');
+  assert.match(html, /<summary>More options/);
   assert.ok(html.includes('id="citation-benchmark-change"'));
   assert.match(js, /lookupJournalBenchmark\(work, normalizeDoi\(doi\)\)/);
   assert.match(js, /Illustrative annual benchmark \(not a real journal factor\)/);
@@ -316,4 +321,28 @@ test('Cognition DOI screenshot case produces 2.71 Now vs. Benchmark from 3.1 JIF
   assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
   assert.match(formatCitationReport(result), /Cognition 2025 Journal Impact Factor/);
   assert.match(formatCitationReport(result), /sciencedirect.com\/journal\/cognition/);
+});
+
+test('one manual Impact Factor number calculates the comparison without name or source', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '42', recentYears: '5', benchmarkRate: '3.1',
+    benchmarkType: 'jif-unverified', citationSource: 'OpenAlex'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.now, 8.4);
+  assert.equal(result.benchmarkName, '2-year Journal Impact Factor');
+  assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
+  assert.match(describeCitationResults(result).benchmark, /2\.71 times the 2-year Journal Impact Factor \(3\.10\)/);
+  assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
+});
+
+test('a 0.79 lifetime ratio is described as 21 percent below the lifetime rate', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '42', recentYears: '5',
+    publicationYear: '2017', totalCitations: '107'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.ok(result.vsLifetime > 0.7 && result.vsLifetime < 0.8);
+  assert.match(describeCitationResults(result).lifetime, /below its lifetime average/);
+  assert.doesNotMatch(describeCitationResults(result).lifetime, /not a year-by-year|has declined over time/);
 });
