@@ -402,10 +402,11 @@
         journalStatus.textContent = `Journal: ${sourceLabel}. The official Journal Impact Factor was not verified automatically. Enter it manually if needed.`;
         return;
       }
-      const yearText = Number.isInteger(data.impactFactorYear)
-        ? String(data.impactFactorYear) : 'year not stated';
-      journalStatus.textContent = `Journal: ${sourceLabel}. Publisher-reported Journal Impact Factor: ${data.impactFactor} (${yearText}).` +
-        (data.impactFactorYear ? '' : ' Check the reporting year before citing this benchmark.');
+      if (!Number.isInteger(data.impactFactorYear)) {
+        journalStatus.textContent = `Journal: ${sourceLabel}. The publisher page shows an Impact Factor of ${data.impactFactor}, but does not identify its year. It was not applied automatically; verify the year and enter the benchmark manually.`;
+        return;
+      }
+      journalStatus.textContent = `Journal: ${sourceLabel}. Verified publisher-reported ${data.impactFactorYear} Journal Impact Factor: ${data.impactFactor}.`;
       // Do not overwrite a researcher-defined benchmark.
       const existingRate = form.elements.namedItem('benchmarkRate').value;
       if (existingRate && !autoJifSourceUrl) {
