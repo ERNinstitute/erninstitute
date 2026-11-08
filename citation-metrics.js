@@ -336,6 +336,8 @@
   const lookupInput = document.getElementById('citation-doi');
   const lookupStatus = document.getElementById('citation-doi-status');
   const lookupPaper = document.getElementById('citation-doi-paper');
+  const journalStatus = document.getElementById('citation-journal-status');
+  const jifSourceLink = document.getElementById('citation-jif-source-link');
   const manualDetails = document.getElementById('citation-manual-details');
   const datesDetails = document.getElementById('citation-dates-details');
   const benchmarkDetails = document.getElementById('citation-benchmark-details');
@@ -355,6 +357,72 @@
   let nextComparisonId = 1;
   let editingRowId = null;
   let lastDoiWindow = null;
+  let publisherLookupSequence = 0;
+  let autoJifSourceUrl = null;
+
+  function resetPublisherLookup(clearAuto = false) {
+    publisherLookupSequence += 1;
+    journalStatus.hidden = true;
+    jifSourceLink.hidden = true;
+    jifSourceLink.removeAttribute('href');
+    if (clearAuto && autoJifSourceUrl && form.elements.namedItem('benchmarkSource').value === autoJifSourceUrl) {
+      setField('benchmarkType', 'annual');
+      setField('benchmarkName', '');
+      setField('benchmarkRate', '');
+      setField('benchmarkSource', '');
+    }
+    if (clearAuto) autoJifSourceUrl = null;
+  }
+
+  async function lookupPublisherJif(work, normalizedDoi) {
+    const journal = work.primary_location?.source;
+    const name = String(journal?.display_name || '').trim();
+    const sourceId = String(journal?.id || '').match(/\/S\d{3,15}$/)?.[0]?.slice(1);
+    const sequence = ++publisherLookupSequence;
+    if (!name) return;
+    journalStatus.hidden = false;
+    journalStatus.textContent = `Journal: ${name}. Checking publisher-reported Journal Impact Factor…`;
+    if (!sourceId) {
+      journalStatus.textContent = `Journal: ${name}. Enter a verified Journal Impact Factor manually if desired.`;
+      return;
+    }
+    try {
+      const response = await fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
+        { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12500) });
+      if (!response.ok) throw new Error('Publisher lookup unavailable');
+      const data = await response.json();
+      if (sequence !== publisherLookupSequence ||
+          normalizeDoi(form.elements.namedItem('doi').value) !== normalizedDoi) return;
+      if (typeof data.url === 'string' && /^https:\/\//.test(data.url)) {
+        jifSourceLink.href = data.url;
+        jifSourceLink.hidden = false;
+      }
+      const sourceLabel = String(data.journal || name);
+      if (!data.verified || !Number.isFinite(data.impactFactor) || data.impactFactor <= 0) {
+        journalStatus.textContent = `Journal: ${sourceLabel}. The official Journal Impact Factor was not verified automatically. Enter it manually if needed.`;
+        return;
+      }
+      const yearText = Number.isInteger(data.impactFactorYear)
+        ? String(data.impactFactorYear) : 'year not stated';
+      journalStatus.textContent = `Journal: ${sourceLabel}. Publisher-reported Journal Impact Factor: ${data.impactFactor} (${yearText}).` +
+        (data.impactFactorYear ? '' : ' Check the reporting year before citing this benchmark.');
+      // Do not overwrite a researcher-defined benchmark.
+      const existingRate = form.elements.namedItem('benchmarkRate').value;
+      if (existingRate && !autoJifSourceUrl) {
+        journalStatus.textContent += ' Existing custom benchmark retained.';
+        return;
+      }
+      setField('benchmarkType', 'jif');
+      setField('benchmarkName', `${sourceLabel} ${data.impactFactorYear || '(year not stated)'} Journal Impact Factor`);
+      setField('benchmarkRate', data.impactFactor);
+      setField('benchmarkSource', data.url);
+      autoJifSourceUrl = data.url;
+      if (calculated) calculate();
+    } catch {
+      if (sequence !== publisherLookupSequence) return;
+      journalStatus.textContent = `Journal: ${name}. Automatic publisher Impact Factor lookup is unavailable. You can enter it manually.`;
+    }
+  }
 
   const currentDate = new Date();
   const localDate = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
@@ -532,6 +600,7 @@
     calculate();
   });
   form.addEventListener('input', (event) => {
+    if (event.target.name === 'doi') resetPublisherLookup(true);
     if (event.target.name === 'citationSource' && lastDoiWindow !== null
         && String(event.target.value).trim().toLowerCase() !== 'openalex') {
       // Counts retrieved from OpenAlex must never be relabeled as a different database.
@@ -581,6 +650,7 @@
 
   lookupButton.addEventListener('click', async () => {
     const doi = form.elements.namedItem('doi').value;
+    resetPublisherLookup(true);
     lookupPaper.hidden = true;
     lookupButton.disabled = true;
     lookupButton.textContent = 'Looking up…';
@@ -626,6 +696,8 @@
       renderAnnualTrend(work, endYear, currentYear);
       calculated = true;
       calculate();
+      // Publisher fetching must not block the primary citation results.
+      void lookupPublisherJif(work, normalizeDoi(doi));
     } catch (error) {
       lookupStatus.textContent = error.name === 'AbortError'
         ? 'OpenAlex did not respond within 15 seconds. You can enter citation counts manually.'
@@ -675,6 +747,7 @@
     benchmarkDetails.open = !!row.input.benchmarkRate || !!row.input.benchmarkName;
     reportingDetails.open = !!row.input.selfCitations && row.input.selfCitations !== 'Not specified';
     lookupPaper.hidden = true;
+    resetPublisherLookup(false);
     lastDoiWindow = null;
     annualTrend.hidden = true;
     editingRowId = id;
@@ -714,6 +787,7 @@
     benchmarkDetails.open = true;
     reportingDetails.open = false;
     lookupPaper.hidden = true;
+    resetPublisherLookup(false);
     lastDoiWindow = null;
     annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
@@ -729,6 +803,7 @@
     benchmarkDetails.open = false;
     reportingDetails.open = false;
     lookupPaper.hidden = true;
+    resetPublisherLookup(false);
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
