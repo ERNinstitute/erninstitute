@@ -160,7 +160,7 @@ test('DOI data aligns the lifetime total with the end of the recent complete-yea
   assert.equal(result.now, 16.5);
   assert.ok(result.articleAge > 2.3 && result.articleAge < 2.4);
   assert.ok(result.vsLifetime > 1 && result.vsLifetime < 1.1);
-  assert.match(describeCitationResults(result).lifetime, /through 2025/);
+  assert.match(describeCitationResults(result).lifetime, /During 2024–2025/);
   assert.ok(!result.warnings.some(message => message.includes('unavailable')));
 
   const mismatched = computeCitationMetrics({
