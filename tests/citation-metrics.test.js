@@ -12,7 +12,9 @@ const {
   fetchOpenAlexWork,
   openAlexWindowCounts,
   openAlexLifetimeThrough,
-  buildCitationCsv
+  buildCitationCsv,
+  matchCuratedJournalJif,
+  fetchCuratedJournalJif
 } = require('../citation-metrics.js');
 
 test('matches the existing Excel workbook example', () => {
@@ -233,7 +235,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108jif"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108cognition"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108jif"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -276,4 +278,42 @@ test('benchmark controls remain optional and outside the manual citation panel',
   assert.ok(html.includes('id="citation-benchmark-change"'));
   assert.match(js, /lookupJournalBenchmark\(work, normalizeDoi\(doi\)\)/);
   assert.match(js, /Illustrative annual benchmark \(not a real journal factor\)/);
+});
+
+test('publisher-verified Cognition JIF is available without a server endpoint', async () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const journal = matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '0010-0277');
+  assert.ok(journal, 'Cognition must be found by OpenAlex source ID and canonical ISSN');
+  assert.equal(journal.rate, 3.1);
+  assert.equal(journal.year, 2025);
+  assert.equal(journal.source, 'https://www.sciencedirect.com/journal/cognition');
+  assert.equal(journal.name, 'Cognition 2025 Journal Impact Factor');
+  assert.equal(matchCuratedJournalJif(registry, 'S88198767', 'Different Journal', '0010-0277'), null);
+  assert.equal(matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '1234-5678'), null);
+  assert.equal(matchCuratedJournalJif(registry, 'S999999999', 'Cognition', '0010-0277'), null);
+  const remote = await fetchCuratedJournalJif('S88198767', 'Cognition', '0010-0277', async (url) => {
+    assert.equal(url, '/journal-impact-factors.json?v=20261108a');
+    return { ok: true, json: async () => registry };
+  });
+  assert.deepEqual(remote, journal);
+});
+
+test('Cognition DOI screenshot case produces 2.71 Now vs. Benchmark from 3.1 JIF', () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const journal = matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '0010-0277');
+  const result = computeCitationMetrics({
+    paperTitle: 'Sequential congruency effects reveal differences in disengagement of attention for monolingual and bilingual young adults',
+    doi: '10.1016/j.cognition.2017.02.010',
+    windowMode: 'calendar', startYear: '2021', endYear: '2025',
+    recentCitations: '42', publicationYear: '2017', publicationDate: '2017-03-06',
+    totalCitations: '94', lifetimeThroughYear: '2025',
+    benchmarkType: journal.type, benchmarkName: journal.name,
+    benchmarkRate: String(journal.rate), benchmarkSource: journal.source,
+    citationSource: 'OpenAlex', checkedDate: '2026-11-08'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.now, 8.4);
+  assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
+  assert.match(formatCitationReport(result), /Cognition 2025 Journal Impact Factor/);
+  assert.match(formatCitationReport(result), /sciencedirect.com\/journal\/cognition/);
 });
