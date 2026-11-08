@@ -146,6 +146,9 @@
     if (benchmark !== null && isJournalBenchmark) {
       warnings.push('The Journal Impact Factor is a journal-level comparison, not evidence of an individual paper’s research quality or relative scientific importance.');
     }
+    if (benchmark !== null && benchmarkType === 'openalex') {
+      warnings.push('OpenAlex two-year mean citedness is a journal-level indicator, not the official Journal Impact Factor. Their database coverage and values may differ.');
+    }
 
     return {
       errors: [], warnings, now, lifetime, vsLifetime, vsBenchmark, articleAge,
@@ -178,7 +181,7 @@
           : `The recent citation rate is ${formatNumber(result.vsLifetime)} times the paper’s lifetime annual average of ${formatNumber(result.lifetime)} citations per year${result.windowMode === 'calendar' ? `, calculated through ${result.endYear}` : ''}. This is a comparison with an overlapping lifetime average, not a year-by-year trend measure.`,
       benchmark: result.vsBenchmark === null
         ? 'Enter a named annual benchmark and its value to calculate this comparison.'
-        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : ''}`
+        : `The recent citation rate is ${formatNumber(result.vsBenchmark)} times the ${result.benchmarkName} benchmark of ${formatNumber(result.benchmark)} citations per year.${result.isJournalBenchmark ? ' This is a journal-level reference, not a measure of the paper’s quality.' : result.benchmarkType === 'openalex' ? ' This is OpenAlex journal-level mean citedness, not an official Journal Impact Factor.' : ''}`
     };
   }
 
@@ -286,6 +289,31 @@
     return throughYear;
   }
 
+  async function fetchOpenAlexJournal(sourceId, fetcher = fetch, options = {}) {
+    if (!/^S\d{3,15}$/.test(String(sourceId || ''))) throw new Error('Invalid OpenAlex journal ID.');
+    const response = await fetcher(`https://api.openalex.org/sources/${sourceId}`,
+      { headers: { Accept: 'application/json' }, signal: options.signal });
+    if (!response.ok) throw new Error('OpenAlex journal lookup unavailable.');
+    const journal = await response.json();
+    if (journal.type !== 'journal' || String(journal.id || '').split('/').pop() !== sourceId) {
+      throw new Error('The source is not the matching journal.');
+    }
+    return journal;
+  }
+
+  function openAlexJournalBenchmark(journal, checkedDate) {
+    if (journal?.type !== 'journal') return null;
+    const rate = journal.summary_stats?.['2yr_mean_citedness'];
+    const sourceId = String(journal.id || '').match(/S\d{3,15}$/)?.[0];
+    if (!sourceId || !Number.isFinite(rate) || rate <= 0) return null;
+    return {
+      type: 'openalex', rate,
+      name: `${journal.display_name} — OpenAlex two-year mean citedness (checked ${checkedDate})`,
+      source: `https://openalex.org/sources/${sourceId}`,
+      journal: String(journal.display_name || '')
+    };
+  }
+
   const csvHeaders = [
     'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
@@ -314,7 +342,7 @@
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, fetchOpenAlexJournal, openAlexJournalBenchmark, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -338,6 +366,7 @@
   const lookupPaper = document.getElementById('citation-doi-paper');
   const journalStatus = document.getElementById('citation-journal-status');
   const jifSourceLink = document.getElementById('citation-jif-source-link');
+  const changeBenchmarkButton = document.getElementById('citation-benchmark-change');
   const manualDetails = document.getElementById('citation-manual-details');
   const datesDetails = document.getElementById('citation-dates-details');
   const benchmarkDetails = document.getElementById('citation-benchmark-details');
