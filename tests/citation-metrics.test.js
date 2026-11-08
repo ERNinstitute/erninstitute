@@ -339,10 +339,10 @@ test('one manual Impact Factor number calculates the comparison without name or 
 test('a 0.79 lifetime ratio is described as 21 percent below the lifetime rate', () => {
   const result = computeCitationMetrics({
     recentCitations: '42', recentYears: '5',
-    publicationYear: '2017', totalCitations: '107'
+    publicationYear: '2017', totalCitations: '96'
   }, 2026);
   assert.deepEqual(result.errors, []);
-  assert.ok(result.vsLifetime > 0.7 && result.vsLifetime < 0.8);
-  assert.match(describeCitationResults(result).lifetime, /below its lifetime average/);
+  assert.ok(result.vsLifetime > 0.78 && result.vsLifetime < 0.80);
+  assert.match(describeCitationResults(result).lifetime, /21% below its lifetime average/);
   assert.doesNotMatch(describeCitationResults(result).lifetime, /not a year-by-year|has declined over time/);
 });
