@@ -706,6 +706,9 @@
         setField('benchmarkName', '');
         setField('benchmarkSource', '');
       }
+      if (lastJournalName && !form.elements.namedItem('benchmarkName').value) {
+        setField('benchmarkName', `${lastJournalName} 2-year Journal Impact Factor (year not entered)`);
+      }
       setField('benchmarkType', 'jif-unverified');
       manualBenchmark = true;
       autoBenchmarkSource = null;
