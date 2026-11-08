@@ -233,8 +233,8 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261106b"></script>'));
-  assert.ok(html.includes('href="styles.css?v=20261106b"'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261107jif"></script>'));
+  assert.ok(html.includes('href="styles.css?v=20261107jif"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
   assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
