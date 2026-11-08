@@ -390,6 +390,7 @@
   const journalStatus = document.getElementById('citation-journal-status');
   const jifSourceLink = document.getElementById('citation-jif-source-link');
   const changeBenchmarkButton = document.getElementById('citation-benchmark-change');
+  const advancedDetails = document.getElementById('citation-advanced-details');
   const manualDetails = document.getElementById('citation-manual-details');
   const datesDetails = document.getElementById('citation-dates-details');
   const benchmarkDetails = document.getElementById('citation-benchmark-details');
@@ -413,6 +414,7 @@
   let autoBenchmarkSource = null;
   let manualBenchmark = false;
   let lastLookedUpDoi = null;
+  let lastJournalName = '';
 
   function resetPublisherLookup(clearAuto = false) {
     publisherLookupSequence++;
@@ -460,6 +462,7 @@
   async function lookupJournalBenchmark(work, doi) {
     const journal = findJournal(work);
     const name = String(journal?.display_name || '');
+    lastJournalName = name;
     const sourceId = String(journal?.id || '').match(/\/S\d{3,15}$/)?.[0]?.slice(1);
     const sequence = ++publisherLookupSequence;
     journalStatus.hidden = false;
@@ -693,8 +696,21 @@
     calculate();
   });
   form.addEventListener('input', (event) => {
-    if (event.target.name === 'doi') resetPublisherLookup(true);
-    if (['benchmarkType', 'benchmarkName', 'benchmarkRate', 'benchmarkSource'].includes(event.target.name)) {
+    if (event.target.name === 'doi') {
+      resetPublisherLookup(true);
+      lastJournalName = '';
+    }
+    if (event.target.name === 'benchmarkRate') {
+      // A manual value must never inherit the previous publisher's source or year.
+      if (autoBenchmarkSource) {
+        setField('benchmarkName', '');
+        setField('benchmarkSource', '');
+      }
+      setField('benchmarkType', 'jif-unverified');
+      manualBenchmark = true;
+      autoBenchmarkSource = null;
+      changeBenchmarkButton.hidden = false;
+    } else if (['benchmarkType', 'benchmarkName', 'benchmarkSource'].includes(event.target.name)) {
       manualBenchmark = true;
       autoBenchmarkSource = null;
     }
@@ -750,9 +766,9 @@
     resetPublisherLookup(true);
     try {
       const normalized = normalizeDoi(doi);
-      if (lastLookedUpDoi !== normalized) {
+      if (lastLookedUpDoi && lastLookedUpDoi !== normalized) {
         ['benchmarkName', 'benchmarkRate', 'benchmarkSource'].forEach(name => setField(name, ''));
-        setField('benchmarkType', 'annual');
+        setField('benchmarkType', 'jif-unverified');
         manualBenchmark = false;
       }
       lastLookedUpDoi = normalized;
@@ -791,6 +807,11 @@
       setField('recentYears', endYear - startYear + 1);
       setField('citationSource', 'OpenAlex');
       setField('checkedDate', localDate);
+      if (manualBenchmark && form.elements.namedItem('benchmarkRate').value &&
+          !form.elements.namedItem('benchmarkName').value) {
+        const name = findJournal(work)?.display_name || 'Journal';
+        setField('benchmarkName', `${name} 2-year Journal Impact Factor (year not entered)`);
+      }
       setField('selfCitations', 'Not specified');
       updateWindowMode();
       lastDoiWindow = citationWindowSignature();
@@ -816,9 +837,10 @@
   });
 
   changeBenchmarkButton.addEventListener('click', () => {
+    advancedDetails.open = true;
     benchmarkDetails.open = true;
     benchmarkDetails.scrollIntoView({ block: 'nearest' });
-    form.elements.namedItem('benchmarkRate').focus();
+    form.elements.namedItem('benchmarkName').focus();
   });
 
   addButton.addEventListener('click', () => {
@@ -854,6 +876,7 @@
       return;
     }
     fields.forEach((field) => { field.value = row.input[field.name] ?? ''; });
+    advancedDetails.open = true;
     manualDetails.open = true;
     datesDetails.open = !!row.input.lifetimeThroughYear || !!row.input.publicationDate;
     benchmarkDetails.open = !!row.input.benchmarkRate || !!row.input.benchmarkName;
@@ -862,6 +885,7 @@
     resetPublisherLookup(false);
     manualBenchmark = true;
     lastLookedUpDoi = null;
+    lastJournalName = '';
     lastDoiWindow = null;
     annualTrend.hidden = true;
     editingRowId = id;
@@ -896,6 +920,7 @@
       checkedDate: localDate, selfCitations: 'Included'
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
+    advancedDetails.open = true;
     manualDetails.open = true;
     datesDetails.open = false;
     benchmarkDetails.open = false;
@@ -904,6 +929,7 @@
     resetPublisherLookup(false);
     manualBenchmark = true;
     lastLookedUpDoi = null;
+    lastJournalName = '';
     lastDoiWindow = null;
     annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
@@ -914,6 +940,7 @@
   });
   document.getElementById('citation-metrics-clear').addEventListener('click', () => {
     form.reset();
+    advancedDetails.open = false;
     manualDetails.open = false;
     datesDetails.open = false;
     benchmarkDetails.open = false;
@@ -922,6 +949,7 @@
     resetPublisherLookup(false);
     manualBenchmark = false;
     lastLookedUpDoi = null;
+    lastJournalName = '';
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
