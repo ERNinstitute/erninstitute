@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261108auto" rel="stylesheet"/>
+<link href="styles.css?v=20261108jif" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -167,12 +167,12 @@
         <summary>Change the automatically selected benchmark <span>(optional)</span></summary>
       <fieldset>
         <div class="citation-fields">
-          <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="annual">Other annual citation benchmark</option><option value="jif">Journal Impact Factor (official, journal-level)</option><option value="openalex">OpenAlex two-year mean citedness (not a Journal Impact Factor)</option></select></div>
+          <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="annual">Other annual citation benchmark</option><option value="jif">Journal Impact Factor (official, journal-level)</option><option value="jif-unverified">Publisher-listed Impact Factor (year unconfirmed)</option></select></div>
           <div class="citation-field citation-field-full"><label for="citation-benchmark-name">Benchmark name and year</label><input id="citation-benchmark-name" name="benchmarkName" type="text" placeholder="e.g., 2025 two-year Journal Impact Factor"/></div>
           <div class="citation-field"><label for="citation-benchmark-rate">Benchmark citations per year</label><input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="e.g., 3.0"/></div>
           <div class="citation-field"><label for="citation-benchmark-source">Benchmark source</label><input id="citation-benchmark-source" name="benchmarkSource" type="text" placeholder="e.g., Journal Citation Reports"/></div>
         </div>
-        <p class="citation-field-note">DOI lookup chooses a journal benchmark automatically when available. A verified publisher Journal Impact Factor takes priority; otherwise, the calculator may use OpenAlex two-year mean citedness, which is a different metric. Only change these fields if you prefer another verified reference. None of these values measures an individual paper’s research quality.</p>
+        <p class="citation-field-note">The DOI lookup checks the publisher’s journal page and automatically fills a Journal Impact Factor when one is found. If the publisher does not state its reporting year, the value is marked provisional until checked. These fields are only for choosing another benchmark; no manual entry is needed for the first two citation metrics. A Journal Impact Factor does not measure a paper’s research quality.</p>
       </fieldset>
       </details>
       <div class="citation-form-secondary-actions"><button class="citation-clear-button" id="citation-metrics-example" type="button">Try an example</button><button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear form</button></div>
@@ -288,7 +288,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261108auto"></script>
+<script src="citation-metrics.js?v=20261108jif"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
