@@ -133,7 +133,7 @@
     const vsLifetime = lifetime === null || lifetime === 0 ? null : now / lifetime;
     const vsBenchmark = benchmark === null ? null : now / benchmark;
     if (windowMode === 'calendar' && endYear === currentYear) {
-      warnings.push(`The ${currentYear} calendar year is not yet complete; counts for this year may be partial.`);
+      warnings.push(`The ${currentYear} calendar year is not yet complete; its citation count is year to date, and the recent rate is annualized over elapsed time.`);
     }
     if (windowMode !== 'calendar' && articleAge !== null && recentYears > articleAge) {
       warnings.push(`The recent window (${recentYears} years) exceeds the paper’s age used by the calculator (${articleAge} years). Confirm that this is the period you intend to report.`);
@@ -150,6 +150,7 @@
     return {
       errors: [], warnings, now, lifetime, vsLifetime, vsBenchmark, articleAge,
       recentCitations, recentYears, observationYears, totalCitations, publicationYear,
+      currentYearPartial: windowMode === 'calendar' && endYear === currentYear,
       publicationDate: publicationDateText, lifetimeThroughYear, comparisonAligned, windowMode, startYear, endYear,
       benchmark, benchmarkName,
       benchmarkSource: String(input.benchmarkSource || '').trim(), benchmarkType, jifWindow, isJournalBenchmark,
@@ -167,7 +168,7 @@
 
   function describeCitationResults(result) {
     const windowDescription = result.windowMode === 'calendar'
-      ? `${result.startYear}–${result.endYear}`
+      ? `${result.startYear}–${result.endYear}${result.currentYearPartial ? ' (current year to date)' : ''}`
       : `the selected ${result.recentYears}-year period`;
     let lifetimeDescription;
     if (result.lifetime === null) {
@@ -515,6 +516,7 @@
   const durationField = document.getElementById('citation-duration-field');
   const calendarFields = document.getElementById('citation-calendar-fields');
   const windowModeField = form.elements.namedItem('windowMode');
+  const quickWindowField = document.getElementById('citation-quick-window');
   let calculated = false;
   let latestResult = null;
   let comparisonRows = [];
@@ -662,6 +664,16 @@
   function setField(name, value) {
     const field = form.elements.namedItem(name);
     if (field) field.value = value ?? '';
+  }
+
+  function updateQuickWindowLabels() {
+    const year = new Date().getFullYear();
+    quickWindowField.querySelector('option[value="completed"]').textContent =
+      `Last 2 completed years (${year - 2}–${year - 1})`;
+    quickWindowField.querySelector('option[value="current"]').textContent =
+      `Include ${year} citations (${year - 1}–${year} YTD)`;
+    document.getElementById('citation-quick-window-note').textContent =
+      `The current-year option includes ${year} citations recorded so far, annualized over elapsed calendar time; it is not an exact trailing 24-month window.`;
   }
 
   function updateWindowMode() {
@@ -863,6 +875,9 @@
         && !form.elements.namedItem('lifetimeThroughYear').value) {
       datesDetails.open = true;
     }
+    if (['windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)) {
+      quickWindowField.value = 'custom';
+    }
     if (lastDoiWindow !== null && ['doi', 'windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)
         && citationWindowSignature() !== lastDoiWindow) {
       setField('recentCitations', '');
@@ -900,7 +915,21 @@
     }
     if (calculated) calculate();
   });
+  updateQuickWindowLabels();
   updateWindowMode();
+
+  quickWindowField.addEventListener('change', () => {
+    if (quickWindowField.value === 'custom') {
+      advancedDetails.open = true;
+      manualDetails.open = true;
+      return;
+    }
+    if (lookupInput.value.trim()) {
+      if (!lookupButton.disabled) lookupButton.click();
+    } else {
+      lookupStatus.textContent = 'Enter a DOI and select Get citation metrics to retrieve this citation period.';
+    }
+  });
 
   lookupInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
@@ -933,8 +962,13 @@
       const input = readInput();
       const currentYear = new Date().getFullYear();
       const duration = Number(input.recentYears);
-      const startYear = input.windowMode === 'calendar' ? Number(input.startYear) : currentYear - duration;
-      const endYear = input.windowMode === 'calendar' ? Number(input.endYear) : currentYear - 1;
+      const quickMode = quickWindowField.value;
+      const startYear = quickMode === 'current' ? currentYear - 1
+        : quickMode === 'completed' ? currentYear - 2
+          : input.windowMode === 'calendar' ? Number(input.startYear) : currentYear - duration;
+      const endYear = quickMode === 'current' ? currentYear
+        : quickMode === 'completed' ? currentYear - 1
+          : input.windowMode === 'calendar' ? Number(input.endYear) : currentYear - 1;
       const recentCitations = openAlexWindowCounts(work, startYear, endYear, currentYear);
       let cumulativeCitations = null;
       let cumulativeWarning = '';
@@ -944,6 +978,7 @@
         cumulativeWarning = error.message;
       }
       setField('doi', normalizeDoi(doi));
+      setField('checkedDate', localDate);
       setField('paperTitle', work.display_name);
       setField('publicationYear', work.publication_year);
       setField('publicationDate', work.publication_date || '');
@@ -1025,6 +1060,7 @@
       return;
     }
     fields.forEach((field) => { field.value = row.input[field.name] ?? ''; });
+    quickWindowField.value = 'custom';
     advancedDetails.open = true;
     manualDetails.open = true;
     datesDetails.open = !!row.input.lifetimeThroughYear || !!row.input.publicationDate;
@@ -1070,6 +1106,7 @@
       checkedDate: localDate, selfCitations: 'Included'
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
+    quickWindowField.value = 'custom';
     advancedDetails.open = true;
     manualDetails.open = true;
     datesDetails.open = false;
@@ -1091,6 +1128,7 @@
   });
   document.getElementById('citation-metrics-clear').addEventListener('click', () => {
     form.reset();
+    quickWindowField.value = 'completed';
     advancedDetails.open = false;
     manualDetails.open = false;
     datesDetails.open = false;
