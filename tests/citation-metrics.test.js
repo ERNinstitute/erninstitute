@@ -586,3 +586,30 @@ test('SCImago fetched fallback demands full official annual snapshot', async () 
   assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
   assert.match(html, /citation-metrics\.js\?v=20261108scimago/);
 });
+
+test('current-year citation window annualizes elapsed time and labels YTD', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '12', totalCitations: '50', publicationYear: '2020',
+    windowMode: 'calendar', startYear: '2025', endYear: '2026',
+    lifetimeThroughYear: '2026', checkedDate: '2026-11-09', benchmarkRate: '3'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.currentYearPartial, true);
+  assert.ok(result.observationYears > 1.8 && result.observationYears < 1.9);
+  assert.ok(result.now > 6 && result.now < 7);
+  assert.ok(result.vsLifetime > 0);
+  assert.match(describeCitationResults(result).now, /2025–2026 \(current year to date\)/);
+  assert.ok(result.warnings.some(message => message.includes('annualized over elapsed time')));
+});
+
+test('completed-year window remains a full two-year window', () => {
+  const result = computeCitationMetrics({
+    recentCitations: '12', totalCitations: '40', publicationYear: '2020',
+    windowMode: 'calendar', startYear: '2024', endYear: '2025',
+    lifetimeThroughYear: '2025', checkedDate: '2026-11-09'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.currentYearPartial, false);
+  assert.equal(result.observationYears, 2);
+  assert.equal(result.now, 6);
+});
