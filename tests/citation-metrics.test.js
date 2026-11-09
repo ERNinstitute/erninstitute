@@ -14,7 +14,9 @@ const {
   openAlexLifetimeThrough,
   buildCitationCsv,
   matchCuratedJournalJif,
-  fetchCuratedJournalJif
+  fetchCuratedJournalJif,
+  matchPublisherBatchJif,
+  fetchPublisherBatchJif
 } = require('../citation-metrics.js');
 
 test('matches the existing Excel workbook example', () => {
@@ -459,4 +461,57 @@ test('live JEP LMC DOI regression uses APA JIF instead of reporting unavailable'
   assert.equal(Number(result5.vsBenchmark.toFixed(2)), 10.18);
   assert.match(describeCitationResults(result2).benchmark, /2-year Journal Impact Factor/);
   assert.match(describeCitationResults(result5).benchmark, /5-year Journal Impact Factor/);
+});
+
+test('publisher-wide 2025 snapshot covers APA, Nature and Wiley with both JIF windows', async () => {
+  const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors-batch.json'), 'utf8'));
+  assert.equal(snapshot.schema_version, 1);
+  assert.equal(snapshot.metric_year, 2025);
+  const coverage = snapshot.collections.map(x => [x.publisher, x.rows.length]);
+  assert.deepEqual(coverage, [
+    ['American Psychological Association', 80],
+    ['Springer Nature (Nature Portfolio)', 7],
+    ['Wiley', 1]
+  ]);
+  assert.equal(coverage.reduce((n, row) => n + row[1], 0), 88);
+
+  const review = matchPublisherBatchJif(snapshot, 'Psychological Review', '2');
+  const reviewFive = matchPublisherBatchJif(snapshot, 'Psychological Review', '5');
+  assert.equal(review.rate, 5.7);
+  assert.equal(reviewFive.rate, 7.4);
+  assert.match(review.source, /apa\.org\/pubs\/journals\/resources\/impact-factors/);
+  assert.equal(review.year, 2025);
+
+  const methods = matchPublisherBatchJif(snapshot, 'Nature Methods', '5');
+  assert.equal(methods.rate, 52.4);
+  assert.equal(methods.year, 2025);
+  assert.equal(methods.source, 'https://www.nature.com/nmeth/journal-impact');
+
+  const wiley = matchPublisherBatchJif(snapshot, 'The Journal of Pathology: Clinical Research', '2');
+  assert.equal(wiley.rate, 4.1);
+  assert.match(wiley.source, /wiley\.com/);
+
+  assert.equal(matchPublisherBatchJif(snapshot, 'Journal We Did Not Verify', '2'), null);
+  assert.equal(matchPublisherBatchJif(snapshot, '', '2'), null);
+  const duplicate = JSON.parse(JSON.stringify(snapshot));
+  duplicate.collections[1].rows.push(['Psychological Review', 9, 10, 'https://www.nature.com/nature/journal-impact', 2025]);
+  assert.equal(matchPublisherBatchJif(duplicate, 'Psychological Review', '2'), null);
+  const retrieved = await fetchPublisherBatchJif('Psychological Review', '5',
+    async (url) => {
+      assert.equal(url, '/journal-impact-factors-batch.json?v=20261108batch2');
+      return { ok: true, json: async () => snapshot };
+    });
+  assert.equal(retrieved.rate, 7.4);
+});
+
+test('publisher snapshot preserves per-journal reporting years during annual refreshes', () => {
+  const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors-batch.json'), 'utf8'));
+  const revised = JSON.parse(JSON.stringify(snapshot));
+  revised.collections[0].metric_year = 2026;
+  revised.metric_year = 2026;
+  // Another publisher still reports its independently verified 2025 metrics.
+  const nature = matchPublisherBatchJif(revised, 'Nature', '2');
+  assert.equal(nature.year, 2025);
+  const apa = matchPublisherBatchJif(revised, 'Psychological Review', '2');
+  assert.equal(apa.year, 2026);
 });
