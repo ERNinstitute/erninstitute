@@ -215,8 +215,10 @@ test('describes the displayed rates and ratios in plain language', () => {
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 44.5);
   const descriptions = describeCitationResults(result);
-  assert.match(descriptions.now, /89 citations during the selected 2-year period, averaging 44\.50 per year/);
-  assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 per year\)/);
+  assert.match(descriptions.now, /during the selected 2-year period, this paper received 89 citations, averaging 44\.50 citations per year/);
+  assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 citations per year\)/);
+  assert.match(descriptions.lifetime, /attracting citations faster recently/);
+  assert.match(descriptions.benchmark, /compares citation activity with a journal-level or other external benchmark/);
   assert.match(descriptions.benchmark, /14\.83 times as high as the IF 2-year \(3\.00\)/);
   assert.match(formatCitationReport(result), /200% above its lifetime average/);
 });
