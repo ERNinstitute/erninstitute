@@ -117,7 +117,7 @@ test('journal-level benchmark has a concise functional interpretation', () => {
     benchmarkType: 'jif', benchmarkRate: '3'
   }, 2026);
   assert.deepEqual(result.errors, []);
-  assert.match(describeCitationResults(result).benchmark, /14\.83 times as high as the 2025 Journal Impact Factor \(3\.00\)/);
+  assert.match(describeCitationResults(result).benchmark, /1383% above the 2025 Journal Impact Factor \(3\.00 citations per year\)/);
   assert.equal(result.isJournalBenchmark, true);
   assert.ok(!result.warnings.some(message => message.includes('research quality')));
 });
@@ -219,7 +219,8 @@ test('describes the displayed rates and ratios in plain language', () => {
   assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 citations per year\)/);
   assert.match(descriptions.lifetime, /attracting citations faster recently/);
   assert.match(descriptions.benchmark, /compares citation activity with a journal-level or other external benchmark/);
-  assert.match(descriptions.benchmark, /14\.83 times as high as the IF 2-year \(3\.00\)/);
+  assert.doesNotMatch(descriptions.benchmark, /times as high as/);
+  assert.match(descriptions.benchmark, /1383% above the IF 2-year \(3\.00 citations per year\)/);
   assert.match(formatCitationReport(result), /200% above its lifetime average/);
 });
 
@@ -338,7 +339,7 @@ test('one manual Impact Factor number calculates the comparison without name or 
   assert.equal(result.now, 8.4);
   assert.equal(result.benchmarkName, '2-year Journal Impact Factor');
   assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
-  assert.match(describeCitationResults(result).benchmark, /2\.71 times as high as the 2-year Journal Impact Factor \(3\.10\)/);
+  assert.match(describeCitationResults(result).benchmark, /171% above the 2-year Journal Impact Factor \(3\.10 citations per year\)/);
   assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
 });
 
@@ -553,7 +554,7 @@ test('SCImago 2-year citations per document is a clearly named alternative bench
   }, 2026);
   assert.deepEqual(result.errors, []);
   assert.equal(result.vsBenchmark, 2);
-  assert.match(describeCitationResults(result).benchmark, /2\.00 times as high as/);
+  assert.match(describeCitationResults(result).benchmark, /100% above/);
   assert.match(formatCitationReport(result), /SCImago Cites per Doc/);
   assert.doesNotMatch(formatCitationReport(result), /Verify the exact JIF year/);
   assert.equal(result.benchmarkType, 'scimago-cpd2');
