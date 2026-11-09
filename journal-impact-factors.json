@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "updated_utc": "2026-11-08",
-  "description": "Conservatively curated publisher-listed JIFs for client-side fallback when a publisher/API lookup is unavailable. Each entry is keyed by its OpenAlex journal ID. Do not infer missing values.",
+  "description": "Source-verified publisher Journal Impact Factors for static-host fallback, with separate two- and five-year measures. Each record is keyed by exact OpenAlex journal ID; never infer missing factors.",
   "journals": {
     "S88198767": {
       "journal": "Cognition",
@@ -13,6 +13,34 @@
       "year_corrob": "https://referencecitationanalysis.com/InCiteJournalInfo?id=6749",
       "checked_date": "2026-11-08",
       "note": "Publisher journal page shows Impact Factor 3.1; independent 2025 JCR listings identify 2025 as its reporting year."
+    },
+    "S24095051": {
+      "journal": "Bilingualism: Language and Cognition",
+      "issn_l": "1366-7289",
+      "publisher": "Cambridge University Press",
+      "impact_factor": 2.4,
+      "impact_factor_year": 2025,
+      "impact_factor_5yr": 3.7,
+      "impact_factor_5yr_year": null,
+      "publisher_page": "https://www.cambridge.org/core/journals/bilingualism-language-and-cognition",
+      "metrics_page": "https://www.cambridge.org/core/journals/bilingualism-language-and-cognition/information/about-this-journal/journal-metrics",
+      "year_corrob": "https://www.cambridge.org/core/journals/bilingualism-language-and-cognition",
+      "checked_date": "2026-11-08",
+      "note": "Cambridge's metrics page lists two-year JIF 2.4 and five-year JIF 3.7. The journal page explicitly identifies the 2.4 value as the 2025 JIF; five-year reporting year is not printed on the consulted metrics page."
+    },
+    "S18666220": {
+      "journal": "Journal of Experimental Psychology: Learning, Memory, and Cognition",
+      "issn_l": "0278-7393",
+      "publisher": "American Psychological Association",
+      "impact_factor": 2.3,
+      "impact_factor_year": 2025,
+      "impact_factor_5yr": 2.8,
+      "impact_factor_5yr_year": 2025,
+      "publisher_page": "https://www.apa.org/pubs/journals/xlm",
+      "metrics_page": "https://www.apa.org/pubs/journals/resources/impact-factors",
+      "year_corrob": "https://www.apa.org/pubs/journals/resources/impact-factors",
+      "checked_date": "2026-11-08",
+      "note": "APA's official 2025 impact factor listing states two-year 2.3 and five-year 2.8 for this journal. Both are publisher-reported Clarivate JIFs."
     }
   }
 }
