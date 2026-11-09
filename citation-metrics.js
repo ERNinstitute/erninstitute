@@ -67,6 +67,7 @@
     }
 
     const benchmarkType = String(input.benchmarkType || 'jif-unverified');
+    const jifWindow = String(input.jifWindow || '2') === '5' ? '5' : '2';
     let benchmarkName = String(input.benchmarkName || '').trim();
     let benchmark = null;
     if (input.benchmarkRate !== '' && input.benchmarkRate !== null && input.benchmarkRate !== undefined) {
@@ -74,7 +75,7 @@
       if (!Number.isFinite(benchmark) || benchmark <= 0) {
         errors.push('Benchmark annual rate must be greater than zero.');
       }
-      if (!benchmarkName) benchmarkName = benchmarkType === 'annual' ? 'annual citation benchmark' : '2-year Journal Impact Factor';
+      if (!benchmarkName) benchmarkName = benchmarkType === 'annual' ? 'annual citation benchmark' : `${jifWindow}-year Journal Impact Factor`;
     }
 
     if (errors.length) return { errors };
@@ -151,7 +152,7 @@
       recentCitations, recentYears, observationYears, totalCitations, publicationYear,
       publicationDate: publicationDateText, lifetimeThroughYear, comparisonAligned, windowMode, startYear, endYear,
       benchmark, benchmarkName,
-      benchmarkSource: String(input.benchmarkSource || '').trim(), benchmarkType, isJournalBenchmark,
+      benchmarkSource: String(input.benchmarkSource || '').trim(), benchmarkType, jifWindow, isJournalBenchmark,
       paperTitle: String(input.paperTitle || '').trim(),
       doi: String(input.doi || '').trim(),
       citationSource: String(input.citationSource || '').trim(),
@@ -303,24 +304,29 @@
     return throughYear;
   }
 
-  function matchCuratedJournalJif(data, sourceId, journalName, journalIssn = '') {
+  function matchCuratedJournalJif(data, sourceId, journalName, journalIssn = '', jifWindow = '2') {
     if (!/^S\d{3,15}$/.test(String(sourceId || ''))) return null;
     const entry = data?.journals?.[sourceId];
     if (!entry || typeof entry !== 'object') return null;
-    const normalize = value => String(value || '').toLowerCase().trim().replace(/\s+/g, ' ');
+    const normalize = value => String(value || '').normalize('NFKD')
+      .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
     if (!normalize(journalName) || normalize(entry.journal) !== normalize(journalName)) return null;
     if (journalIssn && entry.issn_l && journalIssn !== entry.issn_l) return null;
-    if (!(Number.isFinite(entry.impact_factor) && entry.impact_factor > 0 && entry.impact_factor < 100)) return null;
-    const year = Number(entry.impact_factor_year);
-    if (!Number.isSafeInteger(year) || year < 2000 || year > new Date().getFullYear()) return null;
-    const page = String(entry.publisher_page || '');
+    const window = String(jifWindow) === '5' ? '5' : '2';
+    const rate = entry[window === '5' ? 'impact_factor_5yr' : 'impact_factor'];
+    const yearRaw = entry[window === '5' ? 'impact_factor_5yr_year' : 'impact_factor_year'];
+    if (!(Number.isFinite(rate) && rate > 0 && rate < 100)) return null;
+    const year = yearRaw === null || yearRaw === undefined ? null : Number(yearRaw);
+    if (year !== null && (!Number.isSafeInteger(year) || year < 2000 || year > new Date().getFullYear())) return null;
+    const page = String(entry.metrics_page || entry.publisher_page || '');
     if (!/^https:\/\//i.test(page)) return null;
+    const period = window === '5' ? '5-year ' : '';
     return {
-      type: 'jif',
-      name: `${entry.journal} ${year} Journal Impact Factor`,
-      rate: entry.impact_factor,
-      source: page,
-      year,
+      type: year === null ? 'jif-unverified' : 'jif',
+      name: year === null
+        ? `${entry.journal} ${window}-year Journal Impact Factor (year unconfirmed)`
+        : `${entry.journal} ${year} ${period}Journal Impact Factor`,
+      rate, source: page, year, window,
       checkedDate: String(entry.checked_date || ''),
       yearSource: String(entry.year_corrob || ''),
       journal: entry.journal
@@ -329,12 +335,12 @@
 
   async function fetchCuratedJournalJif(sourceId, journalName, journalIssn = '', fetcher = fetch, options = {}) {
     if (!/^S\d{3,15}$/.test(String(sourceId || ''))) return null;
-    const response = await fetcher('/journal-impact-factors.json?v=20261108a',
+    const response = await fetcher('/journal-impact-factors.json?v=20261108factors',
       { headers: { Accept: 'application/json' }, signal: options.signal });
     if (!response.ok) return null;
     const registry = await response.json();
     if (registry?.schema_version !== 1) return null;
-    return matchCuratedJournalJif(registry, sourceId, journalName, journalIssn);
+    return matchCuratedJournalJif(registry, sourceId, journalName, journalIssn, options.jifWindow);
   }
 
   const csvHeaders = [
@@ -415,6 +421,7 @@
   let manualBenchmark = false;
   let lastLookedUpDoi = null;
   let lastJournalName = '';
+  let lastLookedUpWork = null;
 
   function resetPublisherLookup(clearAuto = false) {
     publisherLookupSequence++;
@@ -424,7 +431,7 @@
     changeBenchmarkButton.hidden = true;
     if (clearAuto && autoBenchmarkSource &&
         form.elements.namedItem('benchmarkSource').value === autoBenchmarkSource) {
-      setField('benchmarkType', 'annual');
+      setField('benchmarkType', 'jif-unverified');
       setField('benchmarkName', '');
       setField('benchmarkRate', '');
       setField('benchmarkSource', '');
@@ -464,6 +471,7 @@
     const name = String(journal?.display_name || '');
     lastJournalName = name;
     const sourceId = String(journal?.id || '').match(/\/S\d{3,15}$/)?.[0]?.slice(1);
+    const selectedWindow = form.elements.namedItem('jifWindow').value === '5' ? '5' : '2';
     const sequence = ++publisherLookupSequence;
     journalStatus.hidden = false;
     if (!name || !sourceId) {
@@ -472,30 +480,34 @@
         : 'No journal was identified. The journal benchmark is optional.';
       return;
     }
-    journalStatus.textContent = `Journal: ${name}. Checking the publisher’s Impact Factor…`;
+    journalStatus.textContent = `Journal: ${name}. Checking the ${selectedWindow}-year Journal Impact Factor…`;
     // The static, source-documented registry works on GitHub Pages and other static hosts.
     // The separate server-side parser remains best effort for journals not in that registry.
-    const publisher = fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
-      { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
-      .then(async response => response.ok ? response.json() : null).catch(() => null);
+    const publisher = selectedWindow === '2'
+      ? fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
+        { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
+        .then(async response => response.ok ? response.json() : null).catch(() => null)
+      : Promise.resolve(null); // Endpoint only verifies the ordinary 2-year JIF.
 
     let cached = null;
     try {
       cached = await fetchCuratedJournalJif(sourceId, name, String(journal?.issn_l || ''), fetch,
-        { signal: AbortSignal.timeout(6500) });
+        { signal: AbortSignal.timeout(6500), jifWindow: selectedWindow });
     } catch { /* The publisher lookup may still succeed. */ }
     if (sequence !== publisherLookupSequence ||
         normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
 
     if (cached && applyAutomaticBenchmark(cached)) {
-      journalStatus.textContent = `Journal: ${name}. ${cached.year} Journal Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; verified ${cached.checkedDate}).`;
+      journalStatus.textContent = cached.year
+        ? `Journal: ${name}. ${cached.year} ${selectedWindow}-year Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; checked ${cached.checkedDate}).`
+        : `Journal: ${name}. ${selectedWindow}-year Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; reporting year unconfirmed).`;
       showBenchmarkSource(cached.source, 'View journal’s publisher page');
     }
 
     const data = await publisher;
     if (sequence !== publisherLookupSequence ||
         normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
-    if (data?.verified && Number.isFinite(data.impactFactor) && data.impactFactor > 0) {
+    if (selectedWindow === '2' && data?.verified && Number.isFinite(data.impactFactor) && data.impactFactor > 0) {
       const label = String(data.journal || name);
       const year = Number.isInteger(data.impactFactorYear) ? data.impactFactorYear : null;
       // A dated source-documented benchmark takes precedence over undated or older HTML.
@@ -515,7 +527,7 @@
         }
       }
     } else if (!cached) {
-      journalStatus.textContent = `Journal: ${name}. The publisher metric could not be retrieved automatically. The first two citation metrics remain available.`;
+      journalStatus.textContent = `Journal: ${name}. No verified ${selectedWindow}-year Impact Factor is available automatically. Enter the figure manually if desired.`;
       if (typeof data?.url === 'string') showBenchmarkSource(data.url, 'View publisher journal page');
     }
   }
@@ -699,6 +711,7 @@
     if (event.target.name === 'doi') {
       resetPublisherLookup(true);
       lastJournalName = '';
+      lastLookedUpWork = null;
     }
     if (event.target.name === 'benchmarkRate') {
       // A manual value must never inherit the previous publisher's source or year.
@@ -707,7 +720,7 @@
         setField('benchmarkSource', '');
       }
       if (lastJournalName && !form.elements.namedItem('benchmarkName').value) {
-        setField('benchmarkName', `${lastJournalName} 2-year Journal Impact Factor (year not entered)`);
+        setField('benchmarkName', `${lastJournalName} ${form.elements.namedItem('jifWindow').value}-year Journal Impact Factor (year not entered)`);
       }
       setField('benchmarkType', 'jif-unverified');
       manualBenchmark = true;
@@ -743,7 +756,20 @@
     }
     if (calculated) calculate();
   });
-  form.addEventListener('change', () => {
+  form.addEventListener('change', (event) => {
+    if (event.target.name === 'jifWindow') {
+      // Never reuse the other window's publisher or manually entered figure.
+      resetPublisherLookup(true);
+      ['benchmarkRate', 'benchmarkName', 'benchmarkSource'].forEach(name => setField(name, ''));
+      setField('benchmarkType', 'jif-unverified');
+      manualBenchmark = false;
+      if (lastLookedUpWork) {
+        void lookupJournalBenchmark(lastLookedUpWork, normalizeDoi(form.elements.namedItem('doi').value));
+      } else if (lastJournalName) {
+        journalStatus.hidden = false;
+        journalStatus.textContent = `Enter the selected ${event.target.value}-year Impact Factor for ${lastJournalName}.`;
+      }
+    }
     updateWindowMode();
     if (lastDoiWindow !== null && citationWindowSignature() !== lastDoiWindow) {
       setField('recentCitations', '');
@@ -784,6 +810,7 @@
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
       const work = await fetchOpenAlexWork(doi, fetch, { signal: controller.signal });
+      lastLookedUpWork = work;
       const input = readInput();
       const currentYear = new Date().getFullYear();
       const duration = Number(input.recentYears);
@@ -813,7 +840,7 @@
       if (manualBenchmark && form.elements.namedItem('benchmarkRate').value &&
           !form.elements.namedItem('benchmarkName').value) {
         const name = findJournal(work)?.display_name || 'Journal';
-        setField('benchmarkName', `${name} 2-year Journal Impact Factor (year not entered)`);
+        setField('benchmarkName', `${name} ${form.elements.namedItem('jifWindow').value}-year Journal Impact Factor (year not entered)`);
       }
       setField('selfCitations', 'Not specified');
       updateWindowMode();
@@ -889,6 +916,7 @@
     manualBenchmark = true;
     lastLookedUpDoi = null;
     lastJournalName = '';
+    lastLookedUpWork = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     editingRowId = id;
@@ -933,6 +961,7 @@
     manualBenchmark = true;
     lastLookedUpDoi = null;
     lastJournalName = '';
+    lastLookedUpWork = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     lookupStatus.textContent = 'Example values are illustrative and are not retrieved from a citation database.';
@@ -953,6 +982,7 @@
     manualBenchmark = false;
     lastLookedUpDoi = null;
     lastJournalName = '';
+    lastLookedUpWork = null;
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
