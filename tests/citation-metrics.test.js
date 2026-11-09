@@ -236,7 +236,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108two"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108jif5"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -297,7 +297,7 @@ test('publisher-verified Cognition JIF is available without a server endpoint', 
   assert.equal(matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '1234-5678'), null);
   assert.equal(matchCuratedJournalJif(registry, 'S999999999', 'Cognition', '0010-0277'), null);
   const remote = await fetchCuratedJournalJif('S88198767', 'Cognition', '0010-0277', async (url) => {
-    assert.equal(url, '/journal-impact-factors.json?v=20261108a');
+    assert.equal(url, '/journal-impact-factors.json?v=20261108factors');
     return { ok: true, json: async () => registry };
   });
   assert.deepEqual(remote, journal);
@@ -352,7 +352,8 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261108two'));
+  assert.ok(html.includes('citation-metrics.js?v=20261108jif5'));
+  assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
   assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
   assert.match(js, /recentCitations: '10', recentYears: '2', windowMode: 'duration'/);
@@ -367,4 +368,64 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   assert.equal(result.now, 5);
   assert.equal(result.vsLifetime, 0.5);
   assert.ok(Math.abs(result.vsBenchmark - 5 / 3) < 1e-12);
+});
+
+test('Cambridge BLC official two-year and five-year JIFs match OpenAlex journal title and ISSN', async () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const two = matchCuratedJournalJif(registry, 'S24095051', 'Bilingualism Language and Cognition', '1366-7289', '2');
+  const five = matchCuratedJournalJif(registry, 'S24095051', 'Bilingualism Language and Cognition', '1366-7289', '5');
+  assert.equal(two.rate, 2.4);
+  assert.equal(two.year, 2025);
+  assert.equal(two.type, 'jif');
+  assert.equal(five.rate, 3.7);
+  assert.equal(five.year, null, 'Publisher page does not specify five-year reporting year');
+  assert.equal(five.type, 'jif-unverified');
+  assert.match(five.name, /5-year Journal Impact Factor/);
+  assert.equal(two.source, 'https://www.cambridge.org/core/journals/bilingualism-language-and-cognition/information/about-this-journal/journal-metrics');
+  assert.equal(matchCuratedJournalJif(registry, 'S24095051', 'Language and Cognition', '1366-7289', '5'), null);
+  assert.equal(matchCuratedJournalJif(registry, 'S24095051', 'Bilingualism Language and Cognition', '0000-0000', '5'), null);
+  const fetched = await fetchCuratedJournalJif('S24095051', 'Bilingualism Language and Cognition',
+    '1366-7289', async () => ({ ok: true, json: async () => registry }), { jifWindow: '5' });
+  assert.deepEqual(fetched, five);
+});
+
+test('APA JEP LMC publisher two-year and five-year JIFs are distinct and dated', () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const title = 'Journal of Experimental Psychology Learning Memory and Cognition';
+  const two = matchCuratedJournalJif(registry, 'S18666220', title, '0278-7393', '2');
+  const five = matchCuratedJournalJif(registry, 'S18666220', title, '0278-7393', '5');
+  assert.equal(two.rate, 2.3);
+  assert.equal(five.rate, 2.8);
+  assert.equal(two.year, 2025);
+  assert.equal(five.year, 2025);
+  assert.match(five.name, /2025 5-year Journal Impact Factor/);
+  assert.match(five.source, /apa\.org\/pubs\/journals\/resources\/impact-factors/);
+  assert.equal(matchCuratedJournalJif(registry, 'S18666220', title, '1366-7289', '5'), null);
+});
+
+test('five-year JIF selection never reuses a two-year factor or mislabeled generic values', () => {
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const unavailable = matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '0010-0277', '5');
+  assert.equal(unavailable, null, 'Missing five-year figure must remain unavailable');
+  const five = matchCuratedJournalJif(registry, 'S18666220',
+    'Journal of Experimental Psychology Learning Memory and Cognition', '0278-7393', '5');
+  const result = computeCitationMetrics({
+    recentCitations: '20', recentYears: '2', jifWindow: '5',
+    benchmarkRate: String(five.rate), benchmarkName: five.name,
+    benchmarkType: five.type, benchmarkSource: five.source
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.jifWindow, '5');
+  assert.equal(Number(result.vsBenchmark.toFixed(2)), 3.57);
+  assert.match(describeCitationResults(result).benchmark, /5-year Journal Impact Factor/);
+  const manual = computeCitationMetrics({
+    recentCitations: '20', recentYears: '2', jifWindow: '5',
+    benchmarkRate: '3.7', benchmarkType: 'jif-unverified'
+  }, 2026);
+  assert.equal(manual.benchmarkName, '5-year Journal Impact Factor');
+  assert.equal(Number(manual.vsBenchmark.toFixed(2)), 2.70);
+  const code = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
+  assert.match(code, /event.target.name === 'jifWindow'/);
+  assert.match(code, /selectedWindow === '2'/);
+  assert.match(code, /resetPublisherLookup\(true\);/);
 });
