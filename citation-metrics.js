@@ -917,7 +917,7 @@
   document.getElementById('citation-metrics-example').addEventListener('click', () => {
     const example = {
       paperTitle: 'Example paper', publicationYear: '2016', totalCitations: '100',
-      recentCitations: '25', recentYears: '5', windowMode: 'duration', benchmarkType: 'annual',
+      recentCitations: '10', recentYears: '2', windowMode: 'duration', benchmarkType: 'annual',
       benchmarkName: 'Illustrative annual benchmark (not a real journal factor)',
       benchmarkRate: '3', benchmarkSource: 'Illustrative example only', citationSource: 'Illustrative example',
       checkedDate: localDate, selfCitations: 'Included'
