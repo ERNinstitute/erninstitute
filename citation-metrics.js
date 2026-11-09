@@ -387,6 +387,52 @@
     return matchPublisherBatchJif(await response.json(), journalName, jifWindow);
   }
 
+  function matchSCImagoCitesPerDoc(catalogue, journalName, journalIssn = '') {
+    if (catalogue?.schema_version !== 1 ||
+        catalogue.indicator !== 'SCImago Cites per Doc. (2 years)' ||
+        !Array.isArray(catalogue.records)) return null;
+    const year = Number(catalogue.metric_year);
+    if (!Number.isInteger(year) || year < 2000 || year > new Date().getFullYear()) return null;
+    const normalizeTitle = text => String(text || '').normalize('NFKD')
+      .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const normalizeIssn = text => String(text || '').toUpperCase().replace(/[^0-9X]/g, '');
+    const title = normalizeTitle(journalName);
+    const issn = normalizeIssn(journalIssn);
+    if (!title) return null;
+    const matches = catalogue.records.filter(row => {
+      if (!Array.isArray(row) || row.length < 4 ||
+          normalizeTitle(row[1]) !== title) return false;
+      return !issn || (Array.isArray(row[2]) && row[2].some(value => normalizeIssn(value) === issn));
+    });
+    // Never guess when multiple Scopus records have an identical normalized title.
+    if (matches.length !== 1) return null;
+    const [scopusId, matchedTitle, issns, rate] = matches[0];
+    if (!/^\d{4,15}$/.test(String(scopusId)) || !Array.isArray(issns) ||
+        !Number.isFinite(rate) || rate <= 0 || rate > 1000) return null;
+    return {
+      type: 'scimago-cpd2',
+      name: `${matchedTitle} ${year} SCImago Cites per Doc. (2 years)`,
+      rate,
+      source: `https://www.scimagojr.com/journalsearch.php?q=${scopusId}&tip=sid`,
+      year,
+      window: '2',
+      journal: matchedTitle,
+      checkedDate: String(catalogue.retrieved_date || ''),
+      provider: 'SCImago',
+      sourceMetric: 'Cites per Doc. (2 years)'
+    };
+  }
+
+  async function fetchSCImagoCitesPerDoc(journalName, journalIssn = '', fetcher = fetch, options = {}) {
+    const response = await fetcher('/scimago-cites-per-doc.json',
+      { headers: { Accept: 'application/json' }, cache: 'no-store', signal: options.signal });
+    if (!response.ok) return null;
+    const data = await response.json();
+    // A tiny, hand-curated exception list is not the intended broad fallback.
+    if (!Array.isArray(data?.records) || data.records.length < 20000) return null;
+    return matchSCImagoCitesPerDoc(data, journalName, journalIssn);
+  }
+
   const csvHeaders = [
     'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
@@ -415,7 +461,7 @@
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, matchCuratedJournalJif, fetchCuratedJournalJif, matchPublisherBatchJif, fetchPublisherBatchJif, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, matchCuratedJournalJif, fetchCuratedJournalJif, matchPublisherBatchJif, fetchPublisherBatchJif, matchSCImagoCitesPerDoc, fetchSCImagoCitesPerDoc, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -440,6 +486,7 @@
   const journalStatus = document.getElementById('citation-journal-status');
   const jifSourceLink = document.getElementById('citation-jif-source-link');
   const changeBenchmarkButton = document.getElementById('citation-benchmark-change');
+  const benchmarkFieldLabel = document.getElementById('citation-benchmark-label');
   const advancedDetails = document.getElementById('citation-advanced-details');
   const manualDetails = document.getElementById('citation-manual-details');
   const datesDetails = document.getElementById('citation-dates-details');
@@ -481,6 +528,7 @@
       setField('benchmarkSource', '');
     }
     autoBenchmarkSource = null;
+    if (benchmarkFieldLabel) benchmarkFieldLabel.textContent = 'Journal Impact Factor (optional)';
   }
 
   function showBenchmarkSource(url, label) {
@@ -494,6 +542,9 @@
     if (!data || !(data.rate > 0) || !Number.isFinite(data.rate) || manualBenchmark) return false;
     if (form.elements.namedItem('benchmarkRate').value && !autoBenchmarkSource) return false;
     setField('benchmarkType', data.type);
+    if (benchmarkFieldLabel) benchmarkFieldLabel.textContent = data.type === 'scimago-cpd2'
+      ? 'SCImago Cites per Doc. (2 years)'
+      : 'Journal Impact Factor (optional)';
     setField('benchmarkName', data.name);
     setField('benchmarkRate', data.rate);
     setField('benchmarkSource', data.source);
@@ -527,11 +578,15 @@
     journalStatus.textContent = `Journal: ${name}. Checking the ${selectedWindow}-year Journal Impact Factor…`;
     // Try both public, source-documented annual snapshots. Both work on static hosting.
     // Server-side publisher extraction is an optional last resort for missing titles.
-    const [known, bulk] = await Promise.all([
+    const [known, bulk, scimago] = await Promise.all([
       fetchCuratedJournalJif(sourceId, name, String(journal?.issn_l || ''), fetch,
         { signal: AbortSignal.timeout(6500), jifWindow: selectedWindow }).catch(() => null),
       fetchPublisherBatchJif(name, selectedWindow, fetch,
-        { signal: AbortSignal.timeout(6500) }).catch(() => null)
+        { signal: AbortSignal.timeout(6500) }).catch(() => null),
+      selectedWindow === '2'
+        ? fetchSCImagoCitesPerDoc(name, String(journal?.issn_l || ''), fetch,
+          { signal: AbortSignal.timeout(6500) }).catch(() => null)
+        : Promise.resolve(null)
     ]);
     const cached = known || bulk;
     let publisher = Promise.resolve(null);
@@ -548,6 +603,9 @@
         ? `Journal: ${name}. ${cached.year} ${selectedWindow}-year Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; checked ${cached.checkedDate}).`
         : `Journal: ${name}. ${selectedWindow}-year Impact Factor: ${cached.rate.toFixed(2)} (publisher-listed; reporting year unconfirmed).`;
       showBenchmarkSource(cached.source, 'View journal’s publisher page');
+    } else if (!cached && scimago && applyAutomaticBenchmark(scimago)) {
+      journalStatus.textContent = `Journal: ${name}. SCImago ${scimago.year} Cites per Doc. (2 years): ${scimago.rate.toFixed(2)}. Scopus-based alternative, not the official Journal Impact Factor.`;
+      showBenchmarkSource(scimago.source, 'View SCImago journal profile');
     }
 
     const data = await publisher;
@@ -572,8 +630,8 @@
           showBenchmarkSource(data.url, 'View publisher Impact Factor source');
         }
       }
-    } else if (!cached) {
-      journalStatus.textContent = `Journal: ${name}. No verified ${selectedWindow}-year Impact Factor is available automatically. Enter the figure manually if desired.`;
+    } else if (!cached && !scimago) {
+      journalStatus.textContent = `Journal: ${name}. No verified ${selectedWindow}-year journal metric was retrieved. Enter a benchmark value manually if desired.`;
       if (typeof data?.url === 'string') showBenchmarkSource(data.url, 'View publisher journal page');
     }
   }
@@ -769,6 +827,7 @@
         setField('benchmarkName', `${lastJournalName} ${form.elements.namedItem('jifWindow').value}-year Journal Impact Factor (year not entered)`);
       }
       setField('benchmarkType', 'jif-unverified');
+      if (benchmarkFieldLabel) benchmarkFieldLabel.textContent = 'Journal Impact Factor (optional)';
       manualBenchmark = true;
       autoBenchmarkSource = null;
       changeBenchmarkButton.hidden = false;
