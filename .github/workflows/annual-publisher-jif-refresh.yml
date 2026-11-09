@@ -1,0 +1,57 @@
+name: Annual Publisher Journal Impact Factor Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Early November follows the annual summer JCR release and autumn corrections.
+    - cron: "0 13 1 11 *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: annual-publisher-jif-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Validate the current annual snapshot
+        run: |
+          python3 -m unittest discover -s scripts -p 'test_refresh_publisher_jifs.py' -v
+          python3 scripts/refresh_publisher_jifs.py --offline-check
+      - name: Check official publisher pages for updated figures
+        run: python3 scripts/refresh_publisher_jifs.py --write | tee publisher-refresh.log
+      - name: Validate candidate against existing calculator calculations
+        run: |
+          python3 scripts/refresh_publisher_jifs.py --offline-check
+          node --test tests/citation-metrics.test.js tests/journal-impact-factor.test.js
+          git diff --check
+      - name: Save only verified source updates
+        run: |
+          if git diff --quiet -- journal-impact-factors-batch.json; then
+            echo "No source-verified annual changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add journal-impact-factors-batch.json
+          git commit -m "Refresh publisher-listed Journal Impact Factors from verified public pages"
+          git push
+      - name: Report coverage and skipped publishers
+        if: always()
+        run: |
+          {
+            echo "## Annual publisher JIF refresh"
+            echo
+            echo "The script retains earlier verified figures with their original reporting year whenever a publisher cannot be accessed or verified."
+            echo
+            echo '~~~'
+            cat publisher-refresh.log 2>/dev/null || true
+            echo '~~~'
+          } >> "$GITHUB_STEP_SUMMARY"
