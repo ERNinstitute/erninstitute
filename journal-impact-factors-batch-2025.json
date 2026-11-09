@@ -1,0 +1,477 @@
+{
+  "schema_version": 1,
+  "metric_year": 2025,
+  "checked_date": "2026-11-08",
+  "description": "Publisher-published 2025 Journal Impact Factors, keyed by exact normalized journal title. Annual snapshot; no inference for missing journals. No OpenAlex metric substitution.",
+  "collections": [
+    {
+      "publisher": "American Psychological Association",
+      "source": "https://www.apa.org/pubs/journals/resources/impact-factors",
+      "type": "official_publisher_table",
+      "rows": [
+        [
+          "American Journal of Orthopsychiatry",
+          1.9,
+          3.3
+        ],
+        [
+          "American Psychologist",
+          6.6,
+          12
+        ],
+        [
+          "Asian American Journal of Psychology",
+          2.1,
+          3.1
+        ],
+        [
+          "Behavioral Neuroscience",
+          1.9,
+          2.2
+        ],
+        [
+          "Canadian Journal of Behavioural Science",
+          0.9,
+          1.7
+        ],
+        [
+          "Canadian Journal of Experimental Psychology",
+          1.3,
+          1.3
+        ],
+        [
+          "Canadian Psychology",
+          2.4,
+          3.1
+        ],
+        [
+          "Clinical Psychology: Science and Practice",
+          7.8,
+          8.6
+        ],
+        [
+          "Consulting Psychology Journal",
+          1.2,
+          1.5
+        ],
+        [
+          "Couple and Family Psychology: Research and Practice",
+          0.8,
+          1.9
+        ],
+        [
+          "Cultural Diversity & Ethnic Minority Psychology",
+          2.4,
+          3.8
+        ],
+        [
+          "Decision",
+          1.6,
+          1.6
+        ],
+        [
+          "Developmental Psychology",
+          2.7,
+          4.1
+        ],
+        [
+          "Dreaming",
+          0.5,
+          0.7
+        ],
+        [
+          "Emotion",
+          3.8,
+          5.4
+        ],
+        [
+          "Evolutionary Behavioral Sciences",
+          1.1,
+          1.1
+        ],
+        [
+          "Experimental and Clinical Psychopharmacology",
+          1.6,
+          2.5
+        ],
+        [
+          "Families, Systems, & Health",
+          1.2,
+          1.5
+        ],
+        [
+          "Group Dynamics: Theory, Research, and Practice",
+          1,
+          2.2
+        ],
+        [
+          "Health Psychology",
+          2.9,
+          3.9
+        ],
+        [
+          "History of Psychology",
+          0.9,
+          0.9
+        ],
+        [
+          "International Journal of Stress Management",
+          2.5,
+          3.6
+        ],
+        [
+          "Journal of Applied Psychology",
+          6.7,
+          11.1
+        ],
+        [
+          "Journal of Applied Research in Memory and Cognition",
+          2.4,
+          3.9
+        ],
+        [
+          "Journal of Comparative Psychology",
+          1.1,
+          1.3
+        ],
+        [
+          "Journal of Consulting and Clinical Psychology",
+          6,
+          7.2
+        ],
+        [
+          "Journal of Counseling Psychology",
+          3.5,
+          5.2
+        ],
+        [
+          "Journal of Diversity in Higher Education",
+          2.2,
+          3.7
+        ],
+        [
+          "Journal of Educational Psychology",
+          6.4,
+          8.1
+        ],
+        [
+          "Journal of Experimental Psychology: Animal Learning and Cognition",
+          0.9,
+          1.4
+        ],
+        [
+          "Journal of Experimental Psychology: Applied",
+          2.3,
+          3.2
+        ],
+        [
+          "Journal of Experimental Psychology: General",
+          3.7,
+          4.7
+        ],
+        [
+          "Journal of Experimental Psychology: Human Perception and Performance",
+          2.7,
+          2.7
+        ],
+        [
+          "Journal of Experimental Psychology: Learning, Memory, and Cognition",
+          2.3,
+          2.8
+        ],
+        [
+          "Journal of Family Psychology",
+          2.4,
+          3.3
+        ],
+        [
+          "Journal of Latinx Psychology",
+          1.6,
+          2.7
+        ],
+        [
+          "Psychology of Leaders and Leadership",
+          1.2,
+          1.3
+        ],
+        [
+          "Journal of Neuroscience, Psychology, and Economics",
+          1.4,
+          1.3
+        ],
+        [
+          "Journal of Occupational Health Psychology",
+          6.7,
+          7.2
+        ],
+        [
+          "Journal of Pediatric Neuropsychology",
+          1,
+          1
+        ],
+        [
+          "Journal of Personality and Social Psychology",
+          6.8,
+          9.1
+        ],
+        [
+          "Journal of Psychopathology and Clinical Science",
+          4.6,
+          4.6
+        ],
+        [
+          "Journal of Psychotherapy Integration",
+          1.9,
+          2.4
+        ],
+        [
+          "Journal of Theoretical and Philosophical Psychology",
+          1,
+          1.2
+        ],
+        [
+          "Law and Human Behavior",
+          3.2,
+          3.5
+        ],
+        [
+          "Motivation Science",
+          3.6,
+          3.9
+        ],
+        [
+          "Neuropsychology",
+          2.9,
+          3.4
+        ],
+        [
+          "Peace and Conflict: Journal of Peace Psychology",
+          1.4,
+          1.4
+        ],
+        [
+          "Personality Disorders: Theory, Research, and Treatment",
+          3.6,
+          4.2
+        ],
+        [
+          "Professional Psychology: Research and Practice",
+          1.8,
+          2
+        ],
+        [
+          "Psychiatric Rehabilitation Journal",
+          1.9,
+          2.2
+        ],
+        [
+          "Psychoanalytic Psychology",
+          1.3,
+          1.3
+        ],
+        [
+          "Psychological Assessment",
+          3.1,
+          4.4
+        ],
+        [
+          "Psychological Bulletin",
+          19.9,
+          31.8
+        ],
+        [
+          "Psychological Methods",
+          7.5,
+          11.5
+        ],
+        [
+          "Psychological Review",
+          5.7,
+          7.4
+        ],
+        [
+          "Psychological Services",
+          1.8,
+          2.5
+        ],
+        [
+          "Psychological Trauma: Theory, Research, Practice, and Policy",
+          2.8,
+          3.3
+        ],
+        [
+          "Psychology and Aging",
+          3.6,
+          4.3
+        ],
+        [
+          "Psychology of Addictive Behaviors",
+          2.8,
+          3.7
+        ],
+        [
+          "Psychology of Aesthetics, Creativity, and the Arts",
+          3,
+          3.6
+        ],
+        [
+          "Psychology of Consciousness: Theory, Research, and Practice",
+          1.5,
+          2.2
+        ],
+        [
+          "Psychology of Men & Masculinities",
+          2.1,
+          3.6
+        ],
+        [
+          "Psychology of Popular Media",
+          2.2,
+          3
+        ],
+        [
+          "Psychology of Religion and Spirituality",
+          1.8,
+          3
+        ],
+        [
+          "Psychology of Sexual Orientation and Gender Diversity",
+          3.4,
+          4.8
+        ],
+        [
+          "Psychology of Violence",
+          1.9,
+          3.1
+        ],
+        [
+          "Psychology, Public Policy, and Law",
+          1.5,
+          2.4
+        ],
+        [
+          "Psychomusicology: Music, Mind, and Brain",
+          1.2,
+          1.5
+        ],
+        [
+          "Psychotherapy",
+          3.3,
+          3.9
+        ],
+        [
+          "Qualitative Psychology",
+          2.5,
+          11.6
+        ],
+        [
+          "Rehabilitation Psychology",
+          2,
+          2.7
+        ],
+        [
+          "School Psychology",
+          2.1,
+          2.9
+        ],
+        [
+          "Spirituality in Clinical Practice",
+          0.9,
+          1.9
+        ],
+        [
+          "Sport, Exercise, and Performance Psychology",
+          3.4,
+          3.3
+        ],
+        [
+          "Stigma and Health",
+          1.7,
+          2.9
+        ],
+        [
+          "Technology, Mind, and Behavior",
+          3.4,
+          4.7
+        ],
+        [
+          "Training and Education in Professional Psychology",
+          1.6,
+          1.9
+        ],
+        [
+          "Translational Issues in Psychological Science",
+          2,
+          2.5
+        ],
+        [
+          "Traumatology",
+          1.7,
+          2.7
+        ]
+      ]
+    },
+    {
+      "publisher": "Springer Nature (Nature Portfolio)",
+      "source": "publisher journal metrics pages",
+      "type": "verified_publisher_pages",
+      "rows": [
+        [
+          "Nature",
+          56.1,
+          56.7,
+          "https://www.nature.com/nature/journal-impact"
+        ],
+        [
+          "Scientific Data",
+          7.2,
+          9.3,
+          "https://www.nature.com/sdata/journal-impact"
+        ],
+        [
+          "Nature Communications",
+          18.1,
+          18.9,
+          "https://www.nature.com/ncomms/journal-impact"
+        ],
+        [
+          "Nature Methods",
+          28.2,
+          52.4,
+          "https://www.nature.com/nmeth/journal-impact"
+        ],
+        [
+          "Nature Sustainability",
+          32.1,
+          35.4,
+          "https://www.nature.com/natsustain/journal-impact"
+        ],
+        [
+          "Nature Reviews Methods Primers",
+          54.2,
+          78.3,
+          "https://www.nature.com/nrmp/journal-impact"
+        ],
+        [
+          "Nature Physics",
+          18,
+          21.5,
+          "https://www.nature.com/nphys/journal-impact"
+        ]
+      ]
+    },
+    {
+      "publisher": "Wiley",
+      "source": "publisher journal metrics pages",
+      "type": "verified_publisher_pages",
+      "rows": [
+        [
+          "The Journal of Pathology: Clinical Research",
+          4.1,
+          4.1,
+          "https://pathsocjournals.onlinelibrary.wiley.com/hub/journal/20564538/homepage/productinformation.html"
+        ]
+      ]
+    }
+  ]
+}
