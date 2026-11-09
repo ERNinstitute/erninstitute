@@ -113,7 +113,7 @@ test('journal-level benchmark has a concise functional interpretation', () => {
     benchmarkType: 'jif', benchmarkRate: '3'
   }, 2026);
   assert.deepEqual(result.errors, []);
-  assert.match(describeCitationResults(result).benchmark, /14\.83 times the 2025 Journal Impact Factor \(3\.00\)/);
+  assert.match(describeCitationResults(result).benchmark, /14\.83 times as high as 2025 Journal Impact Factor \(3\.00\)/);
   assert.equal(result.isJournalBenchmark, true);
   assert.ok(!result.warnings.some(message => message.includes('research quality')));
 });
@@ -213,7 +213,7 @@ test('describes the displayed rates and ratios in plain language', () => {
   const descriptions = describeCitationResults(result);
   assert.match(descriptions.now, /89 citations during the selected 2-year period, averaging 44\.50 per year/);
   assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 per year\)/);
-  assert.match(descriptions.benchmark, /14\.83 times the IF 2-year \(3\.00\)/);
+  assert.match(descriptions.benchmark, /14\.83 times as high as IF 2-year \(3\.00\)/);
   assert.match(formatCitationReport(result), /200% above its lifetime average/);
 });
 
@@ -236,7 +236,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108simple"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108clear"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -332,7 +332,7 @@ test('one manual Impact Factor number calculates the comparison without name or 
   assert.equal(result.now, 8.4);
   assert.equal(result.benchmarkName, '2-year Journal Impact Factor');
   assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
-  assert.match(describeCitationResults(result).benchmark, /2\.71 times the 2-year Journal Impact Factor \(3\.10\)/);
+  assert.match(describeCitationResults(result).benchmark, /2\.71 times as high as 2-year Journal Impact Factor \(3\.10\)/);
   assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
 });
 
