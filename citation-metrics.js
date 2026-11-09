@@ -183,19 +183,33 @@
         : result.vsLifetime < 1
           ? `${percentDifference}% below`
           : `${percentDifference}% above`;
-      lifetimeDescription = `During ${windowDescription}, this paper's citation rate was ${relationship} its lifetime average (${formatNumber(result.lifetime)} per year).`;
+      const trajectory = percentDifference < 1
+        ? 'Its recent citation activity is broadly in line with its historical average.'
+        : result.vsLifetime > 1
+          ? 'The paper is attracting citations faster recently than it has on average since publication. This indicates stronger recent citation activity, although it does not mean citations increased every year.'
+          : 'The paper is attracting citations more slowly recently than it has on average since publication. This indicates weaker recent citation activity, although it does not establish a year-by-year decline.';
+      lifetimeDescription = `During ${windowDescription}, this paper's citation rate was ${relationship} its lifetime average (${formatNumber(result.lifetime)} citations per year). ${trajectory}`;
     }
     let benchmarkDescription;
     if (result.vsBenchmark === null) {
       benchmarkDescription = 'Enter the journal’s 2-year Impact Factor above to calculate this comparison.';
     } else {
-      benchmarkDescription = `The paper's recent citation rate was ${formatNumber(result.vsBenchmark)} times as high as the ${result.benchmarkName} (${formatNumber(result.benchmark)}).`;
+      const gap = Math.round(Math.abs(result.vsBenchmark - 1) * 100);
+      const compared = gap < 1
+        ? 'approximately equal to'
+        : result.vsBenchmark > 1 ? `${gap}% above` : `${gap}% below`;
+      const meaning = gap < 1
+        ? 'The paper is receiving citations at roughly the same annual rate as this benchmark.'
+        : result.vsBenchmark > 1
+          ? 'Its recent annual citation rate exceeds this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.'
+          : 'Its recent annual citation rate is below this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.';
+      benchmarkDescription = `During ${windowDescription}, the paper received ${formatNumber(result.now)} citations per year, ${compared} the ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per year). That is ${formatNumber(result.vsBenchmark)} times as high as the ${result.benchmarkName} (${formatNumber(result.benchmark)}). ${meaning}`;
       if (result.benchmarkType === 'jif-unverified') {
         benchmarkDescription += ' Reporting year not supplied.';
       }
     }
     return {
-      now: `${result.recentCitations} citations during ${windowDescription}, averaging ${formatNumber(result.now)} per year.`,
+      now: `During ${windowDescription}, this paper received ${result.recentCitations} citations, averaging ${formatNumber(result.now)} citations per year. This is the paper's recent citation rate; compare it with its lifetime average to see whether citation activity is stronger or weaker than historically.`,
       lifetime: lifetimeDescription,
       benchmark: benchmarkDescription
     };
