@@ -2,7 +2,7 @@
   "schema_version": 1,
   "metric_year": 2025,
   "checked_date": "2026-11-08",
-  "description": "Publisher-published 2025 Journal Impact Factors, keyed by exact normalized journal title. Annual snapshot; no inference for missing journals. No OpenAlex metric substitution.",
+  "description": "Publisher-published two- and five-year Journal Impact Factors, collected annually by publisher or journal page. Publisher or row reporting years override the catalogue-level year. Never infer missing figures.",
   "collections": [
     {
       "publisher": "American Psychological Association",
@@ -409,7 +409,9 @@
           1.7,
           2.7
         ]
-      ]
+      ],
+      "metric_year": 2025,
+      "checked_date": "2026-11-08"
     },
     {
       "publisher": "Springer Nature (Nature Portfolio)",
@@ -420,45 +422,54 @@
           "Nature",
           56.1,
           56.7,
-          "https://www.nature.com/nature/journal-impact"
+          "https://www.nature.com/nature/journal-impact",
+          2025
         ],
         [
           "Scientific Data",
           7.2,
           9.3,
-          "https://www.nature.com/sdata/journal-impact"
+          "https://www.nature.com/sdata/journal-impact",
+          2025
         ],
         [
           "Nature Communications",
           18.1,
           18.9,
-          "https://www.nature.com/ncomms/journal-impact"
+          "https://www.nature.com/ncomms/journal-impact",
+          2025
         ],
         [
           "Nature Methods",
           28.2,
           52.4,
-          "https://www.nature.com/nmeth/journal-impact"
+          "https://www.nature.com/nmeth/journal-impact",
+          2025
         ],
         [
           "Nature Sustainability",
           32.1,
           35.4,
-          "https://www.nature.com/natsustain/journal-impact"
+          "https://www.nature.com/natsustain/journal-impact",
+          2025
         ],
         [
           "Nature Reviews Methods Primers",
           54.2,
           78.3,
-          "https://www.nature.com/nrmp/journal-impact"
+          "https://www.nature.com/nrmp/journal-impact",
+          2025
         ],
         [
           "Nature Physics",
           18,
           21.5,
-          "https://www.nature.com/nphys/journal-impact"
+          "https://www.nature.com/nphys/journal-impact",
+          2025
         ]
-      ]
+      ],
+      "metric_year": 2025,
+      "checked_date": "2026-11-08"
     },
     {
       "publisher": "Wiley",
@@ -469,9 +480,12 @@
           "The Journal of Pathology: Clinical Research",
           4.1,
           4.1,
-          "https://pathsocjournals.onlinelibrary.wiley.com/hub/journal/20564538/homepage/productinformation.html"
+          "https://pathsocjournals.onlinelibrary.wiley.com/hub/journal/20564538/homepage/productinformation.html",
+          2025
         ]
-      ]
+      ],
+      "metric_year": 2025,
+      "checked_date": "2026-11-08"
     }
   ]
 }
