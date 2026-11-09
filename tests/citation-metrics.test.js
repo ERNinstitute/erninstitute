@@ -429,3 +429,34 @@ test('five-year JIF selection never reuses a two-year factor or mislabeled gener
   assert.match(code, /selectedWindow === '2'/);
   assert.match(code, /resetPublisherLookup\(true\);/);
 });
+
+test('live JEP LMC DOI regression uses APA JIF instead of reporting unavailable', () => {
+  // DOI appeared in a live ERN calculator session with 57 OpenAlex citations in 2024–2025.
+  const registry = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors.json'), 'utf8'));
+  const name = 'Journal of Experimental Psychology Learning Memory and Cognition';
+  const two = matchCuratedJournalJif(registry, 'S18666220', name, '0278-7393', '2');
+  const five = matchCuratedJournalJif(registry, 'S18666220', name, '0278-7393', '5');
+  assert.equal(two.rate, 2.3);
+  assert.equal(five.rate, 2.8);
+  const input = {
+    doi: '10.1037/a0014981', recentCitations: '57',
+    windowMode: 'calendar', startYear: '2024', endYear: '2025',
+    publicationYear: '2009', totalCitations: '500',
+    lifetimeThroughYear: '2025', checkedDate: '2026-11-08'
+  };
+  const result2 = computeCitationMetrics({
+    ...input, jifWindow: '2', benchmarkType: two.type,
+    benchmarkName: two.name, benchmarkRate: String(two.rate), benchmarkSource: two.source
+  }, 2026);
+  const result5 = computeCitationMetrics({
+    ...input, jifWindow: '5', benchmarkType: five.type,
+    benchmarkName: five.name, benchmarkRate: String(five.rate), benchmarkSource: five.source
+  }, 2026);
+  assert.deepEqual(result2.errors, []);
+  assert.deepEqual(result5.errors, []);
+  assert.equal(result2.now, 28.5);
+  assert.equal(Number(result2.vsBenchmark.toFixed(2)), 12.39);
+  assert.equal(Number(result5.vsBenchmark.toFixed(2)), 10.18);
+  assert.match(describeCitationResults(result2).benchmark, /2-year Journal Impact Factor/);
+  assert.match(describeCitationResults(result5).benchmark, /5-year Journal Impact Factor/);
+});
