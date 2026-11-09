@@ -464,7 +464,7 @@ test('live JEP LMC DOI regression uses APA JIF instead of reporting unavailable'
 });
 
 test('publisher-wide 2025 snapshot covers APA, Nature and Wiley with both JIF windows', async () => {
-  const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors-batch.json'), 'utf8'));
+  const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors-batch-2025.json'), 'utf8'));
   assert.equal(snapshot.schema_version, 1);
   assert.equal(snapshot.metric_year, 2025);
   const coverage = snapshot.collections.map(x => [x.publisher, x.rows.length]);
@@ -498,20 +498,22 @@ test('publisher-wide 2025 snapshot covers APA, Nature and Wiley with both JIF wi
   assert.equal(matchPublisherBatchJif(duplicate, 'Psychological Review', '2'), null);
   const retrieved = await fetchPublisherBatchJif('Psychological Review', '5',
     async (url) => {
-      assert.equal(url, '/journal-impact-factors-batch.json?v=20261108batch2');
+      assert.equal(url, '/journal-impact-factors-batch.json');
       return { ok: true, json: async () => snapshot };
     });
   assert.equal(retrieved.rate, 7.4);
 });
 
-test('publisher snapshot preserves per-journal reporting years during annual refreshes', () => {
+test('publisher snapshot preserves each source reporting year during later releases', () => {
   const snapshot = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'journal-impact-factors-batch.json'), 'utf8'));
   const revised = JSON.parse(JSON.stringify(snapshot));
-  revised.collections[0].metric_year = 2026;
-  revised.metric_year = 2026;
-  // Another publisher still reports its independently verified 2025 metrics.
+  const previous = revised.collections[0].metric_year;
+  const natureYear = matchPublisherBatchJif(revised, 'Nature', '2').year;
+  revised.collections[0].metric_year = previous + 1;
+  revised.metric_year = previous + 1;
   const nature = matchPublisherBatchJif(revised, 'Nature', '2');
-  assert.equal(nature.year, 2025);
+  assert.equal(nature.year, natureYear, 'Nature must retain its independently sourced reporting year');
   const apa = matchPublisherBatchJif(revised, 'Psychological Review', '2');
-  assert.equal(apa.year, 2026);
+  assert.equal(apa.year, previous + 1);
 });
+
