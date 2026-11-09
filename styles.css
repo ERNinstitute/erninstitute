@@ -2729,6 +2729,20 @@ li {
   border-top: 1px solid var(--border);
 }
 
+.citation-jif-input-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.55rem;
+}
+.citation-jif-input-row select {
+  flex: 0 0 8.6rem;
+  max-width: 36%;
+}
+.citation-jif-input-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .citation-quick-benchmark input {
   max-width: 21rem;
 }
