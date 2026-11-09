@@ -16,7 +16,9 @@ const {
   matchCuratedJournalJif,
   fetchCuratedJournalJif,
   matchPublisherBatchJif,
-  fetchPublisherBatchJif
+  fetchPublisherBatchJif,
+  matchSCImagoCitesPerDoc,
+  fetchSCImagoCitesPerDoc
 } = require('../citation-metrics.js');
 
 test('matches the existing Excel workbook example', () => {
@@ -238,7 +240,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108batch"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108scimago"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -354,7 +356,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261108batch'));
+  assert.ok(html.includes('citation-metrics.js?v=20261108scimago'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
   assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
@@ -517,3 +519,67 @@ test('publisher snapshot preserves each source reporting year during later relea
   assert.equal(apa.year, previous + 1);
 });
 
+
+test('SCImago 2-year citations per document is a clearly named alternative benchmark', async () => {
+  const data = {
+    schema_version: 1,
+    indicator: 'SCImago Cites per Doc. (2 years)',
+    metric_year: 2025,
+    retrieved_date: '2026-11-08',
+    records: [
+      ['12345678901','Neuropsychologia',['00283932','18733517'],2.5],
+      ['77777777777','Another Journal',['00000001'],3.1]
+    ]
+  };
+  const value = matchSCImagoCitesPerDoc(data, 'Neuropsychologia', '0028-3932');
+  assert.equal(value.rate, 2.5);
+  assert.equal(value.type, 'scimago-cpd2');
+  assert.equal(value.year, 2025);
+  assert.equal(value.source, 'https://www.scimagojr.com/journalsearch.php?q=12345678901&tip=sid');
+  assert.match(value.name, /SCImago Cites per Doc\. \(2 years\)/);
+  assert.doesNotMatch(value.name, /Journal Impact Factor/);
+  assert.equal(matchSCImagoCitesPerDoc(data, 'Neuropsychologia', '1234-5678'), null);
+  assert.equal(matchSCImagoCitesPerDoc(data, 'Unknown Journal', '0028-3932'), null);
+  const duplicate = { ...data, records: [...data.records, ['11111111111', 'Neuropsychologia', ['00283932'], 9.0]] };
+  assert.equal(matchSCImagoCitesPerDoc(duplicate, 'Neuropsychologia', '0028-3932'), null);
+  const valueByName = matchSCImagoCitesPerDoc(data, 'Neuropsychologia');
+  assert.equal(valueByName.rate, 2.5);
+  const result = computeCitationMetrics({
+    recentCitations: '10', recentYears: '2', benchmarkRate: String(value.rate),
+    benchmarkName: value.name, benchmarkSource: value.source,
+    benchmarkType: value.type, jifWindow: '2'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.vsBenchmark, 2);
+  assert.match(describeCitationResults(result).benchmark, /2\.00 times as high as/);
+  assert.match(formatCitationReport(result), /SCImago Cites per Doc/);
+  assert.doesNotMatch(formatCitationReport(result), /Verify the exact JIF year/);
+  assert.equal(result.benchmarkType, 'scimago-cpd2');
+});
+
+test('SCImago fetched fallback demands full official annual snapshot', async () => {
+  const data = {
+    schema_version: 1, metric_year: 2025,
+    indicator: 'SCImago Cites per Doc. (2 years)',
+    records: Array.from({ length: 20000 }, (_, i) => [
+      String(20000000000 + i), i === 0 ? 'Target Journal' : 'Journal ' + i,
+      [i === 0 ? '12345678' : '00000001'], i === 0 ? 1.75 : 2
+    ])
+  };
+  const fetcher = async (url) => {
+    assert.equal(url, '/scimago-cites-per-doc.json');
+    return { ok: true, json: async () => data };
+  };
+  const metric = await fetchSCImagoCitesPerDoc('Target Journal', '1234-5678', fetcher);
+  assert.equal(metric.rate, 1.75);
+  const partial = { ...data, records: data.records.slice(0, 3) };
+  assert.equal(await fetchSCImagoCitesPerDoc('Target Journal', '1234-5678',
+    async () => ({ ok: true, json: async () => partial })), null);
+  const code = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
+  assert.match(code, /selectedWindow === '2'\s*\?\s*fetchSCImagoCitesPerDoc/);
+  assert.match(code, /const cached = known \|\| bulk;/);
+  assert.match(code, /!cached && scimago && applyAutomaticBenchmark\(scimago\)/);
+  const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
+  assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
+  assert.match(html, /citation-metrics\.js\?v=20261108scimago/);
+});
