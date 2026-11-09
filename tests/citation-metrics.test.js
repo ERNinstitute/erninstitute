@@ -292,7 +292,7 @@ test('publisher-verified Cognition JIF is available without a server endpoint', 
   assert.equal(journal.rate, 3.1);
   assert.equal(journal.year, 2025);
   assert.equal(journal.source, 'https://www.sciencedirect.com/journal/cognition');
-  assert.equal(journal.name, 'Cognition 2025 Journal Impact Factor');
+  assert.equal(journal.name, 'Cognition 2025 2-year Journal Impact Factor');
   assert.equal(matchCuratedJournalJif(registry, 'S88198767', 'Different Journal', '0010-0277'), null);
   assert.equal(matchCuratedJournalJif(registry, 'S88198767', 'Cognition', '1234-5678'), null);
   assert.equal(matchCuratedJournalJif(registry, 'S999999999', 'Cognition', '0010-0277'), null);
@@ -319,7 +319,7 @@ test('Cognition DOI screenshot case produces 2.71 Now vs. Benchmark from 3.1 JIF
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 8.4);
   assert.equal(Number(result.vsBenchmark.toFixed(2)), 2.71);
-  assert.match(formatCitationReport(result), /Cognition 2025 Journal Impact Factor/);
+  assert.match(formatCitationReport(result), /Cognition 2025 2-year Journal Impact Factor/);
   assert.match(formatCitationReport(result), /sciencedirect.com\/journal\/cognition/);
 });
 
