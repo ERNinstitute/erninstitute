@@ -343,6 +343,50 @@
     return matchCuratedJournalJif(registry, sourceId, journalName, journalIssn, options.jifWindow);
   }
 
+  function matchPublisherBatchJif(data, journalName, jifWindow = '2') {
+    if (data?.schema_version !== 1 || !Array.isArray(data.collections)) return null;
+    const norm = value => String(value || '').normalize('NFKD')
+      .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    const target = norm(journalName);
+    if (!target || target.length < 4) return null;
+    const matches = [];
+    for (const collection of data.collections) {
+      if (!Array.isArray(collection.rows) || !Array.isArray(collection.source ? [collection.source] : [])) continue;
+      for (const row of collection.rows) {
+        if (!Array.isArray(row) || !row.length || norm(row[0]) !== target) continue;
+        matches.push({ row, collection });
+      }
+    }
+    // No guessing between identically titled journals from different publishers.
+    if (matches.length !== 1) return null;
+    const { row, collection } = matches[0];
+    const window = String(jifWindow) === '5' ? '5' : '2';
+    const value = Number(row[window === '5' ? 2 : 1]);
+    const year = Number(data.metric_year);
+    const source = row[3] || collection.source;
+    if (!(value > 0 && Number.isFinite(value) && value < 100) ||
+        !Number.isInteger(year) || year < 2010 || year > new Date().getFullYear() ||
+        typeof source !== 'string' || !/^https:\/\//.test(source)) return null;
+    return {
+      type: 'jif',
+      name: `${row[0]} ${year} ${window}-year Journal Impact Factor`,
+      rate: value,
+      source,
+      year,
+      window,
+      checkedDate: String(data.checked_date || ''),
+      journal: String(row[0]),
+      publisher: String(collection.publisher || '')
+    };
+  }
+
+  async function fetchPublisherBatchJif(journalName, jifWindow = '2', fetcher = fetch, options = {}) {
+    const response = await fetcher('/journal-impact-factors-batch-2025.json?v=20261108batch1',
+      { headers: { Accept: 'application/json' }, signal: options.signal });
+    if (!response.ok) return null;
+    return matchPublisherBatchJif(await response.json(), journalName, jifWindow);
+  }
+
   const csvHeaders = [
     'Paper title', 'DOI', 'Publication year', 'Publication date', 'Cumulative citations', 'Lifetime through year', 'Recent citations',
     'Recent years', 'Window start year', 'Window end year', 'Citations per year now',
@@ -371,7 +415,7 @@
 
   const api = {
     computeCitationMetrics, interpretRatio, describeCitationResults, formatCitationReport,
-    normalizeDoi, fetchOpenAlexWork, matchCuratedJournalJif, fetchCuratedJournalJif, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
+    normalizeDoi, fetchOpenAlexWork, matchCuratedJournalJif, fetchCuratedJournalJif, matchPublisherBatchJif, fetchPublisherBatchJif, openAlexWindowCounts, openAlexLifetimeThrough, buildCitationCsv
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   if (typeof window !== 'undefined') window.ERNCitationMetrics = api;
@@ -481,19 +525,21 @@
       return;
     }
     journalStatus.textContent = `Journal: ${name}. Checking the ${selectedWindow}-year Journal Impact Factor…`;
-    // The static, source-documented registry works on GitHub Pages and other static hosts.
-    // The separate server-side parser remains best effort for journals not in that registry.
-    const publisher = selectedWindow === '2'
-      ? fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
+    // Try both public, source-documented annual snapshots. Both work on static hosting.
+    // Server-side publisher extraction is an optional last resort for missing titles.
+    const [known, bulk] = await Promise.all([
+      fetchCuratedJournalJif(sourceId, name, String(journal?.issn_l || ''), fetch,
+        { signal: AbortSignal.timeout(6500), jifWindow: selectedWindow }).catch(() => null),
+      fetchPublisherBatchJif(name, selectedWindow, fetch,
+        { signal: AbortSignal.timeout(6500) }).catch(() => null)
+    ]);
+    const cached = known || bulk;
+    let publisher = Promise.resolve(null);
+    if (!cached && selectedWindow === '2') {
+      publisher = fetch(`/api/journal-impact-factor?source=${encodeURIComponent(sourceId)}`,
         { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(8000) })
-        .then(async response => response.ok ? response.json() : null).catch(() => null)
-      : Promise.resolve(null); // Endpoint only verifies the ordinary 2-year JIF.
-
-    let cached = null;
-    try {
-      cached = await fetchCuratedJournalJif(sourceId, name, String(journal?.issn_l || ''), fetch,
-        { signal: AbortSignal.timeout(6500), jifWindow: selectedWindow });
-    } catch { /* The publisher lookup may still succeed. */ }
+        .then(async response => response.ok ? response.json() : null).catch(() => null);
+    }
     if (sequence !== publisherLookupSequence ||
         normalizeDoi(form.elements.namedItem('doi').value) !== doi) return;
 
