@@ -203,7 +203,7 @@
         : result.vsBenchmark > 1
           ? 'Its recent annual citation rate exceeds this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.'
           : 'Its recent annual citation rate is below this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.';
-      benchmarkDescription = `During ${windowDescription}, the paper received ${formatNumber(result.now)} citations per year, ${compared} the ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per year). That is ${formatNumber(result.vsBenchmark)} times as high as the ${result.benchmarkName} (${formatNumber(result.benchmark)}). ${meaning}`;
+      benchmarkDescription = `During ${windowDescription}, the paper received ${formatNumber(result.now)} citations per year, ${compared} the ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per year). ${meaning}`;
       if (result.benchmarkType === 'jif-unverified') {
         benchmarkDescription += ' Reporting year not supplied.';
       }
