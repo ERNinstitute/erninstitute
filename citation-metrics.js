@@ -362,9 +362,9 @@
     const { row, collection } = matches[0];
     const window = String(jifWindow) === '5' ? '5' : '2';
     const value = Number(row[window === '5' ? 2 : 1]);
-    const year = Number(data.metric_year);
+    const year = Number(row[4] || collection.metric_year || data.metric_year);
     const source = row[3] || collection.source;
-    if (!(value > 0 && Number.isFinite(value) && value < 100) ||
+    if (!(value > 0 && Number.isFinite(value) && value < 1000) ||
         !Number.isInteger(year) || year < 2010 || year > new Date().getFullYear() ||
         typeof source !== 'string' || !/^https:\/\//.test(source)) return null;
     return {
@@ -374,14 +374,14 @@
       source,
       year,
       window,
-      checkedDate: String(data.checked_date || ''),
+      checkedDate: String(row[5] || collection.checked_date || data.checked_date || ''),
       journal: String(row[0]),
       publisher: String(collection.publisher || '')
     };
   }
 
   async function fetchPublisherBatchJif(journalName, jifWindow = '2', fetcher = fetch, options = {}) {
-    const response = await fetcher('/journal-impact-factors-batch.json?v=20261108batch1',
+    const response = await fetcher('/journal-impact-factors-batch.json?v=20261108batch2',
       { headers: { Accept: 'application/json' }, signal: options.signal });
     if (!response.ok) return null;
     return matchPublisherBatchJif(await response.json(), journalName, jifWindow);
