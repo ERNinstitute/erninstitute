@@ -188,7 +188,7 @@
     if (result.vsBenchmark === null) {
       benchmarkDescription = 'Enter the journal’s 2-year Impact Factor above to calculate this comparison.';
     } else {
-      benchmarkDescription = `The paper's recent citation rate was ${formatNumber(result.vsBenchmark)} times as high as ${result.benchmarkName} (${formatNumber(result.benchmark)}).`;
+      benchmarkDescription = `The paper's recent citation rate was ${formatNumber(result.vsBenchmark)} times as high as the ${result.benchmarkName} (${formatNumber(result.benchmark)}).`;
       if (result.benchmarkType === 'jif-unverified') {
         benchmarkDescription += ' Reporting year not supplied.';
       }
