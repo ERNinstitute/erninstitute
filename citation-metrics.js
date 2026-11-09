@@ -956,7 +956,7 @@
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
-    lookupStatus.textContent = 'Using OpenAlex. The default window is the last five complete calendar years; you can change it under manual settings.';
+    lookupStatus.textContent = 'Using OpenAlex. The default is the last two completed calendar years; change the window under More options.';
     resetEditing();
     updateWindowMode();
     calculated = false;
