@@ -2,6 +2,8 @@
 import importlib.util
 import io
 from pathlib import Path
+import hashlib
+from unittest.mock import patch
 import tempfile
 import unittest
 
@@ -60,6 +62,55 @@ class ScimagoImportTests(unittest.TestCase):
             older['metric_year'] = 2024
             with self.assertRaisesRegex(ValueError, 'newer'):
                 scimago.write_snapshot(older, output)
+
+
+    def test_cross_verified_github_mirrors_accept_two_identical_files(self):
+        payload = (b"Total Docs. (2025);Rank\n" + b"A" * 3_000_000)
+
+        class Response:
+            def __init__(self, url):
+                self.url = url
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def geturl(self):
+                return self.url
+            def read(self, size):
+                return payload[:size]
+
+        def fake_opener(req, timeout):
+            return Response(req.full_url)
+
+        git_sha = hashlib.sha1(b"blob " + str(len(payload)).encode() + b"\0" + payload).hexdigest()
+        with patch.object(scimago, "EXPECTED_2025_GIT_SHA", git_sha):
+            text, meta = scimago.download_verified_mirrors(2025, fake_opener)
+        self.assertEqual(text.encode(), payload)
+        self.assertEqual(meta["method"], "cross_verified_github_mirrors")
+        self.assertGreaterEqual(len(meta["mirrors"]), 2)
+        self.assertEqual(meta["sha256"], hashlib.sha256(payload).hexdigest())
+
+    def test_cross_verified_github_mirrors_reject_disagreeing_files(self):
+        payload = b"Total Docs. (2026);Rank\n" + b"A" * 3_000_000
+        copies = iter(range(4))
+
+        class Response:
+            def __init__(self, url, number):
+                self.url, self.number = url, number
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def geturl(self):
+                return self.url
+            def read(self, size):
+                return payload + bytes([self.number])
+
+        def fake_opener(req, timeout):
+            return Response(req.full_url, next(copies))
+
+        with self.assertRaisesRegex(RuntimeError, "two independent identical"):
+            scimago.download_verified_mirrors(2026, fake_opener)
 
 
 if __name__ == '__main__':
