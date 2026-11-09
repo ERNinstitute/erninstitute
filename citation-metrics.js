@@ -144,7 +144,7 @@
     }
     const isJournalBenchmark = benchmarkType === 'jif' || benchmarkType === 'jif-unverified' || /\b(?:journal impact factor|jif|impact factor)\b/i.test(input.benchmarkName || '');
     if (benchmark !== null && benchmarkType === 'jif-unverified') {
-      warnings.push('The publisher displays this Journal Impact Factor without its reporting year. The comparison is provisional. Verify the exact JIF year before formal reporting.');
+      warnings.push('The Journal Impact Factor reporting year is unconfirmed. Verify the exact JIF year before formal reporting.');
     }
 
     return {
@@ -320,7 +320,7 @@
     if (year !== null && (!Number.isSafeInteger(year) || year < 2000 || year > new Date().getFullYear())) return null;
     const page = String(entry.metrics_page || entry.publisher_page || '');
     if (!/^https:\/\//i.test(page)) return null;
-    const period = window === '5' ? '5-year ' : '';
+    const period = `${window}-year `;
     return {
       type: year === null ? 'jif-unverified' : 'jif',
       name: year === null
@@ -514,8 +514,8 @@
       if (!cached || (year && year >= cached.year)) {
         const chosen = applyAutomaticBenchmark({
           type: year ? 'jif' : 'jif-unverified',
-          name: year ? `${label} ${year} Journal Impact Factor`
-            : `${label} publisher-listed Journal Impact Factor (year unstated; checked ${localDate})`,
+          name: year ? `${label} ${year} 2-year Journal Impact Factor`
+            : `${label} publisher-listed 2-year Journal Impact Factor (year unstated; checked ${localDate})`,
           rate: data.impactFactor,
           source: data.url
         });
