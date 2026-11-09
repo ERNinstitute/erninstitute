@@ -238,7 +238,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108jif5"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108batch"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -354,7 +354,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261108jif5'));
+  assert.ok(html.includes('citation-metrics.js?v=20261108batch'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
   assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
