@@ -8,11 +8,12 @@ Usage:
   python3 scripts/import_scimago.py --input "scimagojr 2025.csv" --year 2025
   python3 scripts/import_scimago.py --download --year 2025
 
-Source file is downloaded only from SCImago's official CSV export endpoint.
-On failure, retain the previous validated JSON; never publish partial results.
+Prefer SCImago's official CSV export; if blocked, use two independent GitHub
+copies only when their full 2025 CSV bytes match. Preserve previous verified data.
 """
 import argparse
 import csv
+import hashlib
 from datetime import date
 import io
 import json
@@ -27,6 +28,14 @@ DESTINATION = ROOT / "scimago-cites-per-doc.json"
 OFFICIAL = "https://www.scimagojr.com/journalrank.php?year={year}&type=all&out=xls"
 MIN_JOURNALS = 20000
 CITE_LIMIT = 1000
+MIRROR_URLS = (
+    "https://raw.githubusercontent.com/bastianaravenaulagos/DATOS_SCIMAGO_REVISTAS/main/scimagojr%20{year}.csv",
+    "https://raw.githubusercontent.com/P-M-Ferreira/ranking/main/scimagojr%20{year}.csv",
+    "https://raw.githubusercontent.com/barais/hal-irisa-scripts/main/data/scimagojr_{year}.csv",
+    "https://raw.githubusercontent.com/flonat/flonat-research/main/.context/resources/venue-rankings/scimagojr-{year}.csv",
+)
+# Confirmed identical by Git SHA across four independently hosted 2025 CSV files.
+EXPECTED_2025_GIT_SHA = "6a4e1ea4868698dedf7aabb11c8bb87bedc65ac0"
 
 
 def normalized_issns(raw):
@@ -112,6 +121,51 @@ def download_csv(year):
     return raw.decode("utf-8-sig", errors="replace")
 
 
+
+def download_verified_mirrors(year, opener=None):
+    """Use a mirror only when two repositories distribute identical CSV bytes."""
+    open_url = opener or request.urlopen
+    by_digest = {}
+    errors = []
+    for template in MIRROR_URLS:
+        url = template.format(year=year)
+        if urlparse(url).hostname != "raw.githubusercontent.com":
+            raise ValueError("Unapproved mirror domain")
+        try:
+            req = request.Request(url, headers={
+                "User-Agent": "ERNInstituteMetrics/1.0 (https://erninstitute.com/metrics.html)",
+                "Accept": "text/csv,application/octet-stream,*/*"
+            })
+            with open_url(req, timeout=25) as response:
+                if urlparse(response.geturl()).hostname != "raw.githubusercontent.com":
+                    raise ValueError("Unapproved redirect")
+                raw = response.read(25_000_001)
+            if not 3_000_000 <= len(raw) <= 25_000_000:
+                raise ValueError("Truncated or oversized CSV")
+            digest = hashlib.sha256(raw).hexdigest()
+            if year == 2025:
+                git_sha = hashlib.sha1(b"blob " + str(len(raw)).encode() + b"\0" + raw).hexdigest()
+                if git_sha != EXPECTED_2025_GIT_SHA:
+                    raise ValueError("Different from independently verified 2025 source CSV")
+            by_digest.setdefault(digest, {"raw": raw, "urls": []})["urls"].append(url)
+        except Exception as exc:
+            errors.append(f"{url}: {exc}")
+    agreeing = sorted(by_digest.items(), key=lambda item: len(item[1]["urls"]), reverse=True)
+    if not agreeing or len(agreeing[0][1]["urls"]) < 2:
+        raise RuntimeError("Need two independent identical CSV mirrors. "
+                           + "; ".join(errors[:2]))
+    digest, entry = agreeing[0]
+    text = entry["raw"].decode("utf-8-sig", "replace")
+    if f"Total Docs. ({year})" not in text.split("\n", 1)[0]:
+        raise ValueError("Wrong SCImago edition year")
+    return text, {
+        "method": "cross_verified_github_mirrors",
+        "sha256": digest,
+        "mirrors": entry["urls"],
+        "official_download_blocked": True
+    }
+
+
 def write_snapshot(result, target=DESTINATION):
     if target.exists():
         old = json.loads(target.read_text(encoding="utf-8"))
@@ -130,9 +184,18 @@ def main():
     p.add_argument("--year", type=int, default=date.today().year - 1)
     p.add_argument("--output", type=Path, default=DESTINATION)
     args = p.parse_args()
-    raw = (download_csv(args.year) if args.download
-           else args.input.read_text(encoding="utf-8-sig"))
+    verification = {"method": "supplied_official_csv"}
+    if args.download:
+        try:
+            raw = download_csv(args.year)
+            verification = {"method": "direct_official_scimago"}
+        except Exception as exc:
+            print(f"Official SCImago download unavailable: {exc}", file=sys.stderr)
+            raw, verification = download_verified_mirrors(args.year)
+    else:
+        raw = args.input.read_text(encoding="utf-8-sig")
     snapshot = parse_rankings(raw, args.year)
+    snapshot["source_verification"] = verification
     write_snapshot(snapshot, args.output)
     print(f"VERIFIED: {len(snapshot['records'])} SCImago journal records, "
           f"2-year cites/document, reporting year {args.year}. "
