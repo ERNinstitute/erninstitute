@@ -381,8 +381,8 @@
   }
 
   async function fetchPublisherBatchJif(journalName, jifWindow = '2', fetcher = fetch, options = {}) {
-    const response = await fetcher('/journal-impact-factors-batch.json?v=20261108batch2',
-      { headers: { Accept: 'application/json' }, signal: options.signal });
+    const response = await fetcher('/journal-impact-factors-batch.json',
+      { headers: { Accept: 'application/json' }, cache: 'no-store', signal: options.signal });
     if (!response.ok) return null;
     return matchPublisherBatchJif(await response.json(), journalName, jifWindow);
   }
