@@ -118,7 +118,7 @@
             <p class="citation-field-note">Automatically filled when available. If missing, enter just the journal’s Impact Factor.</p>
           </div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
-          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last five complete calendar years.</p>
+          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last two complete calendar years (2024–2025 by default in 2026).</p>
           <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
           <button id="citation-benchmark-change" class="citation-benchmark-change" type="button" hidden>Benchmark details</button>
           <a id="citation-jif-source-link" class="citation-publisher-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View publisher journal page</a>
@@ -138,7 +138,7 @@
           <div class="citation-field citation-field-full"><label for="citation-paper-title">Paper title <span class="citation-optional">(optional)</span></label><input id="citation-paper-title" name="paperTitle" type="text" placeholder="Title for the reporting summary" autocomplete="off"/></div>
           <div class="citation-field"><label for="citation-recent">Citations in recent period <span class="citation-required">*</span></label><input id="citation-recent" name="recentCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 25" required/></div>
           <div class="citation-field"><label for="citation-window-mode">Recent period definition</label><select id="citation-window-mode" name="windowMode"><option value="duration">Number of years</option><option value="calendar">Exact calendar years</option></select></div>
-          <div class="citation-field" id="citation-duration-field"><label for="citation-years">Recent period (years) <span class="citation-required">*</span></label><input id="citation-years" name="recentYears" type="number" min="1" step="1" inputmode="numeric" value="5" required/></div>
+          <div class="citation-field" id="citation-duration-field"><label for="citation-years">Recent period (years) <span class="citation-required">*</span></label><input id="citation-years" name="recentYears" type="number" min="1" step="1" inputmode="numeric" value="2" required/></div>
           <div class="citation-field-full citation-calendar-fields" id="citation-calendar-fields" hidden>
             <div class="citation-field"><label for="citation-start-year">Start year <span class="citation-required">*</span></label><input id="citation-start-year" name="startYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2024"/></div>
             <div class="citation-field"><label for="citation-end-year">End year <span class="citation-required">*</span></label><input id="citation-end-year" name="endYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2025"/></div>
@@ -297,7 +297,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261108clear"></script>
+<script src="citation-metrics.js?v=20261108two"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
