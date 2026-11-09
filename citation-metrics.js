@@ -351,7 +351,7 @@
     if (!target || target.length < 4) return null;
     const matches = [];
     for (const collection of data.collections) {
-      if (!Array.isArray(collection.rows) || !Array.isArray(collection.source ? [collection.source] : [])) continue;
+      if (!Array.isArray(collection.rows)) continue;
       for (const row of collection.rows) {
         if (!Array.isArray(row) || !row.length || norm(row[0]) !== target) continue;
         matches.push({ row, collection });
@@ -381,7 +381,7 @@
   }
 
   async function fetchPublisherBatchJif(journalName, jifWindow = '2', fetcher = fetch, options = {}) {
-    const response = await fetcher('/journal-impact-factors-batch-2025.json?v=20261108batch1',
+    const response = await fetcher('/journal-impact-factors-batch.json?v=20261108batch1',
       { headers: { Accept: 'application/json' }, signal: options.signal });
     if (!response.ok) return null;
     return matchPublisherBatchJif(await response.json(), journalName, jifWindow);
