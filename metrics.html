@@ -112,6 +112,15 @@
         <div class="citation-field">
           <label for="citation-doi">Digital Object Identifier (DOI)</label>
           <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-primary" id="citation-doi-lookup" type="button">Get citation metrics</button></div>
+          <div class="citation-field citation-quick-window">
+            <label for="citation-quick-window">Recent citation period</label>
+            <select id="citation-quick-window" aria-describedby="citation-quick-window-note">
+              <option value="completed">Last 2 completed years</option>
+              <option value="current">Include current year (year to date)</option>
+              <option value="custom">Custom dates (More options)</option>
+            </select>
+            <p id="citation-quick-window-note" class="citation-field-note">Current-year counts are year to date, not a trailing 24-month window.</p>
+          </div>
           <div class="citation-field citation-quick-benchmark">
             <label id="citation-benchmark-label" for="citation-benchmark-rate">Journal Impact Factor <span class="citation-optional">(optional)</span></label>
             <div class="citation-jif-input-row">
@@ -121,7 +130,7 @@
             <p class="citation-field-note">Official Impact Factor first; SCImago two-year citations per document when available.</p>
           </div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
-          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last two completed calendar years.</p>
+          <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last two completed calendar years. You can include current-year citations above.</p>
           <p id="citation-journal-status" class="citation-field-note" role="status" aria-live="polite" hidden></p>
           <button id="citation-benchmark-change" class="citation-benchmark-change" type="button" hidden>Benchmark details</button>
           <a id="citation-jif-source-link" class="citation-publisher-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View publisher journal page</a>
