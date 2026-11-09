@@ -236,7 +236,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108clear"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108two"></script>'));
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -345,4 +345,26 @@ test('a 0.79 lifetime ratio is described as 21 percent below the lifetime rate',
   assert.ok(result.vsLifetime > 0.78 && result.vsLifetime < 0.80);
   assert.match(describeCitationResults(result).lifetime, /21% below its lifetime average/);
   assert.doesNotMatch(describeCitationResults(result).lifetime, /not a year-by-year|has declined over time/);
+});
+
+test('DOI calculator defaults to the last two completed calendar years', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
+  assert.match(html, /name="recentYears"[^>]*value="2" required/);
+  assert.match(html, /last two completed calendar years/);
+  assert.ok(html.includes('citation-metrics.js?v=20261108two'));
+  assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
+  assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
+  assert.match(js, /recentCitations: '10', recentYears: '2', windowMode: 'duration'/);
+  assert.match(js, /form.reset\(\)/);
+  assert.match(js, /default is the last two completed calendar years/);
+  const result = computeCitationMetrics({
+    recentCitations: '10', recentYears: '2', publicationYear: '2016',
+    totalCitations: '100', benchmarkName: 'Illustrative annual benchmark',
+    benchmarkRate: '3'
+  }, 2026);
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.now, 5);
+  assert.equal(result.vsLifetime, 0.5);
+  assert.ok(Math.abs(result.vsBenchmark - 5 / 3) < 1e-12);
 });
