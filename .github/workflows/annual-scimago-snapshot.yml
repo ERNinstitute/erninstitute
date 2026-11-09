@@ -1,0 +1,57 @@
+name: Annual SCImago Cites-per-Document Snapshot
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/annual-scimago-snapshot.yml'
+      - 'scripts/import_scimago.py'
+      - 'scripts/test_import_scimago.py'
+  schedule:
+    # SCImago typically publishes the prior ranking year; check each November.
+    - cron: '0 14 2 11 *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: annual-scimago-snapshot
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test SCImago import validation
+        run: python3 -m unittest discover -s scripts -p 'test_import_scimago.py' -v
+      - name: Download and validate official SCImago CSV
+        run: |
+          RANKING_YEAR=$(( $(date -u +%Y) - 1 ))
+          python3 scripts/import_scimago.py --download --year "$RANKING_YEAR"
+      - name: Test citation calculator
+        run: |
+          node --test tests/citation-metrics.test.js tests/journal-impact-factor.test.js
+          git diff --check
+      - name: Commit annual snapshot only when complete
+        run: |
+          if git status --porcelain -- scimago-cites-per-doc.json | grep -q .; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add scimago-cites-per-doc.json
+            git commit -m 'Update official SCImago 2-year cites-per-document snapshot'
+            git push
+          else
+            echo 'No new SCImago snapshot to commit.'
+          fi
+      - name: Explain data coverage
+        if: always()
+        run: |
+          {
+            echo '## SCImago annual journal metric update'
+            echo
+            echo 'This imports only the official SCImago Cites per Doc. (2 years) value.'
+            echo 'SJR and CiteScore are never represented as Journal Impact Factors.'
+            echo 'Failure to retrieve/validate a complete official CSV leaves previous data unchanged.'
+          } >> "$GITHUB_STEP_SUMMARY"
