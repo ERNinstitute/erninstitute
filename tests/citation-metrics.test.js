@@ -45,6 +45,7 @@ test('matches the existing Excel workbook example', () => {
   assert.match(report, /Citations Per Year \(Now\): 5\.00/);
   assert.match(report, /Now vs\. Lifetime\): 0\.50/);
   assert.match(report, /Now vs\. Benchmark\): 1\.67/);
+  assert.match(report, /ARTICLE DETAILS[\\s\\S]*RECENT CITATION RATE[\\s\\S]*LIFETIME COMPARISON[\\s\\S]*JOURNAL BENCHMARK[\\s\\S]*REPORTING INFORMATION/);
   assert.match(report, /Citation source: Example database/);
   assert.match(report, /Self-citations: Included/);
 });
@@ -243,7 +244,10 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261108scimago"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111issn"></script>'));
+  assert.match(html, /class="citation-report-content"/);
+  assert.match(html, /class="citation-result-note"/);
+  assert.doesNotMatch(html, /<pre id="citation-metrics-report"/);
   assert.ok(html.includes('href="styles.css?v=20261108simple"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
@@ -359,7 +363,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261108scimago'));
+  assert.ok(html.includes('citation-metrics.js?v=20261111issn'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
   assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
@@ -542,6 +546,26 @@ test('SCImago 2-year citations per document is a clearly named alternative bench
   assert.match(value.name, /SCImago Cites per Doc\. \(2 years\)/);
   assert.doesNotMatch(value.name, /Journal Impact Factor/);
   assert.equal(matchSCImagoCitesPerDoc(data, 'Neuropsychologia', '1234-5678'), null);
+  // OpenAlex's ISSN-L can be the print identifier while SCImago lists only the e-ISSN.
+  const culturalJournal = {
+    ...data,
+    records: [['21101041530', 'Journal of Cultural Cognitive Science', ['25201018'], 2.20]]
+  };
+  assert.equal(matchSCImagoCitesPerDoc(
+    culturalJournal, 'Journal of Cultural Cognitive Science', '2520-100X'), null);
+  const alternateIssns = ['2520-100X', '2520-1018'];
+  const culturalValue = matchSCImagoCitesPerDoc(
+    culturalJournal, 'Journal of Cultural Cognitive Science', alternateIssns);
+  assert.equal(culturalValue.rate, 2.20);
+  assert.equal(culturalValue.type, 'scimago-cpd2');
+  assert.equal(matchSCImagoCitesPerDoc(
+    culturalJournal, 'Journal of Cultural Cognitive Science', ['2520-100X', '1111-1111']), null);
+  const culturalMetric = computeCitationMetrics({
+    recentCitations: '81', recentYears: '2', benchmarkRate: String(culturalValue.rate),
+    benchmarkName: culturalValue.name, benchmarkSource: culturalValue.source,
+    benchmarkType: culturalValue.type, citationSource: 'OpenAlex'
+  }, 2026);
+  assert.equal(Number(culturalMetric.vsBenchmark.toFixed(2)), 18.41);
   assert.equal(matchSCImagoCitesPerDoc(data, 'Unknown Journal', '0028-3932'), null);
   const duplicate = { ...data, records: [...data.records, ['11111111111', 'Neuropsychologia', ['00283932'], 9.0]] };
   assert.equal(matchSCImagoCitesPerDoc(duplicate, 'Neuropsychologia', '0028-3932'), null);
