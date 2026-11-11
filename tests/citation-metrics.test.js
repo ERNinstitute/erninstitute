@@ -262,7 +262,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111simplified"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111journalmatch"></script>'));
   assert.match(html, /class="citation-report-content"/);
   assert.match(html, /class="citation-result-note"/);
   assert.doesNotMatch(html, /<pre id="citation-metrics-report"/);
@@ -400,7 +400,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261111simplified'));
+  assert.ok(html.includes('citation-metrics.js?v=20261111journalmatch'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = quickMode === 'current' \? currentYear - 1/);
   assert.match(js, /const endYear = quickMode === 'current' \? currentYear/);
@@ -684,7 +684,7 @@ test('SCImago fetched fallback demands full official annual snapshot', async () 
   assert.match(code, /!cached && scimago && applyAutomaticBenchmark\(scimago\)/);
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
   assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
-  assert.match(html, /citation-metrics\.js\?v=20261111simplified/);
+  assert.match(html, /citation-metrics\.js\?v=20261111journalmatch/);
 });
 
 test('current-year citation window annualizes elapsed time and labels YTD', () => {
