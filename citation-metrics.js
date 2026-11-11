@@ -518,9 +518,7 @@
   const benchmarkFieldLabel = document.getElementById('citation-benchmark-label');
   const advancedDetails = document.getElementById('citation-advanced-details');
   const manualDetails = document.getElementById('citation-manual-details');
-  const datesDetails = document.getElementById('citation-dates-details');
-  const benchmarkDetails = document.getElementById('citation-benchmark-details');
-  const reportingDetails = document.getElementById('citation-reporting-details');
+  const selfCitationNote = document.getElementById('citation-self-source-note');
   const comparisonPanel = document.getElementById('citation-comparison');
   const comparisonBody = document.getElementById('citation-comparison-body');
   const exportButton = document.getElementById('citation-comparison-export');
@@ -806,7 +804,23 @@
     }
   }
 
+  function enforceSelfCitationSource() {
+    const selected = form.elements.namedItem('selfCitations').value;
+    if (selected === 'Excluded' && lastDoiWindow !== null) {
+      // OpenAlex DOI totals are unfiltered. Never claim they exclude self-citations.
+      setField('selfCitations', 'Included');
+      selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. To report Excluded, switch to Manual citation data, choose a manual citation source, and enter verified self-citation-excluded counts.';
+      return;
+    }
+    if (selected !== 'Excluded') {
+      selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. Select Excluded only when using manually supplied counts with self-citations removed.';
+    } else {
+      selfCitationNote.textContent = 'You selected Excluded. Confirm that the manually entered citation totals actually omit self-citations.';
+    }
+  }
+
   function calculate() {
+    enforceSelfCitationSource();
     const result = computeCitationMetrics(readInput());
     showErrors(result.errors);
     if (result.errors.length) {
@@ -929,10 +943,6 @@
       lastDoiWindow = null;
       lookupStatus.textContent = 'OpenAlex counts have been cleared. Enter recent and cumulative counts from your selected citation database, using the same cutoff.';
     }
-    if (event.target.name === 'totalCitations' && event.target.value && windowModeField.value === 'calendar'
-        && !form.elements.namedItem('lifetimeThroughYear').value) {
-      datesDetails.open = true;
-    }
     if (['windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)) {
       quickWindowField.value = 'custom';
     }
@@ -946,7 +956,11 @@
       lastDoiWindow = null;
       lookupStatus.textContent = 'The citation window changed. Look up the DOI again to retrieve matching counts, or enter verified counts manually.';
     }
-    if (calculated) calculate();
+    const manualCountsPresent = String(form.elements.namedItem('recentCitations').value).trim() !== '';
+    if (calculated || (event.target.name !== 'doi' && manualCountsPresent)) {
+      calculated = true;
+      calculate();
+    }
   });
   form.addEventListener('change', (event) => {
     if (event.target.name === 'jifWindow') {
@@ -978,7 +992,6 @@
 
   quickWindowField.addEventListener('change', () => {
     if (quickWindowField.value === 'custom') {
-      advancedDetails.open = true;
       manualDetails.open = true;
       return;
     }
@@ -1080,8 +1093,7 @@
 
   changeBenchmarkButton.addEventListener('click', () => {
     advancedDetails.open = true;
-    benchmarkDetails.open = true;
-    benchmarkDetails.scrollIntoView({ block: 'nearest' });
+    document.getElementById('citation-benchmark-details').scrollIntoView({ block: 'nearest' });
     form.elements.namedItem('benchmarkName').focus();
   });
 
@@ -1119,11 +1131,8 @@
     }
     fields.forEach((field) => { field.value = row.input[field.name] ?? ''; });
     quickWindowField.value = 'custom';
-    advancedDetails.open = true;
     manualDetails.open = true;
-    datesDetails.open = !!row.input.lifetimeThroughYear || !!row.input.publicationDate;
-    benchmarkDetails.open = !!row.input.benchmarkRate || !!row.input.benchmarkName;
-    reportingDetails.open = row.input.selfCitations === 'Excluded';
+    advancedDetails.open = !!row.input.benchmarkRate || row.input.selfCitations === 'Excluded';
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
     manualBenchmark = true;
@@ -1165,11 +1174,8 @@
     };
     fields.forEach((field) => { field.value = example[field.name] ?? ''; });
     quickWindowField.value = 'custom';
-    advancedDetails.open = true;
     manualDetails.open = true;
-    datesDetails.open = false;
-    benchmarkDetails.open = false;
-    reportingDetails.open = false;
+    advancedDetails.open = false;
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
     manualBenchmark = true;
@@ -1189,9 +1195,7 @@
     quickWindowField.value = 'completed';
     advancedDetails.open = false;
     manualDetails.open = false;
-    datesDetails.open = false;
-    benchmarkDetails.open = false;
-    reportingDetails.open = false;
+    selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. Select Excluded only when using manually supplied counts with self-citations removed.';
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
     manualBenchmark = false;
@@ -1201,7 +1205,7 @@
     lastDoiWindow = null;
     annualTrend.hidden = true;
     if (dateField) dateField.value = localDate;
-    lookupStatus.textContent = 'Using OpenAlex. The default is the last two completed calendar years; change the window under More options.';
+    lookupStatus.textContent = 'Using OpenAlex. The default is the last two completed calendar years; custom windows are under Manual citation data.';
     resetEditing();
     updateWindowMode();
     calculated = false;
