@@ -158,7 +158,7 @@
       doi: String(input.doi || '').trim(),
       citationSource: String(input.citationSource || '').trim(),
       checkedDate: String(input.checkedDate || '').trim(),
-      selfCitations: String(input.selfCitations || 'Not specified')
+      selfCitations: String(input.selfCitations || '').trim() === 'Excluded' ? 'Excluded' : 'Included'
     };
   }
 
@@ -1054,7 +1054,7 @@
         const name = findJournal(work)?.display_name || 'Journal';
         setField('benchmarkName', `${name} ${form.elements.namedItem('jifWindow').value}-year Journal Impact Factor (year not entered)`);
       }
-      setField('selfCitations', 'Not specified');
+      setField('selfCitations', 'Included');
       updateWindowMode();
       lastDoiWindow = citationWindowSignature();
       lookupPaper.textContent = `${work.display_name} (${work.publication_year})`;
@@ -1123,7 +1123,7 @@
     manualDetails.open = true;
     datesDetails.open = !!row.input.lifetimeThroughYear || !!row.input.publicationDate;
     benchmarkDetails.open = !!row.input.benchmarkRate || !!row.input.benchmarkName;
-    reportingDetails.open = !!row.input.selfCitations && row.input.selfCitations !== 'Not specified';
+    reportingDetails.open = row.input.selfCitations === 'Excluded';
     lookupPaper.hidden = true;
     resetPublisherLookup(false);
     manualBenchmark = true;
