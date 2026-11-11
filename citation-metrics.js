@@ -222,25 +222,35 @@
     const descriptions = describeCitationResults(result);
     const lines = [
       `ERN Institute | Article-level citation metrics`,
+      '',
+      'ARTICLE DETAILS',
       `Paper: ${title}`
     ];
     if (result.doi) lines.push(`DOI: ${result.doi}.`);
     if (result.publicationDate) lines.push(`Publication date: ${result.publicationDate}.`);
-    lines.push(`Citations Per Year (Now): ${formatNumber(result.now)}. ${descriptions.now}`);
+    lines.push('', 'RECENT CITATION RATE');
+    lines.push(`Citations Per Year (Now): ${formatNumber(result.now)}`);
+    lines.push(`Interpretation: ${descriptions.now}`);
+    lines.push('', 'LIFETIME COMPARISON');
     if (result.lifetime === null) {
       lines.push('Citations Per Year (Now vs. Lifetime): not calculated; enter cumulative citations and citable age with a matching time cutoff.');
     } else if (result.vsLifetime === null) {
       lines.push('Citations Per Year (Now vs. Lifetime): undefined (lifetime citation rate is zero).');
     } else {
-      lines.push(`Citations Per Year (Now vs. Lifetime): ${formatNumber(result.vsLifetime)}. ${descriptions.lifetime}`);
+      lines.push(`Citations Per Year (Now vs. Lifetime): ${formatNumber(result.vsLifetime)}`);
+      lines.push(`Interpretation: ${descriptions.lifetime}`);
       lines.push(`Lifetime calculation: ${result.totalCitations} citations / ${formatNumber(result.articleAge)} citable years${result.lifetimeThroughYear !== null ? `, through ${result.lifetimeThroughYear}` : ''}.`);
     }
+    lines.push('', 'JOURNAL BENCHMARK');
     if (result.vsBenchmark === null) {
-      lines.push('Citations Per Year (Now vs. Benchmark): not calculated; no journal Impact Factor entered or retrieved.');
+      lines.push('Citations Per Year (Now vs. Benchmark): not calculated; no verified journal metric entered or retrieved.');
     } else {
-      lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)}. ${descriptions.benchmark}`);
+      lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)}`);
+      lines.push(`Benchmark: ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per document or year, according to the named source).`);
+      lines.push(`Interpretation: ${descriptions.benchmark}`);
       lines.push(`Benchmark source: ${result.benchmarkSource || 'Not specified'}.`);
     }
+    lines.push('', 'REPORTING INFORMATION');
     lines.push(`Citation source: ${result.citationSource || 'Not specified'}.`);
     lines.push(`Date checked: ${result.checkedDate || 'Not specified'}.`);
     lines.push(`Self-citations: ${result.selfCitations}.`);
@@ -412,12 +422,13 @@
       .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
     const normalizeIssn = text => String(text || '').toUpperCase().replace(/[^0-9X]/g, '');
     const title = normalizeTitle(journalName);
-    const issn = normalizeIssn(journalIssn);
+    const issns = (Array.isArray(journalIssn) ? journalIssn : [journalIssn])
+      .map(normalizeIssn).filter(Boolean);
     if (!title) return null;
     const matches = catalogue.records.filter(row => {
       if (!Array.isArray(row) || row.length < 4 ||
           normalizeTitle(row[1]) !== title) return false;
-      return !issn || (Array.isArray(row[2]) && row[2].some(value => normalizeIssn(value) === issn));
+      return !issns.length || (Array.isArray(row[2]) && row[2].some(value => issns.includes(normalizeIssn(value))));
     });
     // Never guess when multiple Scopus records have an identical normalized title.
     if (matches.length !== 1) return null;
@@ -600,8 +611,9 @@
       fetchPublisherBatchJif(name, selectedWindow, fetch,
         { signal: AbortSignal.timeout(6500) }).catch(() => null),
       selectedWindow === '2'
-        ? fetchSCImagoCitesPerDoc(name, String(journal?.issn_l || ''), fetch,
-          { signal: AbortSignal.timeout(6500) }).catch(() => null)
+        ? fetchSCImagoCitesPerDoc(name,
+          [journal?.issn_l, ...(Array.isArray(journal?.issn) ? journal.issn : [])].filter(Boolean),
+          fetch, { signal: AbortSignal.timeout(15000) }).catch(() => null)
         : Promise.resolve(null)
     ]);
     const cached = known || bulk;
@@ -732,6 +744,49 @@
     if (element) element.textContent = text;
   }
 
+  function renderCitationNote(name, description) {
+    const element = document.querySelector(`[data-citation-output="${name}"]`);
+    if (!element) return;
+    element.replaceChildren();
+    const boundary = description.indexOf('. ');
+    const parts = boundary >= 0
+      ? [['Summary', description.slice(0, boundary + 1)], ['Interpretation', description.slice(boundary + 2)]]
+      : [['Summary', description]];
+    for (const [label, body] of parts) {
+      const paragraph = document.createElement('p');
+      const heading = document.createElement('strong');
+      heading.textContent = `${label}: `;
+      paragraph.append(heading, document.createTextNode(body));
+      element.appendChild(paragraph);
+    }
+  }
+
+  function renderCitationReport(report) {
+    const headings = new Set(['ARTICLE DETAILS', 'RECENT CITATION RATE', 'LIFETIME COMPARISON', 'JOURNAL BENCHMARK', 'REPORTING INFORMATION']);
+    reportBox.replaceChildren();
+    for (const raw of report.split('\n')) {
+      const line = raw.trim();
+      if (!line) continue;
+      if (headings.has(line)) {
+        const heading = document.createElement('h4');
+        heading.textContent = line;
+        reportBox.appendChild(heading);
+        continue;
+      }
+      const paragraph = document.createElement('p');
+      const separator = line.indexOf(': ');
+      if (separator > 0 && separator < 70) {
+        const label = document.createElement('strong');
+        label.textContent = line.slice(0, separator + 1) + ' ';
+        paragraph.append(label, document.createTextNode(line.slice(separator + 2)));
+      } else {
+        paragraph.textContent = line;
+        if (line.startsWith('ERN Institute |')) paragraph.className = 'citation-report-brand';
+      }
+      reportBox.appendChild(paragraph);
+    }
+  }
+
   function showErrors(messages) {
     errorsBox.hidden = messages.length === 0;
     errorsBox.replaceChildren();
@@ -761,14 +816,14 @@
     const descriptions = describeCitationResults(result);
     resultsSource.textContent = `Citation source: ${result.citationSource || 'Not specified'}`;
     setText('now', formatNumber(result.now));
-    setText('now-note', descriptions.now);
+    renderCitationNote('now-note', descriptions.now);
     setText('lifetime', result.vsLifetime === null ? 'N/A' : formatNumber(result.vsLifetime));
-    setText('lifetime-note', descriptions.lifetime);
+    renderCitationNote('lifetime-note', descriptions.lifetime);
     setText('benchmark', result.vsBenchmark === null ? 'N/A' : formatNumber(result.vsBenchmark));
-    setText('benchmark-note', descriptions.benchmark);
+    renderCitationNote('benchmark-note', descriptions.benchmark);
     warningBox.hidden = result.warnings.length === 0;
     warningBox.textContent = result.warnings.join(' ');
-    reportBox.textContent = formatCitationReport(result);
+    renderCitationReport(formatCitationReport(result));
     copyButton.textContent = 'Copy report';
     emptyBox.hidden = true;
     resultsBox.hidden = false;
@@ -1154,7 +1209,7 @@
   });
   copyButton.addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText(reportBox.textContent);
+      await navigator.clipboard.writeText(latestResult ? formatCitationReport(latestResult) : '');
       copyButton.textContent = 'Copied';
     } catch (_error) {
       copyButton.textContent = 'Copy unavailable: select the report text';
