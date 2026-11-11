@@ -2934,6 +2934,69 @@ li {
   border: 0;
 }
 
+/* DOI-first calculator: two clearly separated disclosures, no nested menus. */
+.citation-advanced-details {
+  margin-top: 0.75rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.citation-advanced-details > summary {
+  position: relative;
+  padding: 0.85rem 2.35rem 0.85rem 0.95rem;
+  list-style: none;
+}
+.citation-advanced-details > summary::-webkit-details-marker { display: none; }
+.citation-advanced-details > summary::after {
+  position: absolute;
+  top: 0.64rem;
+  right: 0.9rem;
+  content: "+";
+  font-size: 1.5rem;
+  line-height: 1;
+  font-weight: 500;
+}
+.citation-advanced-details[open] > summary::after { content: "−"; }
+.citation-advanced-details > summary span { margin-top: 0.12rem; }
+
+.citation-advanced-content {
+  padding: 0 0.95rem 1rem;
+}
+
+.citation-form-subsection {
+  margin-top: 0.95rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+.citation-advanced-content > .citation-form-subsection:first-child {
+  margin-top: 0;
+  padding-top: 1rem;
+}
+.citation-form-subsection h4 {
+  margin: 0 0 0.75rem;
+  color: var(--accent-dark);
+  font-family: inherit;
+  font-size: 0.91rem;
+  font-weight: 800;
+}
+.citation-form-subsection fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.citation-advanced-content .citation-quick-benchmark {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.citation-autocalculate-note {
+  margin-top: 0.45rem;
+  color: var(--accent-dark);
+  font-weight: 650;
+}
+
 .citation-form-secondary-actions {
   display: flex;
   flex-wrap: wrap;
