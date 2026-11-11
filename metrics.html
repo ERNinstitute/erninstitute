@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261108simple" rel="stylesheet"/>
+<link href="styles.css?v=20261111readable" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -210,9 +210,9 @@
         <h3 class="citation-results-title">Calculated results</h3>
         <p class="citation-results-source" id="citation-results-source"></p>
         <div class="citation-result-cards">
-          <article class="citation-result-card"><span>Citations Per Year (Now)</span><strong data-citation-output="now">0.00</strong><p data-citation-output="now-note"></p></article>
-          <article class="citation-result-card"><span>Citations Per Year (Now vs. Lifetime)</span><strong data-citation-output="lifetime">N/A</strong><p data-citation-output="lifetime-note"></p></article>
-          <article class="citation-result-card"><span>Citations Per Year (Now vs. Benchmark)</span><strong data-citation-output="benchmark">N/A</strong><p data-citation-output="benchmark-note"></p></article>
+          <article class="citation-result-card"><span>Citations Per Year (Now)</span><strong data-citation-output="now">0.00</strong><div class="citation-result-note" data-citation-output="now-note"></div></article>
+          <article class="citation-result-card"><span>Citations Per Year (Now vs. Lifetime)</span><strong data-citation-output="lifetime">N/A</strong><div class="citation-result-note" data-citation-output="lifetime-note"></div></article>
+          <article class="citation-result-card"><span>Citations Per Year (Now vs. Benchmark)</span><strong data-citation-output="benchmark">N/A</strong><div class="citation-result-note" data-citation-output="benchmark-note"></div></article>
         </div>
         <div id="citation-metrics-warnings" class="citation-result-warning" hidden></div>
         <section id="citation-annual-trend" class="card citation-annual-trend" hidden aria-labelledby="citation-annual-trend-title">
@@ -223,7 +223,7 @@
         <div class="card citation-report-card">
           <h3>Copyable reporting summary</h3>
           <p class="citation-field-note">Include the source, time window, and benchmark details when reporting these measures.</p>
-          <pre id="citation-metrics-report" tabindex="0"></pre>
+          <div id="citation-metrics-report" class="citation-report-content" role="region" aria-label="Structured citation report preview" tabindex="0"></div>
           <button class="btn btn-outline" id="citation-metrics-copy" type="button">Copy report</button>
         </div>
         <button class="btn btn-primary citation-add-comparison" id="citation-metrics-add" type="button">Add paper to comparison</button>
@@ -309,7 +309,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261108scimago"></script>
+<script src="citation-metrics.js?v=20261111issn"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
