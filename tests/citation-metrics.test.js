@@ -621,6 +621,45 @@ test('SCImago 2-year citations per document is a clearly named alternative bench
   assert.equal(result.benchmarkType, 'scimago-cpd2');
 });
 
+test('full 2025 SCImago catalogue resolves ampersands and unique journal ISSNs', () => {
+  const full = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'scimago-cites-per-doc.json'), 'utf8'));
+  assert.ok(full.records.length >= 30000);
+  const pbr = matchSCImagoCitesPerDoc(full, 'Psychonomic Bulletin & Review', ['1069-9384', '1531-5320']);
+  assert.ok(pbr, 'Psychonomic Bulletin & Review must not be rejected for & vs and');
+  assert.equal(pbr.rate, 3.58);
+  assert.equal(pbr.year, 2025);
+  assert.equal(pbr.type, 'scimago-cpd2');
+  assert.match(pbr.source, /journalsearch\.php\?q=14062&tip=sid/);
+  assert.equal(matchSCImagoCitesPerDoc(full, 'Psychonomic Bulletin & Review', '1111-1111'), null);
+  assert.equal(matchSCImagoCitesPerDoc(full, 'Different Unrelated Journal', '1069-9384'), null);
+  const cultural = matchSCImagoCitesPerDoc(full, 'Journal of Cultural Cognitive Science', ['2520-100X', '2520-1018']);
+  assert.equal(cultural.rate, 2.20);
+  const article = computeCitationMetrics({
+    recentCitations: '15', windowMode: 'calendar', startYear: '2024', endYear: '2025',
+    benchmarkType: pbr.type, benchmarkName: pbr.name,
+    benchmarkRate: String(pbr.rate), benchmarkSource: pbr.source,
+    citationSource: 'OpenAlex'
+  }, 2026);
+  assert.deepEqual(article.errors, []);
+  assert.equal(article.now, 7.5);
+  assert.equal(Number(article.vsBenchmark.toFixed(2)), 2.09);
+  assert.match(formatCitationReport(article), /2025 SCImago Cites per Doc/);
+});
+
+test('near-title variants need shared ISSN and cannot match ambiguous catalogues', () => {
+  const sample = {
+    schema_version: 1,
+    indicator: 'SCImago Cites per Doc. (2 years)',
+    metric_year: 2025,
+    records: [['14062', 'Psychonomic Bulletin and Review', ['10699384'], 3.58]]
+  };
+  assert.equal(matchSCImagoCitesPerDoc(sample, 'Psychonomic Bulletin & Review', '1069-9384').rate, 3.58);
+  assert.equal(matchSCImagoCitesPerDoc(sample, 'Psychonomic Bulletin and Review Journal', '1069-9384').rate, 3.58);
+  assert.equal(matchSCImagoCitesPerDoc(sample, 'Psychonomic Bulletin and Review Journal', '9999-9999'), null);
+  const ambiguous = { ...sample, records: [...sample.records, ['99999', 'Psychonomic Bulletin and Review', ['10699384'], 3.9]] };
+  assert.equal(matchSCImagoCitesPerDoc(ambiguous, 'Psychonomic Bulletin & Review', '1069-9384'), null);
+});
+
 test('SCImago fetched fallback demands full official annual snapshot', async () => {
   const data = {
     schema_version: 1, metric_year: 2025,
