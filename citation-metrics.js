@@ -421,21 +421,40 @@
         !Array.isArray(catalogue.records)) return null;
     const year = Number(catalogue.metric_year);
     if (!Number.isInteger(year) || year < 2000 || year > new Date().getFullYear()) return null;
+    // Publisher/OpenAlex names may use "&" while SCImago uses "and".
+    // Normalize common title punctuation, but never drop the ISSN identity check.
     const normalizeTitle = text => String(text || '').normalize('NFKD')
-      .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+      .toLowerCase().replace(/[\u0300-\u036f]/g, '')
+      .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ').trim();
     const normalizeIssn = text => String(text || '').toUpperCase().replace(/[^0-9X]/g, '');
     const title = normalizeTitle(journalName);
     const queryIssns = (Array.isArray(journalIssn) ? journalIssn : [journalIssn])
       .map(normalizeIssn).filter(Boolean);
     if (!title) return null;
-    const matches = catalogue.records.filter(row => {
-      if (!Array.isArray(row) || row.length < 4 ||
-          normalizeTitle(row[1]) !== title) return false;
-      return !queryIssns.length || (Array.isArray(row[2]) && row[2].some(value => queryIssns.includes(normalizeIssn(value))));
-    });
-    // Never guess when multiple Scopus records have an identical normalized title.
-    if (matches.length !== 1) return null;
-    const [scopusId, matchedTitle, issns, rate] = matches[0];
+    const sameIssn = row => Array.isArray(row[2]) &&
+      row[2].some(value => queryIssns.includes(normalizeIssn(value)));
+    const sameTitle = row => normalizeTitle(row[1]) === title;
+    // Exact normalized title and shared ISSN are the normal matching route.
+    const matches = catalogue.records.filter(row => Array.isArray(row) && row.length >= 4 &&
+      sameTitle(row) && (!queryIssns.length || sameIssn(row)));
+    if (matches.length > 1) return null;
+    let selected = matches[0] || null;
+    if (!selected && queryIssns.length) {
+      // The ISSN is a stronger cross-provider identity than journal typography.
+      // Permit one uniquely identified record with a strongly overlapping title,
+      // while rejecting unrelated names, reused identifiers, and ambiguous matches.
+      const byIssn = catalogue.records.filter(row => Array.isArray(row) && row.length >= 4 && sameIssn(row));
+      if (byIssn.length === 1) {
+        const tokens = new Set(title.split(' '));
+        const other = new Set(normalizeTitle(byIssn[0][1]).split(' '));
+        const intersection = [...tokens].filter(token => other.has(token)).length;
+        const overlap = intersection / Math.max(tokens.size, other.size);
+        if (overlap >= 0.8) selected = byIssn[0];
+      }
+    }
+    if (!selected) return null;
+    const [scopusId, matchedTitle, issns, rate] = selected;
     if (!/^\d{4,15}$/.test(String(scopusId)) || !Array.isArray(issns) ||
         !Number.isFinite(rate) || rate <= 0 || rate > 1000) return null;
     return {
