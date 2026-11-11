@@ -10,7 +10,7 @@
 <meta property="og:description" content="Calculate article-level citation metrics in your browser, with a transparent reporting summary and optional Excel download."/>
 <meta property="og:type" content="website"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&amp;display=swap" rel="stylesheet"/>
-<link href="styles.css?v=20261111readable" rel="stylesheet"/>
+<link href="styles.css?v=20261111simplified" rel="stylesheet"/>
 <link href="images/ERN_logo_brain_only.svg" rel="icon" type="image/svg+xml"/>
 <link href="https://erninstitute.com/metrics.html" rel="canonical"/>
 
@@ -101,14 +101,14 @@
   <div class="citation-calculator-intro">
     <p class="eyebrow">Free research tool</p>
     <h2 id="citation-calculator-heading">Calculate citation metrics in your browser</h2>
-    <p>Enter a DOI to calculate all three metrics. Choose a 2-year or 5-year journal Impact Factor; if it is missing, enter just that number. No account required.</p>
+    <p>Enter a DOI to calculate the metrics automatically. Available journal benchmarks are added for you. Manual data and advanced settings are optional. No account required.</p>
   </div>
   <div class="citation-calculator-layout">
     <form id="citation-metrics-form" class="card citation-calculator-form" novalidate>
       <section class="citation-doi-start" aria-labelledby="citation-doi-start-title">
         <span class="citation-step-kicker">Quick start</span>
         <h3 id="citation-doi-start-title">Look up a paper by DOI</h3>
-        <p>Paste a DOI and select <strong>Get citation metrics</strong>. We’ll retrieve citation counts and look up the selected journal Impact Factor.</p>
+        <p>Paste a DOI and select <strong>Get citation metrics</strong> to retrieve article citations and any available journal benchmark.</p>
         <div class="citation-field">
           <label for="citation-doi">Digital Object Identifier (DOI)</label>
           <div class="citation-doi-row"><input id="citation-doi" name="doi" type="text" placeholder="e.g., 10.1073/pnas.2532470123" autocomplete="off"/><button class="btn btn-primary" id="citation-doi-lookup" type="button">Get citation metrics</button></div>
@@ -117,17 +117,9 @@
             <select id="citation-quick-window" aria-describedby="citation-quick-window-note">
               <option value="completed">Last 2 completed years</option>
               <option value="current">Include current year (year to date)</option>
-              <option value="custom">Custom dates (More options)</option>
+              <option value="custom">Custom dates (Manual citation data)</option>
             </select>
             <p id="citation-quick-window-note" class="citation-field-note">Current-year counts are year to date, not a trailing 24-month window.</p>
-          </div>
-          <div class="citation-field citation-quick-benchmark">
-            <label id="citation-benchmark-label" for="citation-benchmark-rate">Journal Impact Factor <span class="citation-optional">(optional)</span></label>
-            <div class="citation-jif-input-row">
-              <select id="citation-jif-window" name="jifWindow" aria-label="Journal Impact Factor time window"><option value="2">2-year</option><option value="5">5-year</option></select>
-              <input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="Automatically filled or enter a value"/>
-            </div>
-            <p class="citation-field-note">Official Impact Factor first; SCImago two-year citations per document when available.</p>
           </div>
           <p id="citation-doi-paper" class="citation-doi-paper" hidden></p>
           <p id="citation-doi-status" class="citation-field-note" role="status" aria-live="polite">Using OpenAlex citation data from the last two completed calendar years. You can include current-year citations above.</p>
@@ -137,11 +129,8 @@
         </div>
       </section>
 
-      <details class="citation-advanced-details" id="citation-advanced-details">
-        <summary>More options <span>Manual citation counts, benchmark details, reporting</span></summary>
-        <div class="citation-advanced-content">
       <details class="citation-manual-details" id="citation-manual-details">
-        <summary>Enter citation counts manually <span>Google Scholar, Web of Science, ResearchGate</span></summary>
+        <summary>Manual citation data <span>Use Google Scholar, Web of Science, or your own verified counts</span></summary>
         <div class="citation-manual-content">
       <fieldset>
         <legend>Paper and citation counts</legend>
@@ -159,31 +148,34 @@
           <div class="citation-field"><label for="citation-total">Cumulative citations through cutoff <span class="citation-optional">(optional)</span></label><input id="citation-total" name="totalCitations" type="number" min="0" step="1" inputmode="numeric" placeholder="e.g., 100"/></div>
           <div class="citation-field"><label for="citation-published">Publication year <span class="citation-optional">(optional)</span></label><input id="citation-published" name="publicationYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2016"/></div>
         </div>
-        <details class="citation-optional-details" id="citation-dates-details">
-          <summary>Additional date and cutoff settings</summary>
+        <section class="citation-form-subsection" id="citation-dates-details">
+          <h4>Optional dates and citation cutoffs</h4>
           <div class="citation-fields">
             <div class="citation-field"><label for="citation-lifetime-through">Cumulative count through year <span class="citation-optional">(optional)</span></label><input id="citation-lifetime-through" name="lifetimeThroughYear" type="number" min="1" step="1" inputmode="numeric" placeholder="e.g., 2025"/><p class="citation-field-note">For exact calendar years, this must match the recent window’s end year.</p></div>
             <div class="citation-field"><label for="citation-publication-date">Exact publication date <span class="citation-optional">(optional)</span></label><input id="citation-publication-date" name="publicationDate" type="date"/><p class="citation-field-note">Recommended for younger papers; DOI lookup fills this when available.</p></div>
           </div>
-        </details>
+        </section>
         <p class="citation-field-note">Use recent and cumulative citation counts from the <strong>same database and cutoff</strong>. For example, a 2024–2025 window requires cumulative citations through 2025, excluding 2026. DOI lookup aligns these automatically.</p>
       </fieldset>
-      <details class="citation-optional-details" id="citation-reporting-details">
-        <summary>Reporting details <span>(optional)</span></summary>
-      <fieldset>
-        <div class="citation-fields">
-          <div class="citation-field"><label for="citation-date">Date checked</label><input id="citation-date" name="checkedDate" type="date"/></div>
-          <div class="citation-field citation-field-full"><label for="citation-self">Self-citations</label><select id="citation-self" name="selfCitations"><option value="Included" selected>Included (default)</option><option value="Excluded">Excluded</option></select><p class="citation-field-note">Citation counts include self-citations unless you specifically use counts that exclude them.</p></div>
-        </div>
-      </fieldset>
-      </details>
-      <div class="citation-form-actions">
-        <button class="btn btn-primary" type="submit">Calculate metrics</button>
-      </div>
+          <p class="citation-field-note citation-autocalculate-note">Results recalculate automatically as you enter or change valid values.</p>
         </div>
       </details>
-      <details class="citation-optional-details" id="citation-benchmark-details">
-        <summary>Benchmark details <span>(optional)</span></summary>
+      <details class="citation-advanced-details" id="citation-advanced-details">
+        <summary>Advanced settings <span>Journal benchmark and reporting information</span></summary>
+        <div class="citation-advanced-content">
+          <section class="citation-form-subsection citation-form-subsection-first" aria-labelledby="citation-advanced-jif-title">
+            <h4 id="citation-advanced-jif-title">Journal benchmark</h4>
+          <div class="citation-field citation-quick-benchmark">
+            <label id="citation-benchmark-label" for="citation-benchmark-rate">Journal Impact Factor <span class="citation-optional">(optional)</span></label>
+            <div class="citation-jif-input-row">
+              <select id="citation-jif-window" name="jifWindow" aria-label="Journal Impact Factor time window"><option value="2">2-year</option><option value="5">5-year</option></select>
+              <input id="citation-benchmark-rate" name="benchmarkRate" type="number" min="0" step="any" inputmode="decimal" placeholder="Automatically filled or enter a value"/>
+            </div>
+            <p class="citation-field-note">Official Impact Factor first; SCImago two-year citations per document when available.</p>
+          </div>
+          </section>
+          <section class="citation-form-subsection" id="citation-benchmark-details" aria-labelledby="citation-benchmark-details-heading">
+            <h4 id="citation-benchmark-details-heading">Benchmark source and reporting year</h4>
       <fieldset>
         <div class="citation-fields">
           <div class="citation-field citation-field-full"><label for="citation-benchmark-type">Benchmark type</label><select id="citation-benchmark-type" name="benchmarkType"><option value="jif-unverified">Journal Impact Factor (year not specified)</option><option value="jif">Journal Impact Factor (year confirmed)</option><option value="scimago-cpd2">SCImago Cites per Doc. (2 years; Scopus-based)</option><option value="annual">Another annual benchmark</option></select></div>
@@ -193,7 +185,17 @@
         </div>
         <p class="citation-field-note">The selected two- or five-year Impact Factor can be entered above. Add its reporting year, source, or another annual benchmark here if needed.</p>
       </fieldset>
-      </details>
+          </section>
+          <section class="citation-form-subsection" id="citation-reporting-details" aria-labelledby="citation-reporting-details-heading">
+            <h4 id="citation-reporting-details-heading">Reporting information</h4>
+      <fieldset>
+        <div class="citation-fields">
+          <div class="citation-field"><label for="citation-date">Date checked</label><input id="citation-date" name="checkedDate" type="date"/></div>
+          <div class="citation-field citation-field-full"><label for="citation-self">Self-citations</label><select id="citation-self" name="selfCitations"><option value="Included" selected>Included (default)</option><option value="Excluded">Excluded</option></select><p class="citation-field-note">Citation counts include self-citations unless you specifically use counts that exclude them.</p></div>
+        </div>
+      </fieldset>
+            <p id="citation-self-source-note" class="citation-field-note" role="status" aria-live="polite">OpenAlex DOI counts include self-citations. Select Excluded only when using manually supplied counts with self-citations removed.</p>
+          </section>
         </div>
       </details>
       <div class="citation-form-secondary-actions"><button class="citation-clear-button" id="citation-metrics-example" type="button">Try an example</button><button class="citation-clear-button" id="citation-metrics-clear" type="button">Clear form</button></div>
@@ -309,7 +311,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261111selfcitations"></script>
+<script src="citation-metrics.js?v=20261111simplified"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
