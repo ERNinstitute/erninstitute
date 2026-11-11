@@ -50,6 +50,24 @@ test('matches the existing Excel workbook example', () => {
   assert.match(report, /Self-citations: Included/);
 });
 
+test('self-citations default to Included unless explicitly excluded', () => {
+  const unspecified = computeCitationMetrics({ recentCitations: '12', recentYears: '2' }, 2026);
+  const legacy = computeCitationMetrics({ recentCitations: '12', recentYears: '2', selfCitations: 'Not specified' }, 2026);
+  const excluded = computeCitationMetrics({ recentCitations: '12', recentYears: '2', selfCitations: 'Excluded' }, 2026);
+  assert.equal(unspecified.selfCitations, 'Included');
+  assert.equal(legacy.selfCitations, 'Included');
+  assert.equal(excluded.selfCitations, 'Excluded');
+  assert.match(formatCitationReport(unspecified), /Self-citations: Included\./);
+  assert.match(formatCitationReport(excluded), /Self-citations: Excluded\./);
+  const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
+  assert.match(html, /<option value="Included" selected>Included \(default\)<\/option>/);
+  assert.match(html, /<option value="Excluded">Excluded<\/option>/);
+  assert.doesNotMatch(html, /<option value="Not specified">/);
+  assert.match(js, /setField\('selfCitations', 'Included'\)/);
+  assert.match(js, /form\.reset\(\)/);
+});
+
 test('recent rate works without lifetime or benchmark fields', () => {
   const result = computeCitationMetrics({ recentCitations: '0', recentYears: '2' }, 2026);
   assert.deepEqual(result.errors, []);
@@ -244,7 +262,7 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111issn"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111selfcitations"></script>'));
   assert.match(html, /class="citation-report-content"/);
   assert.match(html, /class="citation-result-note"/);
   assert.doesNotMatch(html, /<pre id="citation-metrics-report"/);
@@ -363,7 +381,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261111issn'));
+  assert.ok(html.includes('citation-metrics.js?v=20261111selfcitations'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = quickMode === 'current' \? currentYear - 1/);
   assert.match(js, /const endYear = quickMode === 'current' \? currentYear/);
