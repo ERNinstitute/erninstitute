@@ -262,15 +262,15 @@ test('browser calculator includes all form fields and result targets', () => {
   for (const key of ['now', 'now-note', 'lifetime', 'lifetime-note', 'benchmark', 'benchmark-note']) {
     assert.ok(html.includes(`data-citation-output="${key}"`), `Missing output ${key}`);
   }
-  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111selfcitations"></script>'));
+  assert.ok(html.includes('<script src="citation-metrics.js?v=20261111simplified"></script>'));
   assert.match(html, /class="citation-report-content"/);
   assert.match(html, /class="citation-result-note"/);
   assert.doesNotMatch(html, /<pre id="citation-metrics-report"/);
-  assert.ok(html.includes('href="styles.css?v=20261111readable"'));
+  assert.ok(html.includes('href="styles.css?v=20261111simplified"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
-  assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
-  assert.ok(html.includes('id="citation-reporting-details"'), 'Optional reporting fields should have their own disclosure');
+  assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark metadata should remain available');
+  assert.ok(html.includes('id="citation-reporting-details"'), 'Optional reporting fields should remain available');
   assert.ok(html.includes('<option value="Google Scholar">') && html.includes('<option value="Web of Science">') && html.includes('<option value="ResearchGate">'), 'Manual citation sources must be offered');
   assert.ok(html.includes('id="citation-results-source"'), 'Calculated results should identify the citation database');
   assert.ok(html.includes('Citations Per Year (Now vs. Lifetime)</span>'));
@@ -280,6 +280,25 @@ test('browser calculator includes all form fields and result targets', () => {
     assert.ok(ids.includes(id), `Missing ${id}`);
   }
   assert.ok(ids.includes('citation-annual-trend-bars'));
+});
+
+test('DOI-first form has two disclosures and recalculates manual counts automatically', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
+  const form = html.slice(html.indexOf('<form id="citation-metrics-form"'), html.indexOf('</form>') + '</form>'.length);
+  assert.equal((form.match(/<details\b/g) || []).length, 2);
+  assert.equal((form.match(/<summary>/g) || []).length, 2);
+  assert.match(form, /<summary>Manual citation data/);
+  assert.match(form, /<summary>Advanced settings/);
+  assert.doesNotMatch(form, />Calculate metrics<\/button>/);
+  assert.ok(form.indexOf('id="citation-doi"') < form.indexOf('id="citation-manual-details"'));
+  assert.ok(form.indexOf('id="citation-manual-details"') < form.indexOf('id="citation-advanced-details"'));
+  assert.ok(form.indexOf('id="citation-advanced-details"') < form.indexOf('id="citation-benchmark-rate"'));
+  assert.match(js, /const manualCountsPresent = String\(form\.elements\.namedItem\('recentCitations'\)\.value\)\.trim\(\) !== '';/);
+  assert.match(js, /if \(calculated \|\| \(event\.target\.name !== 'doi' && manualCountsPresent\)\)/);
+  assert.match(js, /selected === 'Excluded' && lastDoiWindow !== null/);
+  assert.match(js, /setField\('selfCitations', 'Included'\)/);
+  assert.doesNotMatch(js, /datesDetails\.open|benchmarkDetails\.open|reportingDetails\.open/);
 });
 
 test('publisher-listed JIF with an unconfirmed reporting year is clearly provisional', () => {
@@ -297,7 +316,7 @@ test('publisher-listed JIF with an unconfirmed reporting year is clearly provisi
   assert.match(formatCitationReport(result), /Verify the exact JIF year before formal reporting/);
 });
 
-test('benchmark controls remain optional and outside the manual citation panel', () => {
+test('benchmark controls remain optional under advanced settings and outside the manual citation panel', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   const manual = html.indexOf('id="citation-manual-details"');
@@ -306,9 +325,9 @@ test('benchmark controls remain optional and outside the manual citation panel',
   const example = html.indexOf('id="citation-metrics-example"');
   const advanced = html.indexOf('id="citation-advanced-details"');
   const rate = html.indexOf('id="citation-benchmark-rate"');
-  assert.ok(rate < advanced && advanced < manual && manual < report && report < benchmark && benchmark < example);
+  assert.ok(manual < advanced && advanced < rate && rate < benchmark && benchmark < report && report < example);
   assert.equal((html.match(/name="benchmarkRate"/g) || []).length, 1, 'Only one Impact Factor input should exist');
-  assert.match(html, /<summary>More options/);
+  assert.match(html, /<summary>Advanced settings/);
   assert.ok(html.includes('id="citation-benchmark-change"'));
   assert.match(js, /lookupJournalBenchmark\(work, normalizeDoi\(doi\)\)/);
   assert.match(js, /Illustrative annual benchmark \(not a real journal factor\)/);
@@ -381,7 +400,7 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'citation-metrics.js'), 'utf8');
   assert.match(html, /name="recentYears"[^>]*value="2" required/);
   assert.match(html, /last two completed calendar years/);
-  assert.ok(html.includes('citation-metrics.js?v=20261111selfcitations'));
+  assert.ok(html.includes('citation-metrics.js?v=20261111simplified'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
   assert.match(js, /const startYear = quickMode === 'current' \? currentYear - 1/);
   assert.match(js, /const endYear = quickMode === 'current' \? currentYear/);
@@ -626,7 +645,7 @@ test('SCImago fetched fallback demands full official annual snapshot', async () 
   assert.match(code, /!cached && scimago && applyAutomaticBenchmark\(scimago\)/);
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
   assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
-  assert.match(html, /citation-metrics\.js\?v=20261111selfcitations/);
+  assert.match(html, /citation-metrics\.js\?v=20261111simplified/);
 });
 
 test('current-year citation window annualizes elapsed time and labels YTD', () => {
