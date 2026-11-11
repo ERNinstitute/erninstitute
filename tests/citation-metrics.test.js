@@ -626,7 +626,7 @@ test('SCImago fetched fallback demands full official annual snapshot', async () 
   assert.match(code, /!cached && scimago && applyAutomaticBenchmark\(scimago\)/);
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
   assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
-  assert.match(html, /citation-metrics\.js\?v=20261111issn/);
+  assert.match(html, /citation-metrics\.js\?v=20261111selfcitations/);
 });
 
 test('current-year citation window annualizes elapsed time and labels YTD', () => {
