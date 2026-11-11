@@ -422,13 +422,13 @@
       .toLowerCase().replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
     const normalizeIssn = text => String(text || '').toUpperCase().replace(/[^0-9X]/g, '');
     const title = normalizeTitle(journalName);
-    const issns = (Array.isArray(journalIssn) ? journalIssn : [journalIssn])
+    const queryIssns = (Array.isArray(journalIssn) ? journalIssn : [journalIssn])
       .map(normalizeIssn).filter(Boolean);
     if (!title) return null;
     const matches = catalogue.records.filter(row => {
       if (!Array.isArray(row) || row.length < 4 ||
           normalizeTitle(row[1]) !== title) return false;
-      return !issns.length || (Array.isArray(row[2]) && row[2].some(value => issns.includes(normalizeIssn(value))));
+      return !queryIssns.length || (Array.isArray(row[2]) && row[2].some(value => queryIssns.includes(normalizeIssn(value))));
     });
     // Never guess when multiple Scopus records have an identical normalized title.
     if (matches.length !== 1) return null;
