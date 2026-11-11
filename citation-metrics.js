@@ -812,10 +812,10 @@
       selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. To report Excluded, switch to Manual citation data, choose a manual citation source, and enter verified self-citation-excluded counts.';
       return;
     }
-    if (selected !== 'Excluded') {
-      selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. Select Excluded only when using manually supplied counts with self-citations removed.';
-    } else {
+    if (selected === 'Excluded') {
       selfCitationNote.textContent = 'You selected Excluded. Confirm that the manually entered citation totals actually omit self-citations.';
+    } else if (!selfCitationNote.textContent.includes('To report Excluded, switch to Manual citation data')) {
+      selfCitationNote.textContent = 'OpenAlex DOI counts include self-citations. Select Excluded only when using manually supplied counts with self-citations removed.';
     }
   }
 
@@ -942,6 +942,7 @@
       annualTrend.hidden = true;
       lastDoiWindow = null;
       lookupStatus.textContent = 'OpenAlex counts have been cleared. Enter recent and cumulative counts from your selected citation database, using the same cutoff.';
+      selfCitationNote.textContent = 'Select Excluded only if the replacement citation counts omit self-citations. Otherwise keep Included.';
     }
     if (['windowMode', 'recentYears', 'startYear', 'endYear'].includes(event.target.name)) {
       quickWindowField.value = 'custom';
