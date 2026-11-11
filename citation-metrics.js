@@ -204,7 +204,10 @@
         : result.vsBenchmark > 1
           ? 'Its recent annual citation rate exceeds this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.'
           : 'Its recent annual citation rate is below this reference value. This compares citation activity with a journal-level or other external benchmark, not with the paper’s own citation history.';
-      benchmarkDescription = `During ${windowDescription}, the paper received ${formatNumber(result.now)} citations per year, ${compared} the ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per year). ${meaning}`;
+      const benchmarkUnit = result.benchmarkType === 'scimago-cpd2'
+        ? 'citations per document (two-year window)'
+        : 'citations per year';
+      benchmarkDescription = `During ${windowDescription}, the paper received ${formatNumber(result.now)} citations per year, ${compared} the ${result.benchmarkName} (${formatNumber(result.benchmark)} ${benchmarkUnit}). ${meaning}`;
       if (result.benchmarkType === 'jif-unverified') {
         benchmarkDescription += ' Reporting year not supplied.';
       }
@@ -246,7 +249,7 @@
       lines.push('Citations Per Year (Now vs. Benchmark): not calculated; no verified journal metric entered or retrieved.');
     } else {
       lines.push(`Citations Per Year (Now vs. Benchmark): ${formatNumber(result.vsBenchmark)}`);
-      lines.push(`Benchmark: ${result.benchmarkName} (${formatNumber(result.benchmark)} citations per document or year, according to the named source).`);
+      lines.push(`Benchmark: ${result.benchmarkName} (value: ${formatNumber(result.benchmark)}).`);
       lines.push(`Interpretation: ${descriptions.benchmark}`);
       lines.push(`Benchmark source: ${result.benchmarkSource || 'Not specified'}.`);
     }
@@ -748,7 +751,7 @@
     const element = document.querySelector(`[data-citation-output="${name}"]`);
     if (!element) return;
     element.replaceChildren();
-    const boundary = description.indexOf('. ');
+    const boundary = description.search(/\.(?=\s+[A-Z])/);
     const parts = boundary >= 0
       ? [['Summary', description.slice(0, boundary + 1)], ['Interpretation', description.slice(boundary + 2)]]
       : [['Summary', description]];
