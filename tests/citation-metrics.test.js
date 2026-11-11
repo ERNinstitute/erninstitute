@@ -45,7 +45,7 @@ test('matches the existing Excel workbook example', () => {
   assert.match(report, /Citations Per Year \(Now\): 5\.00/);
   assert.match(report, /Now vs\. Lifetime\): 0\.50/);
   assert.match(report, /Now vs\. Benchmark\): 1\.67/);
-  assert.match(report, /ARTICLE DETAILS[\\s\\S]*RECENT CITATION RATE[\\s\\S]*LIFETIME COMPARISON[\\s\\S]*JOURNAL BENCHMARK[\\s\\S]*REPORTING INFORMATION/);
+  assert.match(report, /ARTICLE DETAILS[\s\S]*RECENT CITATION RATE[\s\S]*LIFETIME COMPARISON[\s\S]*JOURNAL BENCHMARK[\s\S]*REPORTING INFORMATION/);
   assert.match(report, /Citation source: Example database/);
   assert.match(report, /Self-citations: Included/);
 });
@@ -105,7 +105,7 @@ test('exact inclusive calendar-year windows determine the denominator and report
   assert.deepEqual(result.errors, []);
   assert.equal(result.recentYears, 2);
   assert.equal(result.now, 44.5);
-  assert.match(describeCitationResults(result).now, /during 2024–2025/);
+  assert.match(describeCitationResults(result).now, /During 2024–2025/);
   assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2025' }, 2026).errors.length);
   assert.ok(computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2026', endYear: '2027' }, 2026).errors.length);
   const partial = computeCitationMetrics({ recentCitations: '3', windowMode: 'calendar', startYear: '2025', endYear: '2026' }, 2026);
@@ -216,7 +216,7 @@ test('describes the displayed rates and ratios in plain language', () => {
   assert.deepEqual(result.errors, []);
   assert.equal(result.now, 44.5);
   const descriptions = describeCitationResults(result);
-  assert.match(descriptions.now, /during the selected 2-year period, this paper received 89 citations, averaging 44\.50 citations per year/);
+  assert.match(descriptions.now, /During the selected 2-year period, this paper received 89 citations, averaging 44\.50 citations per year/);
   assert.match(descriptions.lifetime, /200% above its lifetime average \(14\.82 citations per year\)/);
   assert.match(descriptions.lifetime, /attracting citations faster recently/);
   assert.match(descriptions.benchmark, /compares citation activity with a journal-level or other external benchmark/);
@@ -248,7 +248,7 @@ test('browser calculator includes all form fields and result targets', () => {
   assert.match(html, /class="citation-report-content"/);
   assert.match(html, /class="citation-result-note"/);
   assert.doesNotMatch(html, /<pre id="citation-metrics-report"/);
-  assert.ok(html.includes('href="styles.css?v=20261108simple"'));
+  assert.ok(html.includes('href="styles.css?v=20261111readable"'));
   assert.ok(html.indexOf('id="citation-doi"') < html.indexOf('id="citation-paper-title"'), 'DOI should be the first input');
   assert.match(html, /<details class="citation-manual-details" id="citation-manual-details">/, 'Manual entry should start collapsed');
   assert.ok(html.includes('id="citation-benchmark-details"'), 'Optional benchmark should have its own disclosure');
@@ -365,8 +365,8 @@ test('DOI calculator defaults to the last two completed calendar years', () => {
   assert.match(html, /last two completed calendar years/);
   assert.ok(html.includes('citation-metrics.js?v=20261111issn'));
   assert.match(html, /name="jifWindow"[^>]*aria-label="Journal Impact Factor time window"/);
-  assert.match(js, /const startYear = input.windowMode === 'calendar' \? Number\(input.startYear\) : currentYear - duration;/);
-  assert.match(js, /const endYear = input.windowMode === 'calendar' \? Number\(input.endYear\) : currentYear - 1;/);
+  assert.match(js, /const startYear = quickMode === 'current' \? currentYear - 1/);
+  assert.match(js, /const endYear = quickMode === 'current' \? currentYear/);
   assert.match(js, /recentCitations: '10', recentYears: '2', windowMode: 'duration'/);
   assert.match(js, /form.reset\(\)/);
   assert.match(js, /default is the last two completed calendar years/);
@@ -608,7 +608,7 @@ test('SCImago fetched fallback demands full official annual snapshot', async () 
   assert.match(code, /!cached && scimago && applyAutomaticBenchmark\(scimago\)/);
   const html = fs.readFileSync(path.join(__dirname, '..', 'metrics.html'), 'utf8');
   assert.match(html, /value="scimago-cpd2">SCImago Cites per Doc/);
-  assert.match(html, /citation-metrics\.js\?v=20261108scimago/);
+  assert.match(html, /citation-metrics\.js\?v=20261111issn/);
 });
 
 test('current-year citation window annualizes elapsed time and labels YTD', () => {
