@@ -173,7 +173,7 @@
       <fieldset>
         <div class="citation-fields">
           <div class="citation-field"><label for="citation-date">Date checked</label><input id="citation-date" name="checkedDate" type="date"/></div>
-          <div class="citation-field citation-field-full"><label for="citation-self">Self-citations</label><select id="citation-self" name="selfCitations"><option value="Not specified">Not specified</option><option value="Included">Included</option><option value="Excluded">Excluded</option></select></div>
+          <div class="citation-field citation-field-full"><label for="citation-self">Self-citations</label><select id="citation-self" name="selfCitations"><option value="Included" selected>Included (default)</option><option value="Excluded">Excluded</option></select><p class="citation-field-note">Citation counts include self-citations unless you specifically use counts that exclude them.</p></div>
         </div>
       </fieldset>
       </details>
@@ -309,7 +309,7 @@
 </div>
 
 <script src="navigation-dropdown.js"></script>
-<script src="citation-metrics.js?v=20261111issn"></script>
+<script src="citation-metrics.js?v=20261111selfcitations"></script>
 <script>
 document.getElementById("year").textContent = new Date().getFullYear();
 (function () {
