@@ -659,6 +659,17 @@ tr:last-child td {
   white-space: nowrap;
 }
 
+.news-item--workshop .news-journal + .news-journal {
+  margin-top: 0.65rem;
+}
+.news-workshop-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.2rem;
+  margin: 0.8rem 0 0;
+  font-size: 0.9rem;
+}
+
 .explore-section {
   padding-top: 2rem;
   padding-bottom: 2.75rem;
